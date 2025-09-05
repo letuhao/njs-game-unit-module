@@ -4,3 +4,7 @@ export * from './SizeUnitStrategyRegistry';
 export * from './CalculationStrategyRegistry';
 export * from './LogLevelStrategyRegistry';
 export * from './UnitTypeStrategyRegistry';
+export * from './PositionValueStrategyRegistry';
+export * from './ScaleValueStrategyRegistry';
+export * from './AxisUnitStrategyRegistry';
+export * from './DimensionStrategyRegistry';
