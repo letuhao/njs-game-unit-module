@@ -1,22 +1,20 @@
-// ISizeValueCalculationStrategy interface not found, using any for now
+import type { IScaleValueCalculationStrategy } from '../value-calculation/IScaleValueCalculationStrategy';
 import type { UnitContext } from '../../interfaces/IUnit';
-import { SizeValue } from '../../enums/SizeValue';
-import { SizeUnit } from '../../enums/SizeUnit';
-import { Dimension } from '../../enums/Dimension';
+import { ScaleValue } from '../../enums/ScaleValue';
+import { ScaleUnit } from '../../enums/ScaleUnit';
 import { DEFAULT_FALLBACK_VALUES } from '../../constants';
 
 /**
- * Pixel Size Value Calculation Strategy
- * Handles pixel-based size calculations
+ * Pixel Scale Value Calculation Strategy
+ * Handles pixel-based scale calculations
  * 
- * Note: This class focuses solely on size calculation logic. Logging concerns are handled
+ * Note: This class focuses solely on scale calculation logic. Logging concerns are handled
  * by decorators in the orchestration layer to maintain Single Responsibility Principle.
  */
-export class PixelSizeValueCalculationStrategy {
-  readonly strategyId = 'pixel-size-calculation';
-  readonly sizeValue = 'PIXEL' as any;
-  readonly sizeUnit = 'PIXEL' as any;
-  readonly dimension = Dimension.WIDTH;
+export class PixelScaleValueCalculationStrategy implements IScaleValueCalculationStrategy {
+  readonly strategyId = 'pixel-scale-calculation';
+  readonly scaleValue = ScaleValue.FACTOR;
+  readonly scaleUnit = ScaleUnit.FACTOR;
 
   private strategyStatistics = {
     totalCalculations: 0,
@@ -27,54 +25,45 @@ export class PixelSizeValueCalculationStrategy {
     calculationsByType: {} as Record<string, number>,
   };
 
-  public canHandle(
-    sizeValue: SizeValue | number,
-    _sizeUnit: SizeUnit,
-    _dimension: Dimension.WIDTH | Dimension.HEIGHT | Dimension.BOTH
-  ): boolean {
-    // Handle both numeric values and SizeValue.PIXEL enum
-    return (
-      typeof sizeValue === 'number' ||
-      (sizeValue === 'PIXEL' && _sizeUnit === 'PIXEL')
-    );
+  public canHandle(scaleValue: ScaleValue, scaleUnit: ScaleUnit): boolean {
+    return scaleValue === ScaleValue.FACTOR && scaleUnit === ScaleUnit.FACTOR;
   }
 
-  public calculate(
-    sizeValue: SizeValue | number,
-    _sizeUnit: SizeUnit,
-    _dimension: Dimension.WIDTH | Dimension.HEIGHT | Dimension.BOTH,
-    _context: UnitContext
-  ): number {
+  public calculate(scaleValue: ScaleValue, scaleUnit: ScaleUnit, _context: UnitContext): number {
     const startTime = performance.now();
     this.strategyStatistics.totalCalculations++;
 
     try {
-      if (!this.canHandle(sizeValue, _sizeUnit, _dimension)) {
-        throw new Error('Strategy cannot handle the given size value and unit');
+      if (!this.canHandle(scaleValue, scaleUnit)) {
+        throw new Error('Strategy cannot handle the given scale value and unit');
       }
 
       // For pixel values, return the value directly
-      if (typeof sizeValue === 'number') {
+      if (typeof scaleValue === 'number') {
         this.strategyStatistics.successfulCalculations++;
         this.updateStatistics(true, performance.now() - startTime, 'pixel');
-        return sizeValue;
+        return scaleValue;
       }
 
-      // For SizeValue.PIXEL enum, return default pixel value
-      if (sizeValue === 'PIXEL') {
+      // For string values, try to parse as number
+      if (typeof scaleValue === 'string') {
+        const parsed = Number(scaleValue);
+        if (isNaN(parsed)) {
+          throw new Error(`Invalid scale value: ${scaleValue}`);
+        }
         this.strategyStatistics.successfulCalculations++;
         this.updateStatistics(true, performance.now() - startTime, 'pixel');
-        return DEFAULT_FALLBACK_VALUES.SIZE;
+        return parsed;
       }
 
       // Default fallback
       this.strategyStatistics.successfulCalculations++;
       this.updateStatistics(true, performance.now() - startTime, 'pixel');
-      return DEFAULT_FALLBACK_VALUES.SIZE;
+      return DEFAULT_FALLBACK_VALUES.SCALE;
     } catch (error) {
       this.strategyStatistics.failedCalculations++;
       this.updateStatistics(false, performance.now() - startTime, 'pixel');
-      throw new Error(`Pixel size calculation failed: ${error}`);
+      throw new Error(`Pixel scale calculation failed: ${error}`);
     }
   }
 
@@ -121,17 +110,16 @@ export class PixelSizeValueCalculationStrategy {
 }
 
 /**
- * Percentage Size Value Calculation Strategy
- * Handles percentage-based size calculations
+ * Percentage Scale Value Calculation Strategy
+ * Handles percentage-based scale calculations
  * 
- * Note: This class focuses solely on size calculation logic. Logging concerns are handled
+ * Note: This class focuses solely on scale calculation logic. Logging concerns are handled
  * by decorators in the orchestration layer to maintain Single Responsibility Principle.
  */
-export class PercentageSizeValueCalculationStrategy {
-  readonly strategyId = 'percentage-size-calculation';
-  readonly sizeValue = 'PERCENTAGE' as any;
-  readonly sizeUnit = 'PERCENT' as any;
-  readonly dimension = Dimension.WIDTH;
+export class PercentageScaleValueCalculationStrategy implements IScaleValueCalculationStrategy {
+  readonly strategyId = 'percentage-scale-calculation';
+  readonly scaleValue = ScaleValue.PERCENTAGE;
+  readonly scaleUnit = ScaleUnit.PERCENTAGE;
 
   private strategyStatistics = {
     totalCalculations: 0,
@@ -142,40 +130,44 @@ export class PercentageSizeValueCalculationStrategy {
     calculationsByType: {} as Record<string, number>,
   };
 
-  public canHandle(
-    sizeValue: SizeValue | number,
-    _sizeUnit: SizeUnit,
-    _dimension: Dimension.WIDTH | Dimension.HEIGHT | Dimension.BOTH
-  ): boolean {
-    return sizeValue === 'PERCENTAGE' && _sizeUnit === 'PERCENT';
+  public canHandle(scaleValue: ScaleValue, scaleUnit: ScaleUnit): boolean {
+    return scaleValue === ScaleValue.PERCENTAGE && scaleUnit === ScaleUnit.PERCENTAGE;
   }
 
-  public calculate(
-    sizeValue: SizeValue | number,
-    _sizeUnit: SizeUnit,
-    _dimension: Dimension.WIDTH | Dimension.HEIGHT | Dimension.BOTH,
-    context: UnitContext
-  ): number {
+  public calculate(scaleValue: ScaleValue, scaleUnit: ScaleUnit, context: UnitContext): number {
     const startTime = performance.now();
     this.strategyStatistics.totalCalculations++;
 
     try {
-      if (!this.canHandle(sizeValue, _sizeUnit, _dimension)) {
-        throw new Error('Strategy cannot handle the given size value and unit');
+      if (!this.canHandle(scaleValue, scaleUnit)) {
+        throw new Error('Strategy cannot handle the given scale value and unit');
       }
 
-      // Convert percentage to pixel value
-      const percentage = typeof sizeValue === 'number' ? sizeValue : DEFAULT_FALLBACK_VALUES.SIZE;
-      const parentSize = context.parent?.width || 100; // Default parent width
-      const result = (percentage / 100) * parentSize;
+      // Convert percentage to factor
+      let percentage: number;
+      
+      if (typeof scaleValue === 'number') {
+        percentage = scaleValue;
+      } else if (typeof scaleValue === 'string') {
+        const parsed = Number(scaleValue);
+        if (isNaN(parsed)) {
+          throw new Error(`Invalid percentage value: ${scaleValue}`);
+        }
+        percentage = parsed;
+      } else {
+        throw new Error(`Unsupported scale value type: ${typeof scaleValue}`);
+      }
+
+      // Convert percentage to factor (divide by 100)
+      const factor = percentage / 100;
       
       this.strategyStatistics.successfulCalculations++;
       this.updateStatistics(true, performance.now() - startTime, 'percentage');
-      return result;
+      return factor;
     } catch (error) {
       this.strategyStatistics.failedCalculations++;
       this.updateStatistics(false, performance.now() - startTime, 'percentage');
-      throw new Error(`Percentage size calculation failed: ${error}`);
+      throw new Error(`Percentage scale calculation failed: ${error}`);
     }
   }
 
@@ -222,17 +214,16 @@ export class PercentageSizeValueCalculationStrategy {
 }
 
 /**
- * Viewport Size Value Calculation Strategy
- * Handles viewport-based size calculations
+ * Factor Scale Value Calculation Strategy
+ * Handles factor-based scale calculations
  * 
- * Note: This class focuses solely on size calculation logic. Logging concerns are handled
+ * Note: This class focuses solely on scale calculation logic. Logging concerns are handled
  * by decorators in the orchestration layer to maintain Single Responsibility Principle.
  */
-export class ViewportSizeValueCalculationStrategy {
-  readonly strategyId = 'viewport-size-calculation';
-  readonly sizeValue = 'VIEWPORT' as any;
-  readonly sizeUnit = 'VIEWPORT' as any;
-  readonly dimension = Dimension.WIDTH;
+export class FactorScaleValueCalculationStrategy implements IScaleValueCalculationStrategy {
+  readonly strategyId = 'factor-scale-calculation';
+  readonly scaleValue = ScaleValue.FACTOR;
+  readonly scaleUnit = ScaleUnit.FACTOR;
 
   private strategyStatistics = {
     totalCalculations: 0,
@@ -243,40 +234,45 @@ export class ViewportSizeValueCalculationStrategy {
     calculationsByType: {} as Record<string, number>,
   };
 
-  public canHandle(
-    sizeValue: SizeValue | number,
-    _sizeUnit: SizeUnit,
-    _dimension: Dimension.WIDTH | Dimension.HEIGHT | Dimension.BOTH
-  ): boolean {
-    return sizeValue === 'VIEWPORT' && _sizeUnit === 'VIEWPORT';
+  public canHandle(scaleValue: ScaleValue, scaleUnit: ScaleUnit): boolean {
+    return scaleValue === ScaleValue.FACTOR && scaleUnit === ScaleUnit.FACTOR;
   }
 
-  public calculate(
-    sizeValue: SizeValue | number,
-    _sizeUnit: SizeUnit,
-    _dimension: Dimension.WIDTH | Dimension.HEIGHT | Dimension.BOTH,
-    context: UnitContext
-  ): number {
+  public calculate(scaleValue: ScaleValue, scaleUnit: ScaleUnit, _context: UnitContext): number {
     const startTime = performance.now();
     this.strategyStatistics.totalCalculations++;
 
     try {
-      if (!this.canHandle(sizeValue, _sizeUnit, _dimension)) {
-        throw new Error('Strategy cannot handle the given size value and unit');
+      if (!this.canHandle(scaleValue, scaleUnit)) {
+        throw new Error('Strategy cannot handle the given scale value and unit');
       }
 
-      // Convert viewport value to pixel value
-      const viewportValue = typeof sizeValue === 'number' ? sizeValue : DEFAULT_FALLBACK_VALUES.SIZE;
-      const viewportWidth = context.viewport?.width || window.innerWidth || 1920;
-      const result = (viewportValue / 100) * viewportWidth;
-      
+      // For factor values, return the value directly
+      if (typeof scaleValue === 'number') {
+        this.strategyStatistics.successfulCalculations++;
+        this.updateStatistics(true, performance.now() - startTime, 'factor');
+        return scaleValue;
+      }
+
+      // For string values, try to parse as number
+      if (typeof scaleValue === 'string') {
+        const parsed = Number(scaleValue);
+        if (isNaN(parsed)) {
+          throw new Error(`Invalid factor value: ${scaleValue}`);
+        }
+        this.strategyStatistics.successfulCalculations++;
+        this.updateStatistics(true, performance.now() - startTime, 'factor');
+        return parsed;
+      }
+
+      // Default fallback
       this.strategyStatistics.successfulCalculations++;
-      this.updateStatistics(true, performance.now() - startTime, 'viewport');
-      return result;
+      this.updateStatistics(true, performance.now() - startTime, 'factor');
+      return DEFAULT_FALLBACK_VALUES.SCALE;
     } catch (error) {
       this.strategyStatistics.failedCalculations++;
-      this.updateStatistics(false, performance.now() - startTime, 'viewport');
-      throw new Error(`Viewport size calculation failed: ${error}`);
+      this.updateStatistics(false, performance.now() - startTime, 'factor');
+      throw new Error(`Factor scale calculation failed: ${error}`);
     }
   }
 
