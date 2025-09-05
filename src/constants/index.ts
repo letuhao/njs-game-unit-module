@@ -1,36 +1,26 @@
 /**
- * Default fallback values for the unit system
+ * Constants Index
+ * Centralized export of all constants organized by responsibility
  */
-export const DEFAULT_FALLBACK_VALUES = {
-  SIZE: {
-    DEFAULT: 100,
-    MIN: 1,
-    MAX: 10000
-  },
-  POSITION: {
-    DEFAULT: 0,
-    MIN: -10000,
-    MAX: 10000
-  },
-  SCALE: {
-    DEFAULT: 1,
-    MIN: 0.1,
-    MAX: 10
-  },
-  PERFORMANCE: {
-    ERROR_THRESHOLD: 100,
-    DEFAULT_MEMORY_LIMIT: 1000
-  }
-} as const;
 
-/**
- * Command constants for command management
- */
-export const COMMAND_CONSTANTS = {
-  HISTORY: {
-    DEFAULT_INDEX: -1
-  },
-  METRICS: {
-    MAX_EXECUTION_TIMES: 100
-  }
-} as const;
+// Calculation constants
+export * from './CalculationConstants';
+
+// Validation constants
+export * from './ValidationConstants';
+
+// Format constants
+export * from './FormatConstants';
+
+// Type constants
+export * from './TypeConstants';
+
+// Default values
+export * from './DefaultValues';
+
+// Re-export commonly used constants for backward compatibility
+export { DEFAULT_FALLBACK_VALUES } from './DefaultValues';
+export { VALIDATION_CONSTANTS } from './ValidationConstants';
+export { MATH_CONSTANTS } from './CalculationConstants';
+export { NUMBER_FORMAT_CONSTANTS } from './FormatConstants';
+export { UNIT_TYPE_CONSTANTS } from './TypeConstants';

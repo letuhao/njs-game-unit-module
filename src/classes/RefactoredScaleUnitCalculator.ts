@@ -4,12 +4,15 @@ import { ScaleUnit } from '../enums/ScaleUnit';
 import { ScaleValue } from '../enums/ScaleValue';
 import { UnitType } from '../enums/UnitType';
 import { DEFAULT_FALLBACK_VALUES } from '../constants';
-import { container } from '../container/DiContainer';
-import { TOKENS } from '../container/Tokens';
+import { ScaleValueCalculationStrategyRegistry } from '../strategies/value/ScaleValueCalculationStrategyRegistry';
 
 /**
  * Refactored ScaleUnitCalculator class
- * Uses strategy pattern and DI for better maintainability
+ * Uses Strategy Pattern instead of large switch statements
+ * Implements scale unit calculations for responsive scaling
+ * 
+ * Note: This class focuses solely on scale calculation logic. Logging concerns are handled
+ * by decorators in the orchestration layer to maintain Single Responsibility Principle.
  */
 export class RefactoredScaleUnitCalculator implements IScaleUnit {
   public readonly id: string;
@@ -20,7 +23,14 @@ export class RefactoredScaleUnitCalculator implements IScaleUnit {
   public readonly maintainAspectRatio: boolean;
   public readonly isActive: boolean = true;
 
-  private strategyRegistry: any;
+  private minScale?: number;
+  private maxScale?: number;
+  private readonly strategyRegistry: ScaleValueCalculationStrategyRegistry;
+  private performanceMetrics = {
+    totalCalculations: 0,
+    averageCalculationTime: 0,
+    strategyExecutions: 0,
+  };
 
   constructor(
     id: string,
@@ -28,216 +38,192 @@ export class RefactoredScaleUnitCalculator implements IScaleUnit {
     scaleUnit: ScaleUnit,
     baseValue: number | ScaleValue,
     maintainAspectRatio: boolean = false,
-    strategyRegistry?: any
+    strategyRegistry?: ScaleValueCalculationStrategyRegistry
   ) {
     this.id = id;
     this.name = name;
     this.scaleUnit = scaleUnit;
     this.baseValue = baseValue;
     this.maintainAspectRatio = maintainAspectRatio;
+
+    // Initialize strategy registry
+    this.strategyRegistry = strategyRegistry || new ScaleValueCalculationStrategyRegistry();
     
-    // Resolve strategy registry from DI container
-    this.strategyRegistry = strategyRegistry || container.resolve(TOKENS.SCALE_VALUE_STRATEGY_REGISTRY);
+    this.initializeStrategies();
   }
 
   /**
-   * Calculate the actual scale value based on context
+   * Calculate scale value using strategy pattern
    */
-  calculate(context: UnitContext): number {
-    return this.calculateScale(context);
-  }
-
-  /**
-   * Calculate scale based on context using strategy pattern
-   */
-  calculateScale(context: UnitContext): number {
-    // For numeric values, return directly
-    if (typeof this.baseValue === 'number') {
-      return this.baseValue;
-    }
-
-    // Use strategy pattern for ScaleValue enum
+  public calculate(context: UnitContext): number {
+    const startTime = performance.now();
+    
     try {
-      const strategy = this.strategyRegistry.getScaleValueStrategy(this.baseValue as ScaleValue);
-      if (strategy) {
-        return strategy(context);
+      if (!this.validate(context)) {
+        return this.getFallbackValue();
       }
+
+      // Get calculation from strategy registry
+      const result = this.strategyRegistry.executeStrategy(
+        this.baseValue as ScaleValue,
+        this.scaleUnit,
+        context
+      );
+
+      // Apply constraints
+      const constrainedResult = this.applyConstraints(result);
+
+      // Update performance metrics
+      this.updatePerformanceMetrics(startTime);
+
+      return constrainedResult;
     } catch (error) {
-      // Fallback to switch statement if strategy not available
-      return this.fallbackScaleValue(context);
+      // Return fallback value on error
+      return this.getFallbackValue();
     }
-
-    return DEFAULT_FALLBACK_VALUES.SCALE.DEFAULT;
   }
 
   /**
-   * Fallback scale value calculation when strategy is not available
+   * Validate the calculator configuration and context
    */
-  private fallbackScaleValue(context: UnitContext): number {
-    if (this.baseValue && Object.values(ScaleValue).includes(this.baseValue as ScaleValue)) {
-      switch (this.baseValue as ScaleValue) {
-        case ScaleValue.FILL:
-          return this.calculateFillScale(context);
-        case ScaleValue.FIT:
-          return this.calculateFitScale(context);
-        case ScaleValue.COVER:
-          return this.calculateCoverScale(context);
-        case ScaleValue.CONTAIN:
-          return this.calculateContainScale(context);
-        case ScaleValue.STRETCH:
-          return this.calculateStretchScale(context);
-        case ScaleValue.CENTER:
-          return this.calculateCenterScale(context);
-        case ScaleValue.TOP:
-          return this.calculateTopScale(context);
-        case ScaleValue.BOTTOM:
-          return this.calculateBottomScale(context);
-        case ScaleValue.LEFT:
-          return this.calculateLeftScale(context);
-        case ScaleValue.RIGHT:
-          return this.calculateRightScale(context);
-        case ScaleValue.AUTO:
-          return this.calculateAutoScale(context);
-        default:
-          return DEFAULT_FALLBACK_VALUES.SCALE.DEFAULT;
+  public validate(context: UnitContext): boolean {
+    if (!context) {
+      return false;
+    }
+
+    // Validate context properties
+    if (!context.parent && !context.scene && !context.viewport) {
+      return false;
+    }
+
+    // Validate scale-specific requirements
+    if (this.scaleUnit === ScaleUnit.FACTOR) {
+      // Factor scaling requires parent dimensions
+      if (!context.parent?.width || !context.parent?.height) {
+        return false;
       }
     }
-    return DEFAULT_FALLBACK_VALUES.SCALE.DEFAULT;
-  }
 
-  /**
-   * Check if the unit is responsive
-   */
-  isResponsive(): boolean {
-    return typeof this.baseValue !== 'number';
-  }
-
-  /**
-   * Validate unit in given context
-   */
-  validate(context: UnitContext): boolean {
-    if (typeof this.baseValue === 'number') {
-      return true; // Numeric values are always valid
+    if (this.scaleUnit === ScaleUnit.PERCENTAGE) {
+      // Percentage scaling requires viewport dimensions
+      if (!context.viewport?.width || !context.viewport?.height) {
+        return false;
+      }
     }
 
-    // Check if the baseValue requires specific context
-    if (this.baseValue === ScaleValue.FILL || this.baseValue === ScaleValue.FIT) {
-      return !!(context.parent || context.scene);
-    }
     return true;
   }
 
   /**
-   * Get string representation
+   * Check if the calculator is responsive to context changes
    */
-  toString(): string {
-    return `RefactoredScaleUnitCalculator(${this.name}, ${this.scaleUnit})`;
+  public isResponsive(): boolean {
+    return this.scaleUnit !== ScaleUnit.FACTOR;
   }
 
   /**
-   * Clone the unit with optional modifications
+   * Get performance metrics
    */
-  clone(overrides?: Partial<IScaleUnit>): RefactoredScaleUnitCalculator {
-    const cloned = new RefactoredScaleUnitCalculator(
-      this.id,
-      this.name,
+  public getPerformanceMetrics() {
+    return { ...this.performanceMetrics };
+  }
+
+  /**
+   * Clear performance metrics
+   */
+  public clearPerformanceMetrics(): void {
+    this.performanceMetrics = {
+      totalCalculations: 0,
+      averageCalculationTime: 0,
+      strategyExecutions: 0,
+    };
+  }
+
+  /**
+   * Set scale constraints
+   */
+  public setScaleConstraints(minScale?: number, maxScale?: number): void {
+    this.minScale = minScale;
+    this.maxScale = maxScale;
+  }
+
+  /**
+   * Get scale constraints
+   */
+  public getScaleConstraints() {
+    return {
+      minScale: this.minScale,
+      maxScale: this.maxScale,
+    };
+  }
+
+  /**
+   * Clone the calculator with optional overrides
+   */
+  public clone(overrides?: Partial<IScaleUnit>): IScaleUnit {
+    return new RefactoredScaleUnitCalculator(
+      overrides?.id || this.id,
+      overrides?.name || this.name,
       this.scaleUnit,
       this.baseValue,
       this.maintainAspectRatio,
       this.strategyRegistry
     );
-    return cloned;
-  }
-
-  // Scale calculation methods
-  private calculateFillScale(context: UnitContext): number {
-    if (context.parent) {
-      return Math.min(
-        context.parent.width / (context.content?.width || 1),
-        context.parent.height / (context.content?.height || 1)
-      );
-    }
-    return DEFAULT_FALLBACK_VALUES.SCALE.DEFAULT;
-  }
-
-  private calculateFitScale(context: UnitContext): number {
-    if (context.parent && context.content) {
-      const scaleX = context.parent.width / context.content.width;
-      const scaleY = context.parent.height / context.content.height;
-      return Math.min(scaleX, scaleY);
-    }
-    return DEFAULT_FALLBACK_VALUES.SCALE.DEFAULT;
-  }
-
-  private calculateCoverScale(context: UnitContext): number {
-    if (context.parent && context.content) {
-      const scaleX = context.parent.width / context.content.width;
-      const scaleY = context.parent.height / context.content.height;
-      return Math.max(scaleX, scaleY);
-    }
-    return DEFAULT_FALLBACK_VALUES.SCALE.DEFAULT;
-  }
-
-  private calculateContainScale(context: UnitContext): number {
-    if (context.parent && context.content) {
-      const scaleX = context.parent.width / context.content.width;
-      const scaleY = context.parent.height / context.content.height;
-      return Math.min(scaleX, scaleY);
-    }
-    return DEFAULT_FALLBACK_VALUES.SCALE.DEFAULT;
-  }
-
-  private calculateStretchScale(context: UnitContext): number {
-    if (context.parent && context.content) {
-      const scaleX = context.parent.width / context.content.width;
-      const scaleY = context.parent.height / context.content.height;
-      return this.maintainAspectRatio ? Math.min(scaleX, scaleY) : scaleX;
-    }
-    return DEFAULT_FALLBACK_VALUES.SCALE.DEFAULT;
-  }
-
-  private calculateCenterScale(context: UnitContext): number {
-    return DEFAULT_FALLBACK_VALUES.SCALE.DEFAULT;
-  }
-
-  private calculateTopScale(context: UnitContext): number {
-    return DEFAULT_FALLBACK_VALUES.SCALE.DEFAULT;
-  }
-
-  private calculateBottomScale(context: UnitContext): number {
-    return DEFAULT_FALLBACK_VALUES.SCALE.DEFAULT;
-  }
-
-  private calculateLeftScale(context: UnitContext): number {
-    return DEFAULT_FALLBACK_VALUES.SCALE.DEFAULT;
-  }
-
-  private calculateRightScale(context: UnitContext): number {
-    return DEFAULT_FALLBACK_VALUES.SCALE.DEFAULT;
-  }
-
-  private calculateAutoScale(context: UnitContext): number {
-    if (context.content) {
-      return Math.min(
-        (context.parent?.width || 800) / context.content.width,
-        (context.parent?.height || 600) / context.content.height
-      );
-    }
-    return DEFAULT_FALLBACK_VALUES.SCALE.DEFAULT;
   }
 
   /**
-   * Get scale information for debugging
+   * String representation
    */
-  getScaleInfo(): {
-    scaleUnit: ScaleUnit;
-    maintainAspectRatio: boolean;
-    isResponsive: boolean;
-  } {
-    return {
-      scaleUnit: this.scaleUnit,
-      maintainAspectRatio: this.maintainAspectRatio,
-      isResponsive: this.isResponsive(),
-    };
+  public toString(): string {
+    return `RefactoredScaleUnitCalculator(${this.id})`;
+  }
+
+  /**
+   * Initialize strategies in the registry
+   */
+  private initializeStrategies(): void {
+    // This would typically register all available strategies
+    // For now, we'll assume they're already registered
+  }
+
+  /**
+   * Apply scale constraints
+   */
+  private applyConstraints(value: number): number {
+    if (this.minScale !== undefined && value < this.minScale) {
+      return this.minScale;
+    }
+    
+    if (this.maxScale !== undefined && value > this.maxScale) {
+      return this.maxScale;
+    }
+    
+    return value;
+  }
+
+  /**
+   * Get fallback value
+   */
+  private getFallbackValue(): number {
+    if (typeof this.baseValue === 'number') {
+      return this.baseValue;
+    }
+    
+    return DEFAULT_FALLBACK_VALUES.SCALE;
+  }
+
+  /**
+   * Update performance metrics
+   */
+  private updatePerformanceMetrics(startTime: number): void {
+    const endTime = performance.now();
+    const calculationTime = endTime - startTime;
+    
+    this.performanceMetrics.totalCalculations++;
+    this.performanceMetrics.strategyExecutions++;
+    
+    // Update average calculation time
+    const totalTime = this.performanceMetrics.averageCalculationTime * (this.performanceMetrics.totalCalculations - 1);
+    this.performanceMetrics.averageCalculationTime = (totalTime + calculationTime) / this.performanceMetrics.totalCalculations;
   }
 }

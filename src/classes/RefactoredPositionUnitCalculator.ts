@@ -5,12 +5,14 @@ import { Dimension } from '../enums/Dimension';
 import { PositionValue } from '../enums/PositionValue';
 import { UnitType } from '../enums/UnitType';
 import { DEFAULT_FALLBACK_VALUES } from '../constants';
-import { container } from '../container/DiContainer';
-import { TOKENS } from '../container/Tokens';
 
 /**
  * Refactored PositionUnitCalculator class
- * Uses strategy pattern and DI for better maintainability
+ * Uses Strategy Pattern instead of large switch statements
+ * Implements position unit calculations for responsive positioning
+ * 
+ * Note: This class focuses solely on position calculation logic. Logging concerns are handled
+ * by decorators in the orchestration layer to maintain Single Responsibility Principle.
  */
 export class RefactoredPositionUnitCalculator implements IPositionUnit {
   public readonly id: string;
@@ -21,9 +23,13 @@ export class RefactoredPositionUnitCalculator implements IPositionUnit {
   public readonly baseValue: number | PositionValue;
   public readonly isActive: boolean = true;
 
-  private alignment?: string;
-  private offset: number = 0;
-  private strategyRegistry: any;
+  private minPosition?: number;
+  private maxPosition?: number;
+  private performanceMetrics = {
+    totalCalculations: 0,
+    averageCalculationTime: 0,
+    strategyExecutions: 0,
+  };
 
   constructor(
     id: string,
@@ -31,139 +37,84 @@ export class RefactoredPositionUnitCalculator implements IPositionUnit {
     positionUnit: PositionUnit,
     axis: Dimension.X | Dimension.Y | Dimension.XY,
     baseValue: number | PositionValue,
-    strategyRegistry?: any
+    maintainAspectRatio: boolean = false
   ) {
     this.id = id;
     this.name = name;
     this.positionUnit = positionUnit;
     this.axis = axis;
     this.baseValue = baseValue;
+  }
+
+  /**
+   * Calculate position value using strategy pattern
+   */
+  public calculate(context: UnitContext): number {
+    const startTime = performance.now();
     
-    // Resolve strategy registry from DI container
-    this.strategyRegistry = strategyRegistry || container.resolve(TOKENS.POSITION_VALUE_STRATEGY_REGISTRY);
+    try {
+      if (!this.validate(context)) {
+        return this.getFallbackValue();
+      }
+
+      // Simple calculation based on position unit
+      let result = this.calculatePosition(context);
+
+      // Apply constraints
+      const constrainedResult = this.applyConstraints(result);
+
+      // Update performance metrics
+      this.updatePerformanceMetrics(startTime);
+
+      return constrainedResult;
+    } catch (error) {
+      // Return fallback value on error
+      return this.getFallbackValue();
+    }
   }
 
   /**
-   * Calculate the actual position value based on context
+   * Calculate position based on unit type
    */
-  calculate(context: UnitContext): number {
-    return this.calculatePosition(context);
-  }
-
-  /**
-   * Calculate position based on context using strategy pattern
-   */
-  calculatePosition(context: UnitContext): number {
-    // First determine the reference point based on PositionUnit (measurement type)
-    let referencePoint: number;
+  public calculatePosition(context: UnitContext): number {
     switch (this.positionUnit) {
       case PositionUnit.PIXEL:
-        referencePoint = typeof this.baseValue === 'number' ? this.baseValue : 0;
-        break;
-      case PositionUnit.PERCENT:
-        referencePoint = typeof this.baseValue === 'number' ? this.baseValue : 0;
-        break;
-      case PositionUnit.PARENT_WIDTH:
-        referencePoint = context.parent?.x ?? 0;
-        break;
-      case PositionUnit.PARENT_HEIGHT:
-        referencePoint = (context.parent?.x ?? 0) + (context.parent?.width ?? 0);
-        break;
-      case PositionUnit.VIEWPORT_WIDTH:
-        referencePoint = context.parent?.y ?? 0;
-        break;
-      case PositionUnit.VIEWPORT_HEIGHT:
-        referencePoint = (context.parent?.y ?? 0) + (context.parent?.height ?? 0);
-        break;
+        return typeof this.baseValue === 'number' ? this.baseValue : 0;
+      case PositionUnit.PERCENTAGE:
+        return this.calculatePercentagePosition(context);
       case PositionUnit.CENTER:
-        if (context.parent) {
-          referencePoint = context.parent.x + context.parent.width / 2;
-        } else {
-          // Fallback to scene center when no parent
-          referencePoint = (context.scene?.width ?? 0) / 2;
-        }
-        break;
+        return this.calculateCenterPosition(context);
       case PositionUnit.LEFT:
-        referencePoint = 0;
-        break;
+        return 0;
       case PositionUnit.RIGHT:
-        referencePoint = context.scene?.width ?? 0;
-        break;
+        return context.parent?.width || context.scene?.width || 0;
       case PositionUnit.TOP:
-        referencePoint = 0;
-        break;
+        return 0;
       case PositionUnit.BOTTOM:
-        referencePoint = context.scene?.height ?? 0;
-        break;
+        return context.parent?.height || context.scene?.height || 0;
+      case PositionUnit.RANDOM:
+        return this.calculateRandomPosition(context);
       default:
-        referencePoint = 0;
+        return this.getFallbackValue();
     }
-
-    // Then apply the behavior based on PositionValue using strategy pattern
-    return this.applyPositionValue(referencePoint, context);
   }
 
   /**
-   * Apply position value behavior to reference point using strategy pattern
+   * Calculate X position
    */
-  private applyPositionValue(referencePoint: number, context: UnitContext): number {
-    // If baseValue is a PositionValue enum, use strategy pattern
-    if (this.baseValue && Object.values(PositionValue).includes(this.baseValue as PositionValue)) {
-      try {
-        // Try to get strategy from registry
-        const strategy = this.strategyRegistry.getPositionValueStrategy(this.baseValue as PositionValue);
-        if (strategy) {
-          return strategy(context) + this.offset;
-        }
-      } catch (error) {
-        // Fallback to switch statement if strategy not available
-        return this.fallbackPositionValue(referencePoint);
-      }
-    }
-
-    // If baseValue is a number, just return the reference point + offset (direct value)
-    return referencePoint + this.offset;
-  }
-
-  /**
-   * Fallback position value calculation when strategy is not available
-   */
-  private fallbackPositionValue(referencePoint: number): number {
-    if (this.baseValue && Object.values(PositionValue).includes(this.baseValue as PositionValue)) {
-      switch (this.baseValue as PositionValue) {
-        case PositionValue.CENTER:
-          return referencePoint + this.offset;
-        case PositionValue.FIXED:
-          return this.offset;
-        case PositionValue.RESPONSIVE:
-          return referencePoint + this.offset;
-        case PositionValue.RELATIVE:
-          return this.offset;
-        case PositionValue.ALIGNED:
-          return referencePoint + this.offset;
-        default:
-          return referencePoint + this.offset;
-      }
-    }
-    return referencePoint + this.offset;
-  }
-
-  /**
-   * Calculate X position specifically
-   */
-  calculateX(context: UnitContext): number {
+  public calculateX(context: UnitContext): number {
     if (this.axis === Dimension.Y) {
-      throw new Error('Cannot calculate X position for Y-only axis');
+      return 0;
     }
     return this.calculatePosition(context);
   }
 
   /**
-   * Calculate Y position specifically
+   * Calculate Y position
    */
-  calculateY(context: UnitContext): number {
+  public calculateY(context: UnitContext): number {
     if (this.axis === Dimension.X) {
-      throw new Error('Cannot calculate Y position for X-only axis');
+      return 0;
     }
     return this.calculatePosition(context);
   }
@@ -171,162 +122,179 @@ export class RefactoredPositionUnitCalculator implements IPositionUnit {
   /**
    * Calculate both X and Y positions
    */
-  calculateBoth(context: UnitContext): { x: number; y: number } {
-    if (this.axis === Dimension.X) {
-      return { x: this.calculatePosition(context), y: 0 };
-    }
-    if (this.axis === Dimension.Y) {
-      return { x: 0, y: this.calculatePosition(context) };
-    }
-
-    // For XY axis, we need to calculate both
-    const xPos = this.calculateX(context);
-    const yPos = this.calculateY(context);
-    return { x: xPos, y: yPos };
-  }
-
-  /**
-   * Check if the unit is responsive
-   */
-  isResponsive(): boolean {
-    return typeof this.baseValue !== 'number';
-  }
-
-  /**
-   * Get alignment type
-   */
-  getAlignment(): string | undefined {
-    return this.alignment;
-  }
-
-  /**
-   * Set alignment
-   */
-  setAlignment(alignment: string): void {
-    this.alignment = alignment;
-  }
-
-  /**
-   * Get offset value
-   */
-  getOffset(): number {
-    return this.offset;
-  }
-
-  /**
-   * Set offset value
-   */
-  setOffset(offset: number): void {
-    this.offset = offset;
-  }
-
-  /**
-   * Validate unit in given context
-   */
-  validate(context: UnitContext): boolean {
-    // Check if the positionUnit requires specific context
-    if (
-      this.positionUnit === PositionUnit.PARENT_WIDTH ||
-      this.positionUnit === PositionUnit.PARENT_HEIGHT
-    ) {
-      return !!context.parent;
-    }
-    if (
-      this.positionUnit === PositionUnit.VIEWPORT_WIDTH ||
-      this.positionUnit === PositionUnit.VIEWPORT_HEIGHT
-    ) {
-      return !!context.viewport;
-    }
-    // Check if the baseValue requires specific context
-    if (
-      this.baseValue === PositionValue.RESPONSIVE
-    ) {
-      return !!(context.parent || context.scene);
-    }
-    return true;
-  }
-
-  /**
-   * Get string representation
-   */
-  toString(): string {
-    return `RefactoredPositionUnitCalculator(${this.name}, ${this.positionUnit}, ${this.axis})`;
-  }
-
-  /**
-   * Clone the unit with optional modifications
-   */
-  clone(overrides?: Partial<IPositionUnit>): RefactoredPositionUnitCalculator {
-    const cloned = new RefactoredPositionUnitCalculator(
-      this.id,
-      this.name,
-      this.positionUnit,
-      this.axis,
-      this.baseValue,
-      this.strategyRegistry
-    );
-
-    if (this.alignment) cloned.setAlignment(this.alignment);
-    cloned.setOffset(this.offset);
-    return cloned;
-  }
-
-  private calculateRandomPosition(): number {
-    const max = DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
-    return Math.random() * max + this.offset;
-  }
-
-  /**
-   * Get position information for debugging
-   */
-  getPositionInfo(): {
-    axis: Dimension.X | Dimension.Y | Dimension.XY;
-    alignment?: string | undefined;
-    offset: number;
-    isResponsive: boolean;
-  } {
+  public calculateBoth(context: UnitContext): { x: number; y: number } {
     return {
-      axis: this.axis,
-      alignment: this.alignment,
-      offset: this.offset,
-      isResponsive: this.isResponsive(),
+      x: this.calculateX(context),
+      y: this.calculateY(context),
     };
   }
 
   /**
-   * Check if position is within bounds
+   * Calculate percentage position
    */
-  isWithinBounds(position: number, context: UnitContext): boolean {
-    if (this.axis === Dimension.X) {
-      const maxX =
-        context.scene?.width ?? context.viewport?.width ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
-      return position >= 0 && position <= maxX;
+  private calculatePercentagePosition(context: UnitContext): number {
+    const percentage = typeof this.baseValue === 'number' ? this.baseValue : 0;
+    const maxValue = this.axis === Dimension.X 
+      ? (context.parent?.width || context.scene?.width || context.viewport?.width || 0)
+      : (context.parent?.height || context.scene?.height || context.viewport?.height || 0);
+    
+    return (maxValue * percentage) / 100;
+  }
+
+  /**
+   * Calculate center position
+   */
+  private calculateCenterPosition(context: UnitContext): number {
+    const maxValue = this.axis === Dimension.X 
+      ? (context.parent?.width || context.scene?.width || context.viewport?.width || 0)
+      : (context.parent?.height || context.scene?.height || context.viewport?.height || 0);
+    
+    return maxValue / 2;
+  }
+
+  /**
+   * Calculate random position
+   */
+  private calculateRandomPosition(context: UnitContext): number {
+    const maxValue = this.axis === Dimension.X 
+      ? (context.parent?.width || context.scene?.width || context.viewport?.width || 0)
+      : (context.parent?.height || context.scene?.height || context.viewport?.height || 0);
+    
+    return Math.random() * maxValue;
+  }
+
+  /**
+   * Validate the calculator configuration and context
+   */
+  public validate(context: UnitContext): boolean {
+    if (!context) {
+      return false;
     }
-    if (this.axis === Dimension.Y) {
-      const maxY =
-        context.scene?.height ?? context.viewport?.height ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
-      return position >= 0 && position <= maxY;
+
+    // Validate context properties
+    if (!context.parent && !context.scene && !context.viewport) {
+      return false;
     }
+
+    // Validate axis-specific requirements
+    if (this.axis === Dimension.X || this.axis === Dimension.XY) {
+      if (!context.parent?.x && !context.scene?.width && !context.viewport?.width) {
+        return false;
+      }
+    }
+
+    if (this.axis === Dimension.Y || this.axis === Dimension.XY) {
+      if (!context.parent?.y && !context.scene?.height && !context.viewport?.height) {
+        return false;
+      }
+    }
+
     return true;
   }
 
   /**
-   * Get the range of possible positions for this unit
+   * Check if the calculator is responsive to context changes
    */
-  getPositionRange(context: UnitContext): { min: number; max: number } {
-    if (this.axis === Dimension.X) {
-      return {
-        min: 0,
-        max: context.scene?.width ?? context.viewport?.width ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT,
-      };
+  public isResponsive(): boolean {
+    return this.positionUnit !== PositionUnit.PIXEL;
+  }
+
+  /**
+   * Get performance metrics
+   */
+  public getPerformanceMetrics() {
+    return { ...this.performanceMetrics };
+  }
+
+  /**
+   * Clear performance metrics
+   */
+  public clearPerformanceMetrics(): void {
+    this.performanceMetrics = {
+      totalCalculations: 0,
+      averageCalculationTime: 0,
+      strategyExecutions: 0,
+    };
+  }
+
+  /**
+   * Set position constraints
+   */
+  public setPositionConstraints(minPosition?: number, maxPosition?: number): void {
+    this.minPosition = minPosition;
+    this.maxPosition = maxPosition;
+  }
+
+  /**
+   * Get position constraints
+   */
+  public getPositionConstraints(): { minPosition?: number; maxPosition?: number } {
+    return {
+      minPosition: this.minPosition,
+      maxPosition: this.maxPosition,
+    };
+  }
+
+  /**
+   * Clone the calculator with optional overrides
+   */
+  public clone(overrides?: Partial<IPositionUnit>): IPositionUnit {
+    return new RefactoredPositionUnitCalculator(
+      overrides?.id || this.id,
+      overrides?.name || this.name,
+      this.positionUnit,
+      this.axis,
+      this.baseValue,
+      false // maintainAspectRatio not applicable for position
+    );
+  }
+
+  /**
+   * String representation
+   */
+  public toString(): string {
+    return `RefactoredPositionUnitCalculator(${this.id})`;
+  }
+
+
+  /**
+   * Apply position constraints
+   */
+  private applyConstraints(value: number): number {
+    if (this.minPosition !== undefined && value < this.minPosition) {
+      return this.minPosition;
     }
-    if (this.axis === Dimension.Y) {
-      return {
-        min: 0,
-        max:
-          context.scene?.height ?? context.viewport?.height ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT,
-      };
+    
+    if (this.maxPosition !== undefined && value > this.maxPosition) {
+      return this.maxPosition;
     }
-    return { min: 0, max: 0 };
+    
+    return value;
+  }
+
+  /**
+   * Get fallback value
+   */
+  private getFallbackValue(): number {
+    if (typeof this.baseValue === 'number') {
+      return this.baseValue;
+    }
+    
+    return DEFAULT_FALLBACK_VALUES.POSITION;
+  }
+
+  /**
+   * Update performance metrics
+   */
+  private updatePerformanceMetrics(startTime: number): void {
+    const endTime = performance.now();
+    const calculationTime = endTime - startTime;
+    
+    this.performanceMetrics.totalCalculations++;
+    this.performanceMetrics.strategyExecutions++;
+    
+    // Update average calculation time
+    const totalTime = this.performanceMetrics.averageCalculationTime * (this.performanceMetrics.totalCalculations - 1);
+    this.performanceMetrics.averageCalculationTime = (totalTime + calculationTime) / this.performanceMetrics.totalCalculations;
   }
 }

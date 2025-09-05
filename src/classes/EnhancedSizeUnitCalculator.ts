@@ -5,13 +5,21 @@ import { Dimension } from '../enums/Dimension';
 import { SizeValue } from '../enums/SizeValue';
 import { UnitType } from '../enums/UnitType';
 import { DEFAULT_FALLBACK_VALUES } from '../constants';
-import { container, TOKENS } from '../container';
-import { logger } from '../core/Logger';
+import { SizeValueCalculationStrategyRegistry } from '../strategies/value/SizeValueCalculationStrategyRegistry';
+import { StrategyCache } from '../strategies/cache/StrategyCache';
+import {
+  WeightedAverageSizeComposer,
+  PriorityBasedSizeComposer,
+  AdaptiveSizeComposer,
+} from '../strategies/composition/SizeStrategyComposers';
 
 /**
  * Enhanced SizeUnitCalculator class
  * Integrates Strategy Pattern, Composition, and Caching for maximum performance
  * Provides advanced features like strategy chaining, result caching, and performance monitoring
+ * 
+ * Note: This class focuses solely on size calculation logic. Logging concerns are handled
+ * by decorators in the orchestration layer to maintain Single Responsibility Principle.
  */
 export class EnhancedSizeUnitCalculator implements ISizeUnit {
   public readonly id: string;
@@ -25,10 +33,11 @@ export class EnhancedSizeUnitCalculator implements ISizeUnit {
 
   private minSize?: number;
   private maxSize?: number;
-  private readonly strategyRegistry: any;
-  private readonly cache: any;
-  private readonly composers: any[];
-  private readonly logger = logger;
+  private readonly strategyRegistry: SizeValueCalculationStrategyRegistry;
+  private readonly cache: StrategyCache<SizeValue, SizeUnit, number>;
+  private readonly composers: Array<
+    WeightedAverageSizeComposer | PriorityBasedSizeComposer | AdaptiveSizeComposer
+  >;
   private performanceMetrics = {
     totalCalculations: 0,
     cacheHits: 0,
@@ -44,9 +53,11 @@ export class EnhancedSizeUnitCalculator implements ISizeUnit {
     dimension: Dimension.WIDTH | Dimension.HEIGHT | Dimension.BOTH,
     baseValue: number | SizeValue,
     maintainAspectRatio: boolean = false,
-    strategyRegistry?: any,
-    enableCaching: boolean = true,
-    enableComposition: boolean = true
+    strategyRegistry?: SizeValueCalculationStrategyRegistry,
+    cache?: StrategyCache<SizeValue, SizeUnit, number>,
+    composers?: Array<
+      WeightedAverageSizeComposer | PriorityBasedSizeComposer | AdaptiveSizeComposer
+    >
   ) {
     this.id = id;
     this.name = name;
@@ -55,425 +66,243 @@ export class EnhancedSizeUnitCalculator implements ISizeUnit {
     this.baseValue = baseValue;
     this.maintainAspectRatio = maintainAspectRatio;
 
-    // Resolve dependencies from DI container
-    this.strategyRegistry = strategyRegistry || container.resolve(TOKENS.SIZE_VALUE_STRATEGY_REGISTRY);
-    this.cache = enableCaching
-      ? container.resolve(TOKENS.STRATEGY_CACHE)
-      : { get: () => null, set: () => {}, clear: () => {} };
+    // Initialize strategy registry
+    this.strategyRegistry = strategyRegistry || new SizeValueCalculationStrategyRegistry();
+    
+    // Initialize cache
+    this.cache = cache || new StrategyCache<SizeValue, SizeUnit, number>();
+    
+    // Initialize composers
+    this.composers = composers || [
+      new WeightedAverageSizeComposer(),
+      new PriorityBasedSizeComposer(),
+      new AdaptiveSizeComposer(),
+    ];
 
-    // Initialize composers if enabled
-    this.composers = enableComposition ? [] : []; // Composers will be resolved from DI when needed
-
-    this.logger.debug(
-      'EnhancedSizeUnitCalculator',
-      'constructor',
-      'Enhanced calculator initialized',
-      {
-        id,
-        name,
-        enableCaching,
-        enableComposition,
-        composersCount: this.composers.length,
-      }
-    );
+    this.initializeStrategies();
   }
 
   /**
-   * Calculate the actual size value based on context with enhanced features
+   * Calculate size value using enhanced strategy pattern with composition and caching
    */
-  calculate(context: UnitContext): number {
+  public calculate(context: UnitContext): number {
     const startTime = performance.now();
-
+    
     try {
-      // For numeric values, apply constraints directly
-      if (typeof this.baseValue === 'number') {
-        const result = this.applyConstraints(this.baseValue);
-        this.recordCalculation(performance.now() - startTime, false);
-        return result;
+      // Check cache first
+      const cacheKey = this.createCacheKey(context);
+      const cachedResult = this.cache.get(cacheKey);
+      
+      if (cachedResult !== undefined) {
+        this.performanceMetrics.cacheHits++;
+        return cachedResult;
       }
 
-      // Check cache first (only for SizeValue types)
-      if (typeof this.baseValue !== 'number') {
-        const cachedResult = this.cache.get(this.baseValue, this.sizeUnit, context);
-        if (cachedResult !== null) {
-          this.performanceMetrics.cacheHits++;
-          this.recordCalculation(performance.now() - startTime, true);
+      this.performanceMetrics.cacheMisses++;
 
-          this.logger.debug('EnhancedSizeUnitCalculator', 'calculate', 'Cache hit', {
-            id: this.id,
-            baseValue: this.baseValue,
-            result: cachedResult,
-          });
+      // Get base calculation from strategy registry
+      const baseResult = this.strategyRegistry.executeStrategy(
+        this.baseValue as SizeValue,
+        this.sizeUnit,
+        context
+      );
 
-          return cachedResult;
+      // Apply composition strategies
+      let finalResult = baseResult;
+      for (const composer of this.composers) {
+        if (composer.canCompose(this.baseValue as SizeValue, this.sizeUnit, context)) {
+          finalResult = composer.compose(finalResult, this.baseValue as SizeValue, this.sizeUnit, context);
+          this.performanceMetrics.strategyCompositions++;
         }
-
-        this.performanceMetrics.cacheMisses++;
-
-        // Use composition if available and multiple strategies can handle
-        const applicableStrategies = this.strategyRegistry.getStrategiesFor(
-          this.baseValue,
-          this.sizeUnit,
-          this.dimension
-        );
-
-        if (this.composers.length > 0 && applicableStrategies.length > 1) {
-          const result = this.calculateWithComposition(context, applicableStrategies);
-          this.cache.set(this.baseValue, this.sizeUnit, context, result);
-          this.recordCalculation(performance.now() - startTime, false);
-          return result;
-        }
-
-        // Fallback to single strategy
-        const strategy = this.strategyRegistry.getBestStrategy(
-          this.baseValue,
-          this.sizeUnit,
-          this.dimension
-        );
-
-        if (strategy) {
-          this.logger.debug('EnhancedSizeUnitCalculator', 'calculate', 'Using single strategy', {
-            id: this.id,
-            strategyId: strategy.strategyId,
-            baseValue: this.baseValue,
-          });
-
-          if (!strategy.validateContext(context)) {
-            this.logger.warn(
-              'EnhancedSizeUnitCalculator',
-              'calculate',
-              'Context validation failed',
-              {
-                id: this.id,
-                strategyId: strategy.strategyId,
-              }
-            );
-            const fallbackResult = this.applyConstraints(DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT);
-            this.cache.set(this.baseValue, this.sizeUnit, context, fallbackResult);
-            this.recordCalculation(performance.now() - startTime, false);
-            return fallbackResult;
-          }
-
-          const result = this.applyConstraints(
-            strategy.calculate(this.baseValue, this.sizeUnit, this.dimension, context)
-          );
-          this.cache.set(this.baseValue, this.sizeUnit, context, result);
-          this.recordCalculation(performance.now() - startTime, false);
-          return result;
-        }
-
-        // Fallback to default
-        this.logger.warn('EnhancedSizeUnitCalculator', 'calculate', 'No strategy found', {
-          id: this.id,
-          baseValue: this.baseValue,
-          sizeUnit: this.sizeUnit,
-        });
-
-        const fallbackResult = this.applyConstraints(DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT);
-        this.cache.set(this.baseValue, this.sizeUnit, context, fallbackResult);
-        this.recordCalculation(performance.now() - startTime, false);
-        return fallbackResult;
       }
 
-      // This should never be reached, but TypeScript requires it
-      return this.applyConstraints(DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT);
+      // Apply constraints
+      finalResult = this.applyConstraints(finalResult);
+
+      // Cache the result
+      this.cache.set(cacheKey, finalResult);
+
+      // Update performance metrics
+      this.updatePerformanceMetrics(startTime);
+
+      return finalResult;
     } catch (error) {
-      this.logger.error('EnhancedSizeUnitCalculator', 'calculate', 'Calculation failed', {
-        id: this.id,
-        error: error instanceof Error ? error.message : String(error),
-      });
-
-      const fallbackResult = this.applyConstraints(DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT);
-      this.recordCalculation(performance.now() - startTime, false);
-      return fallbackResult;
+      // Return fallback value on error
+      return this.getFallbackValue();
     }
   }
 
   /**
-   * Calculate size specifically
+   * Validate the calculator configuration and context
    */
-  calculateSize(context: UnitContext): number {
-    return this.calculate(context);
-  }
-
-  /**
-   * Calculate width specifically
-   */
-  calculateWidth(context: UnitContext): number {
-    if (this.dimension === Dimension.HEIGHT) {
-      throw new Error('Cannot calculate width for height-only dimension');
+  public validate(context: UnitContext): boolean {
+    if (!context) {
+      return false;
     }
-    return this.calculate(context);
-  }
 
-  /**
-   * Calculate height specifically
-   */
-  calculateHeight(context: UnitContext): number {
-    if (this.dimension === Dimension.WIDTH) {
-      throw new Error('Cannot calculate height for width-only dimension');
+    // Validate context properties
+    if (!context.parent && !context.scene && !context.viewport) {
+      return false;
     }
-    return this.calculate(context);
-  }
 
-  /**
-   * Calculate using strategy composition
-   */
-  private calculateWithComposition(context: UnitContext, strategies: any[]): number {
-    this.performanceMetrics.strategyCompositions++;
-
-    // Prepare strategies with weights
-    const weightedStrategies = strategies.map((strategy, index) => ({
-      strategy,
-      weight: 1.0 / (index + 1), // Decreasing weights
-    }));
-
-    // Try composers in priority order
-    for (const composer of this.composers) {
-      if (
-        typeof this.baseValue !== 'number' &&
-        composer.canCompose(this.baseValue, this.sizeUnit)
-      ) {
-        this.logger.debug(
-          'EnhancedSizeUnitCalculator',
-          'calculateWithComposition',
-          'Using composer',
-          {
-            id: this.id,
-            composerId: composer.composerId,
-            strategiesCount: strategies.length,
-          }
-        );
-
-        const result = composer.compose(this.baseValue, this.sizeUnit, context, weightedStrategies);
-        return this.applyConstraints(result);
+    // Validate dimension-specific requirements
+    if (this.dimension === Dimension.WIDTH || this.dimension === Dimension.BOTH) {
+      if (!context.parent?.width && !context.scene?.width && !context.viewport?.width) {
+        return false;
       }
     }
 
-    // Fallback to first strategy if no composer can handle
-    const firstStrategy = strategies[0];
-    return this.applyConstraints(
-      firstStrategy.calculate(this.baseValue, this.sizeUnit, this.dimension, context)
-    );
-  }
-
-  /**
-   * Check if the unit is responsive
-   */
-  isResponsive(): boolean {
-    return typeof this.baseValue !== 'number';
-  }
-
-  /**
-   * Get minimum size constraint
-   */
-  getMinSize(): number | undefined {
-    return this.minSize;
-  }
-
-  /**
-   * Get maximum size constraint
-   */
-  getMaxSize(): number | undefined {
-    return this.maxSize;
-  }
-
-  /**
-   * Set size constraints
-   */
-  setSizeConstraints(min?: number, max?: number): void {
-    this.minSize = min;
-    this.maxSize = max;
-  }
-
-  /**
-   * Validate unit in given context
-   */
-  validate(context: UnitContext): boolean {
-    if (typeof this.baseValue === 'number') {
-      return true; // Numeric values are always valid
+    if (this.dimension === Dimension.HEIGHT || this.dimension === Dimension.BOTH) {
+      if (!context.parent?.height && !context.scene?.height && !context.viewport?.height) {
+        return false;
+      }
     }
 
-    const strategy = this.strategyRegistry.getBestStrategy(
-      this.baseValue,
-      this.sizeUnit,
-      this.dimension
-    );
-    return strategy ? strategy.validateContext(context) : false;
+    return true;
   }
 
   /**
-   * Get string representation
+   * Check if the calculator is responsive to context changes
    */
-  toString(): string {
-    return `EnhancedSizeUnitCalculator(${this.name}, ${this.sizeUnit}, ${this.dimension})`;
+  public isResponsive(): boolean {
+    return this.sizeUnit !== SizeUnit.PIXEL;
   }
 
   /**
-   * Clone the unit with optional modifications
+   * Get performance metrics
    */
-  clone(overrides?: Partial<ISizeUnit>): EnhancedSizeUnitCalculator {
-    const cloned = new EnhancedSizeUnitCalculator(
-      overrides?.id ?? this.id,
-      overrides?.name ?? this.name,
-      overrides?.sizeUnit ?? this.sizeUnit,
-      overrides?.dimension ?? this.dimension,
-      overrides?.baseValue ?? this.baseValue,
-      false,
-      this.strategyRegistry,
-      true,
-      true
-    );
-
-    if (this.minSize !== undefined) cloned.setSizeConstraints(this.minSize, this.maxSize);
-    return cloned;
+  public getPerformanceMetrics() {
+    return { ...this.performanceMetrics };
   }
 
   /**
-   * Get enhanced performance metrics
+   * Clear performance metrics
    */
-  getPerformanceMetrics(): {
-    totalCalculations: number;
-    cacheHits: number;
-    cacheMisses: number;
-    cacheHitRate: number;
-    averageCalculationTime: number;
-    strategyCompositions: number;
-    cacheStatistics: any;
-    composerMetrics: Array<{
-      composerId: string;
-      metrics: any;
-    }>;
-  } {
-    const cacheHitRate =
-      this.performanceMetrics.totalCalculations > 0
-        ? this.performanceMetrics.cacheHits / this.performanceMetrics.totalCalculations
-        : 0;
-
-    return {
-      totalCalculations: this.performanceMetrics.totalCalculations,
-      cacheHits: this.performanceMetrics.cacheHits,
-      cacheMisses: this.performanceMetrics.cacheMisses,
-      cacheHitRate,
-      averageCalculationTime: this.performanceMetrics.averageCalculationTime,
-      strategyCompositions: this.performanceMetrics.strategyCompositions,
-      cacheStatistics: this.cache.getStatistics ? this.cache.getStatistics() : {},
-      composerMetrics: this.composers.map(composer => ({
-        composerId: composer.composerId || 'unknown',
-        metrics: composer.getPerformanceMetrics ? composer.getPerformanceMetrics() : {},
-      })),
+  public clearPerformanceMetrics(): void {
+    this.performanceMetrics = {
+      totalCalculations: 0,
+      cacheHits: 0,
+      cacheMisses: 0,
+      averageCalculationTime: 0,
+      strategyCompositions: 0,
     };
-  }
-
-  /**
-   * Get cache instance for advanced operations
-   */
-  getCache(): any {
-    return this.cache;
-  }
-
-  /**
-   * Get composers for advanced operations
-   */
-  getComposers(): any[] {
-    return this.composers;
-  }
-
-  /**
-   * Clear cache
-   */
-  clearCache(): void {
-    if (this.cache.clear) {
-      this.cache.clear();
-    }
-    this.logger.debug('EnhancedSizeUnitCalculator', 'clearCache', 'Cache cleared', {
-      id: this.id,
-    });
   }
 
   /**
    * Get cache statistics
    */
-  getCacheStatistics(): any {
-    return this.cache.getStatistics ? this.cache.getStatistics() : {};
+  public getCacheStatistics() {
+    return this.cache.getStatistics();
   }
 
   /**
-   * Check if the size has constraints
+   * Clear cache
    */
-  hasConstraints(): boolean {
-    return this.minSize !== undefined || this.maxSize !== undefined;
+  public clearCache(): void {
+    this.cache.clear();
   }
 
   /**
-   * Get constraint information
+   * Set size constraints
    */
-  getConstraintInfo(): { min?: number; max?: number; hasConstraints: boolean } {
+  public setSizeConstraints(minSize?: number, maxSize?: number): void {
+    this.minSize = minSize;
+    this.maxSize = maxSize;
+  }
+
+  /**
+   * Get size constraints
+   */
+  public getSizeConstraints() {
     return {
-      min: this.minSize,
-      max: this.maxSize,
-      hasConstraints: this.hasConstraints(),
+      minSize: this.minSize,
+      maxSize: this.maxSize,
     };
   }
 
   /**
-   * Validate if size value is within constraints
+   * Clone the calculator with optional overrides
    */
-  validateSize(value: number): boolean {
-    if (this.minSize !== undefined && value < this.minSize) {
-      return false;
-    }
-    if (this.maxSize !== undefined && value > this.maxSize) {
-      return false;
-    }
-    return true;
+  public clone(overrides?: Partial<ISizeUnit>): ISizeUnit {
+    return new EnhancedSizeUnitCalculator(
+      overrides?.id || this.id,
+      overrides?.name || this.name,
+      this.sizeUnit,
+      this.dimension,
+      this.baseValue,
+      this.maintainAspectRatio,
+      this.strategyRegistry,
+      this.cache,
+      this.composers
+    );
   }
 
   /**
-   * Get size information for debugging
+   * String representation
    */
-  getSizeInfo(): {
-    sizeUnit: SizeUnit;
-    dimension: Dimension.WIDTH | Dimension.HEIGHT | Dimension.BOTH;
-    hasConstraints: boolean;
-    isResponsive: boolean;
-    cacheEnabled: boolean;
-    compositionEnabled: boolean;
-  } {
-    return {
-      sizeUnit: this.sizeUnit,
+  public toString(): string {
+    return `EnhancedSizeUnitCalculator(${this.id})`;
+  }
+
+  /**
+   * Initialize strategies in the registry
+   */
+  private initializeStrategies(): void {
+    // This would typically register all available strategies
+    // For now, we'll assume they're already registered
+  }
+
+  /**
+   * Create cache key from context
+   */
+  private createCacheKey(context: UnitContext): string {
+    const contextKey = JSON.stringify({
+      parent: context.parent,
+      scene: context.scene,
+      viewport: context.viewport,
       dimension: this.dimension,
-      hasConstraints: this.hasConstraints(),
-      isResponsive: this.isResponsive(),
-      cacheEnabled: this.cache.get !== undefined,
-      compositionEnabled: this.composers.length > 0,
-    };
+    });
+    
+    return `${this.id}-${this.baseValue}-${this.sizeUnit}-${contextKey}`;
   }
 
   /**
-   * Apply size constraints to a value
+   * Apply size constraints
    */
   private applyConstraints(value: number): number {
     if (this.minSize !== undefined && value < this.minSize) {
       return this.minSize;
     }
+    
     if (this.maxSize !== undefined && value > this.maxSize) {
       return this.maxSize;
     }
+    
     return value;
   }
 
   /**
-   * Record calculation performance metrics
+   * Get fallback value
    */
-  private recordCalculation(time: number, fromCache: boolean): void {
-    this.performanceMetrics.totalCalculations++;
-
-    if (!fromCache) {
-      // Update average calculation time (exponential moving average)
-      const alpha = 0.1; // Smoothing factor
-      this.performanceMetrics.averageCalculationTime =
-        alpha * time + (1 - alpha) * this.performanceMetrics.averageCalculationTime;
+  private getFallbackValue(): number {
+    if (typeof this.baseValue === 'number') {
+      return this.baseValue;
     }
+    
+    return DEFAULT_FALLBACK_VALUES.SIZE;
+  }
+
+  /**
+   * Update performance metrics
+   */
+  private updatePerformanceMetrics(startTime: number): void {
+    const endTime = performance.now();
+    const calculationTime = endTime - startTime;
+    
+    this.performanceMetrics.totalCalculations++;
+    
+    // Update average calculation time
+    const totalTime = this.performanceMetrics.averageCalculationTime * (this.performanceMetrics.totalCalculations - 1);
+    this.performanceMetrics.averageCalculationTime = (totalTime + calculationTime) / this.performanceMetrics.totalCalculations;
   }
 }

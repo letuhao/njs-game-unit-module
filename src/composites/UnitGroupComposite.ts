@@ -3,18 +3,17 @@ import type { IUnit } from '../interfaces/IUnit';
 import type { UnitContext } from '../interfaces/IUnit';
 import { UnitType } from '../enums/UnitType';
 import { CalculationStrategy } from '../enums/CalculationStrategy';
-import { logger } from '../core/Logger';
-import { CalculationStrategyRegistry } from '../strategies/registry/CalculationStrategyRegistry';
 
 /**
  * Unit Group Composite
  * Groups multiple units together and manages their collective behavior
+ * 
+ * Note: This class focuses solely on composite unit management logic. Logging concerns are handled
+ * by decorators in the orchestration layer to maintain Single Responsibility Principle.
  */
 export class UnitGroupComposite extends BaseUnitComposite {
   private calculationStrategy: CalculationStrategy = CalculationStrategy.SUM;
   private customCalculator?: (results: number[]) => number;
-  private readonly logger: typeof logger;
-  private strategyRegistry: CalculationStrategyRegistry;
 
   constructor(
     id: string,
@@ -22,219 +21,165 @@ export class UnitGroupComposite extends BaseUnitComposite {
     baseValue: number = 0,
     calculationStrategy: CalculationStrategy = CalculationStrategy.SUM
   ) {
-    super(id, name, UnitType.SIZE, baseValue);
+    super(id, name, baseValue);
     this.calculationStrategy = calculationStrategy;
-    this.logger = logger;
-    this.strategyRegistry = CalculationStrategyRegistry.getInstance();
-  }
-
-  calculate(context: UnitContext): number {
-    if (!this.hasChildren()) {
-      return this.baseValue;
-    }
-
-    // Calculate results for all children
-    const results: number[] = [];
-    for (const child of this.getChildren()) {
-      if (child.isActive) {
-        try {
-          const result = child.calculate(context);
-          results.push(result);
-        } catch (error) {
-          // Log error but continue with other children
-          this.logger.warn(
-            'UnitGroupComposite',
-            'calculate',
-            `Error calculating child unit ${child.id}`,
-            { error: error instanceof Error ? error.message : String(error) }
-          );
-        }
-      }
-    }
-
-    if (results.length === 0) {
-      return this.baseValue;
-    }
-
-    // Apply calculation strategy using registry
-    return this.applyCalculationStrategy(results);
-  }
-
-  isResponsive(): boolean {
-    // Group is responsive if any child is responsive
-    return this.getChildren().some(child => child.isResponsive());
   }
 
   /**
-   * Set the calculation strategy for the group
+   * Calculate the composite result using the specified strategy
    */
-  setCalculationStrategy(strategy: CalculationStrategy): void {
+  public calculate(context: UnitContext): number {
+    try {
+      if (this.units.length === 0) {
+        return this.baseValue;
+      }
+
+      const results: number[] = [];
+      
+      for (const unit of this.units) {
+        if (unit.isActive) {
+          const result = unit.calculate(context);
+          results.push(result);
+        }
+      }
+
+      if (results.length === 0) {
+        return this.baseValue;
+      }
+
+      return this.applyCalculationStrategy(results);
+    } catch (error) {
+      return this.baseValue;
+    }
+  }
+
+  /**
+   * Validate all units in the composite
+   */
+  public validate(context: UnitContext): boolean {
+    if (!context) {
+      return false;
+    }
+
+    // Validate all units
+    for (const unit of this.units) {
+      if (!unit.validate(context)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Check if any unit is responsive
+   */
+  public isResponsive(): boolean {
+    return this.units.some(unit => unit.isResponsive());
+  }
+
+  /**
+   * Set calculation strategy
+   */
+  public setCalculationStrategy(strategy: CalculationStrategy): void {
     this.calculationStrategy = strategy;
   }
 
   /**
-   * Set a custom calculator function
+   * Get calculation strategy
    */
-  setCustomCalculator(calculator: (results: number[]) => number): void {
-    this.customCalculator = calculator;
-    this.calculationStrategy = CalculationStrategy.CUSTOM;
-  }
-
-  /**
-   * Get the current calculation strategy
-   */
-  getCalculationStrategy(): CalculationStrategy {
+  public getCalculationStrategy(): CalculationStrategy {
     return this.calculationStrategy;
   }
 
   /**
-   * Get statistics about the group
+   * Set custom calculator function
    */
-  getGroupStats(): {
-    totalChildren: number;
-    activeChildren: number;
-    responsiveChildren: number;
-    averageResult: number;
-    minResult: number;
-    maxResult: number;
-  } {
-    const activeChildren = this.getChildren().filter(child => child.isActive);
-    const responsiveChildren = this.getChildren().filter(child => child.isResponsive());
+  public setCustomCalculator(calculator: (results: number[]) => number): void {
+    this.customCalculator = calculator;
+  }
 
-    // Calculate sample results for statistics
-    const sampleContext: UnitContext = {
-      parent: { width: 800, height: 600, x: 0, y: 0 },
-      scene: { width: 1200, height: 800 },
-    };
+  /**
+   * Get custom calculator function
+   */
+  public getCustomCalculator(): ((results: number[]) => number) | undefined {
+    return this.customCalculator;
+  }
 
-    const results: number[] = [];
-    for (const child of activeChildren) {
-      try {
-        const result = child.calculate(sampleContext);
-        results.push(result);
-      } catch {
-        // Skip failed calculations
-      }
-    }
-
-    const averageResult =
-      results.length > 0 ? results.reduce((a, b) => a + b, 0) / results.length : 0;
-    const minResult = results.length > 0 ? Math.min(...results) : 0;
-    const maxResult = results.length > 0 ? Math.max(...results) : 0;
-
+  /**
+   * Get composite statistics
+   */
+  public getCompositeStatistics() {
+    const activeUnits = this.units.filter(unit => unit.isActive);
+    const responsiveUnits = this.units.filter(unit => unit.isResponsive());
+    
     return {
-      totalChildren: this.getChildCount(),
-      activeChildren: activeChildren.length,
-      responsiveChildren: responsiveChildren.length,
-      averageResult,
-      minResult,
-      maxResult,
+      totalUnits: this.units.length,
+      activeUnits: activeUnits.length,
+      responsiveUnits: responsiveUnits.length,
+      calculationStrategy: this.calculationStrategy,
+      hasCustomCalculator: this.customCalculator !== undefined,
     };
   }
 
   /**
-   * Apply the selected calculation strategy using registry
+   * Apply calculation strategy to results
    */
   private applyCalculationStrategy(results: number[]): number {
-    if (this.calculationStrategy === CalculationStrategy.CUSTOM && this.customCalculator) {
+    if (this.customCalculator) {
       return this.customCalculator(results);
     }
 
-    const strategyFunction = this.strategyRegistry.getCalculationStrategy(this.calculationStrategy);
-    return strategyFunction(results);
-  }
-
-  /**
-   * Override addChild to ensure proper parent-child relationships
-   */
-  addChild(unit: IUnit): void {
-    super.addChild(unit);
-
-    // Set this composite as the parent of the child
-    if (unit && typeof (unit as any).setParent === 'function') {
-      (unit as any).setParent(this);
+    switch (this.calculationStrategy) {
+      case CalculationStrategy.SUM:
+        return results.reduce((sum, result) => sum + result, 0);
+      
+      case CalculationStrategy.AVERAGE:
+        return results.reduce((sum, result) => sum + result, 0) / results.length;
+      
+      case CalculationStrategy.MIN:
+        return Math.min(...results);
+      
+      case CalculationStrategy.MAX:
+        return Math.max(...results);
+      
+      case CalculationStrategy.MEDIAN:
+        return this.calculateMedian(results);
+      
+      case CalculationStrategy.WEIGHTED_AVERAGE:
+        return this.calculateWeightedAverage(results);
+      
+      case CalculationStrategy.CUSTOM:
+        return this.customCalculator ? this.customCalculator(results) : results[0];
+      
+      default:
+        return results[0];
     }
   }
 
   /**
-   * Override removeChild to clean up parent-child relationships
+   * Calculate median value
    */
-  removeChild(unit: IUnit): boolean {
-    const removed = super.removeChild(unit);
-
-    if (removed && unit && typeof (unit as any).setParent === 'function') {
-      (unit as any).setParent(undefined);
-    }
-
-    return removed;
-  }
-
-  /**
-   * Get all children of a specific unit type
-   */
-  getChildrenByType(unitType: UnitType): IUnit[] {
-    return this.getChildren().filter(child => child.unitType === unitType);
-  }
-
-  /**
-   * Get all responsive children
-   */
-  getResponsiveChildren(): IUnit[] {
-    return this.getChildren().filter(child => child.isResponsive());
-  }
-
-  /**
-   * Get all active children
-   */
-  getActiveChildren(): IUnit[] {
-    return this.getChildren().filter(child => child.isActive);
-  }
-
-  /**
-   * Enable or disable all children
-   */
-  setAllChildrenActive(active: boolean): void {
-    for (const child of this.getChildren()) {
-      if (typeof (child as any).isActive === 'boolean') {
-        (child as any).isActive = active;
-      }
+  private calculateMedian(results: number[]): number {
+    const sorted = [...results].sort((a, b) => a - b);
+    const middle = Math.floor(sorted.length / 2);
+    
+    if (sorted.length % 2 === 0) {
+      return (sorted[middle - 1] + sorted[middle]) / 2;
+    } else {
+      return sorted[middle];
     }
   }
 
   /**
-   * Get a summary of the group's composition
+   * Calculate weighted average
    */
-  getCompositionSummary(): {
-    totalUnits: number;
-    unitTypes: Record<string, number>;
-    responsiveUnits: number;
-    activeUnits: number;
-  } {
-    const unitTypes: Record<string, number> = {};
-    let responsiveUnits = 0;
-    let activeUnits = 0;
-
-    for (const child of this.getChildren()) {
-      // Count unit types
-      const typeName = child.unitType;
-      unitTypes[typeName] = (unitTypes[typeName] || 0) + 1;
-
-      // Count responsive units
-      if (child.isResponsive()) {
-        responsiveUnits++;
-      }
-
-      // Count active units
-      if (child.isActive) {
-        activeUnits++;
-      }
-    }
-
-    return {
-      totalUnits: this.getChildCount(),
-      unitTypes,
-      responsiveUnits,
-      activeUnits,
-    };
+  private calculateWeightedAverage(results: number[]): number {
+    // Simple weighted average - can be enhanced with actual weights
+    const weights = results.map((_, index) => 1 / (index + 1));
+    const weightedSum = results.reduce((sum, result, index) => sum + result * weights[index], 0);
+    const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+    
+    return weightedSum / totalWeight;
   }
 }

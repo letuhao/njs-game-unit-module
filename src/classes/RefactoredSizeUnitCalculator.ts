@@ -5,12 +5,16 @@ import { Dimension } from '../enums/Dimension';
 import { SizeValue } from '../enums/SizeValue';
 import { UnitType } from '../enums/UnitType';
 import { DEFAULT_FALLBACK_VALUES } from '../constants';
-import { container } from '../container/DiContainer';
-import { TOKENS } from '../container/Tokens';
+import { SizeValueCalculationStrategyRegistry } from '../strategies/value/SizeValueCalculationStrategyRegistry';
 
 /**
  * Refactored SizeUnitCalculator class
- * Uses strategy pattern and DI for better maintainability
+ * Uses Strategy Pattern instead of large switch statements
+ * Implements size unit calculations for responsive sizing
+ * Optimized for high-performance real-time calculations
+ * 
+ * Note: This class focuses solely on size calculation logic. Logging concerns are handled
+ * by decorators in the orchestration layer to maintain Single Responsibility Principle.
  */
 export class RefactoredSizeUnitCalculator implements ISizeUnit {
   public readonly id: string;
@@ -18,13 +22,18 @@ export class RefactoredSizeUnitCalculator implements ISizeUnit {
   public readonly unitType: UnitType = UnitType.SIZE;
   public readonly sizeUnit: SizeUnit;
   public readonly dimension: Dimension.WIDTH | Dimension.HEIGHT | Dimension.BOTH;
-  public readonly baseValue: number | SizeValue;
   public readonly maintainAspectRatio: boolean;
+  public readonly baseValue: number | SizeValue;
   public readonly isActive: boolean = true;
 
-  private strategyRegistry: any;
-  private isNumericValue: boolean;
-  private numericValue: number;
+  private minSize?: number;
+  private maxSize?: number;
+  private readonly strategyRegistry: SizeValueCalculationStrategyRegistry;
+  private performanceMetrics = {
+    totalCalculations: 0,
+    averageCalculationTime: 0,
+    strategyExecutions: 0,
+  };
 
   constructor(
     id: string,
@@ -33,244 +42,192 @@ export class RefactoredSizeUnitCalculator implements ISizeUnit {
     dimension: Dimension.WIDTH | Dimension.HEIGHT | Dimension.BOTH,
     baseValue: number | SizeValue,
     maintainAspectRatio: boolean = false,
-    strategyRegistry?: any
+    strategyRegistry?: SizeValueCalculationStrategyRegistry
   ) {
     this.id = id;
     this.name = name;
     this.sizeUnit = sizeUnit;
     this.dimension = dimension;
-    this.baseValue = baseValue;
     this.maintainAspectRatio = maintainAspectRatio;
+    this.baseValue = baseValue;
+
+    // Initialize strategy registry
+    this.strategyRegistry = strategyRegistry || new SizeValueCalculationStrategyRegistry();
     
-    // Resolve strategy registry from DI container
-    this.strategyRegistry = strategyRegistry || container.resolve(TOKENS.SIZE_VALUE_STRATEGY_REGISTRY);
-
-    // Pre-compute numeric value for performance
-    this.isNumericValue = typeof baseValue === 'number';
-    this.numericValue = this.isNumericValue ? (baseValue as number) : 0;
+    this.initializeStrategies();
   }
 
   /**
-   * Calculate the actual size value based on context
+   * Calculate size value using strategy pattern
    */
-  calculate(context: UnitContext): number {
-    return this.calculateSize(context);
-  }
-
-  /**
-   * Calculate size based on context using strategy pattern
-   */
-  calculateSize(context: UnitContext): number {
-    // For numeric values, return directly
-    if (this.isNumericValue) {
-      return this.numericValue;
-    }
-
-    // Use strategy pattern for SizeValue enum
+  public calculate(context: UnitContext): number {
+    const startTime = performance.now();
+    
     try {
-      const strategy = this.strategyRegistry.getSizeValueStrategy(this.baseValue as SizeValue);
-      if (strategy) {
-        return strategy(context);
+      if (!this.validate(context)) {
+        return this.getFallbackValue();
       }
+
+      // Get calculation from strategy registry
+      const result = this.strategyRegistry.executeStrategy(
+        this.baseValue as SizeValue,
+        this.sizeUnit,
+        context
+      );
+
+      // Apply constraints
+      const constrainedResult = this.applyConstraints(result);
+
+      // Update performance metrics
+      this.updatePerformanceMetrics(startTime);
+
+      return constrainedResult;
     } catch (error) {
-      // Fallback to switch statement if strategy not available
-      return this.fallbackSizeValue(context);
+      // Return fallback value on error
+      return this.getFallbackValue();
     }
-
-    return DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
   }
 
   /**
-   * Fallback size value calculation when strategy is not available
+   * Validate the calculator configuration and context
    */
-  private fallbackSizeValue(context: UnitContext): number {
-    if (this.baseValue && Object.values(SizeValue).includes(this.baseValue as SizeValue)) {
-      switch (this.baseValue as SizeValue) {
-        case SizeValue.PIXEL:
-          return DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
-        case SizeValue.FILL:
-          return this.calculateFillSize(context);
-        case SizeValue.AUTO:
-          return this.calculateAutoSize(context);
-        case SizeValue.CONTENT:
-          return this.calculateContentSize(context);
-        case SizeValue.PARENT:
-          return this.calculateParentSize(context);
-        case SizeValue.VIEWPORT:
-          return this.calculateViewportSize(context);
-        case SizeValue.SCENE:
-          return this.calculateSceneSize(context);
-        default:
-          return DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
+  public validate(context: UnitContext): boolean {
+    if (!context) {
+      return false;
+    }
+
+    // Validate context properties
+    if (!context.parent && !context.scene && !context.viewport) {
+      return false;
+    }
+
+    // Validate dimension-specific requirements
+    if (this.dimension === Dimension.WIDTH || this.dimension === Dimension.BOTH) {
+      if (!context.parent?.width && !context.scene?.width && !context.viewport?.width) {
+        return false;
       }
     }
-    return DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
-  }
 
-  /**
-   * Calculate width specifically
-   */
-  calculateWidth(context: UnitContext): number {
-    if (this.dimension === Dimension.HEIGHT) {
-      throw new Error('Cannot calculate width for height-only dimension');
-    }
-    return this.calculateSize(context);
-  }
-
-  /**
-   * Calculate height specifically
-   */
-  calculateHeight(context: UnitContext): number {
-    if (this.dimension === Dimension.WIDTH) {
-      throw new Error('Cannot calculate height for width-only dimension');
-    }
-    return this.calculateSize(context);
-  }
-
-  /**
-   * Check if the unit is responsive
-   */
-  isResponsive(): boolean {
-    return !this.isNumericValue;
-  }
-
-  /**
-   * Validate unit in given context
-   */
-  validate(context: UnitContext): boolean {
-    if (this.isNumericValue) {
-      return true; // Numeric values are always valid
+    if (this.dimension === Dimension.HEIGHT || this.dimension === Dimension.BOTH) {
+      if (!context.parent?.height && !context.scene?.height && !context.viewport?.height) {
+        return false;
+      }
     }
 
-    // Check if the baseValue requires specific context
-    if (this.baseValue === SizeValue.FILL || this.baseValue === SizeValue.AUTO) {
-      return !!(context.parent || context.scene);
-    }
-    if (this.baseValue === SizeValue.CONTENT) {
-      return !!context.content;
-    }
-    if (this.baseValue === SizeValue.VIEWPORT) {
-      return !!context.viewport;
-    }
     return true;
   }
 
   /**
-   * Get string representation
+   * Check if the calculator is responsive to context changes
    */
-  toString(): string {
-    return `RefactoredSizeUnitCalculator(${this.name}, ${this.sizeUnit}, ${this.dimension})`;
+  public isResponsive(): boolean {
+    return this.sizeUnit !== SizeUnit.PIXEL;
   }
 
   /**
-   * Clone the unit with optional modifications
+   * Get performance metrics
    */
-  clone(overrides?: Partial<ISizeUnit>): RefactoredSizeUnitCalculator {
-    const cloned = new RefactoredSizeUnitCalculator(
-      this.id,
-      this.name,
+  public getPerformanceMetrics() {
+    return { ...this.performanceMetrics };
+  }
+
+  /**
+   * Clear performance metrics
+   */
+  public clearPerformanceMetrics(): void {
+    this.performanceMetrics = {
+      totalCalculations: 0,
+      averageCalculationTime: 0,
+      strategyExecutions: 0,
+    };
+  }
+
+  /**
+   * Set size constraints
+   */
+  public setSizeConstraints(minSize?: number, maxSize?: number): void {
+    this.minSize = minSize;
+    this.maxSize = maxSize;
+  }
+
+  /**
+   * Get size constraints
+   */
+  public getSizeConstraints() {
+    return {
+      minSize: this.minSize,
+      maxSize: this.maxSize,
+    };
+  }
+
+  /**
+   * Clone the calculator with optional overrides
+   */
+  public clone(overrides?: Partial<ISizeUnit>): ISizeUnit {
+    return new RefactoredSizeUnitCalculator(
+      overrides?.id || this.id,
+      overrides?.name || this.name,
       this.sizeUnit,
       this.dimension,
       this.baseValue,
       this.maintainAspectRatio,
       this.strategyRegistry
     );
-    return cloned;
-  }
-
-  // Size calculation methods
-  private calculateFillSize(context: UnitContext): number {
-    if (this.dimension === Dimension.WIDTH) {
-      return context.parent?.width || context.scene?.width || DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
-    }
-    if (this.dimension === Dimension.HEIGHT) {
-      return context.parent?.height || context.scene?.height || DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
-    }
-    return Math.min(
-      context.parent?.width || context.scene?.width || DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT,
-      context.parent?.height || context.scene?.height || DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT
-    );
-  }
-
-  private calculateAutoSize(context: UnitContext): number {
-    if (context.content) {
-      if (this.dimension === Dimension.WIDTH) {
-        return context.content.width;
-      }
-      if (this.dimension === Dimension.HEIGHT) {
-        return context.content.height;
-      }
-      return Math.max(context.content.width, context.content.height);
-    }
-    return DEFAULT_FALLBACK_VALUES.SIZE.CONTENT;
-  }
-
-  private calculateContentSize(context: UnitContext): number {
-    if (context.content) {
-      if (this.dimension === Dimension.WIDTH) {
-        return context.content.width;
-      }
-      if (this.dimension === Dimension.HEIGHT) {
-        return context.content.height;
-      }
-      return Math.max(context.content.width, context.content.height);
-    }
-    return DEFAULT_FALLBACK_VALUES.SIZE.CONTENT;
-  }
-
-  private calculateParentSize(context: UnitContext): number {
-    if (context.parent) {
-      if (this.dimension === Dimension.WIDTH) {
-        return context.parent.width;
-      }
-      if (this.dimension === Dimension.HEIGHT) {
-        return context.parent.height;
-      }
-      return Math.min(context.parent.width, context.parent.height);
-    }
-    return DEFAULT_FALLBACK_VALUES.SIZE.PARENT;
-  }
-
-  private calculateViewportSize(context: UnitContext): number {
-    if (context.viewport) {
-      if (this.dimension === Dimension.WIDTH) {
-        return context.viewport.width;
-      }
-      if (this.dimension === Dimension.HEIGHT) {
-        return context.viewport.height;
-      }
-      return Math.min(context.viewport.width, context.viewport.height);
-    }
-    return DEFAULT_FALLBACK_VALUES.SIZE.VIEWPORT;
-  }
-
-  private calculateSceneSize(context: UnitContext): number {
-    if (context.scene) {
-      if (this.dimension === Dimension.WIDTH) {
-        return context.scene.width;
-      }
-      if (this.dimension === Dimension.HEIGHT) {
-        return context.scene.height;
-      }
-      return Math.min(context.scene.width, context.scene.height);
-    }
-    return DEFAULT_FALLBACK_VALUES.SIZE.SCENE;
   }
 
   /**
-   * Get size information for debugging
+   * String representation
    */
-  getSizeInfo(): {
-    sizeUnit: SizeUnit;
-    dimension: Dimension.WIDTH | Dimension.HEIGHT | Dimension.BOTH;
-    maintainAspectRatio: boolean;
-    isResponsive: boolean;
-  } {
-    return {
-      sizeUnit: this.sizeUnit,
-      dimension: this.dimension,
-      maintainAspectRatio: this.maintainAspectRatio,
-      isResponsive: this.isResponsive(),
-    };
+  public toString(): string {
+    return `RefactoredSizeUnitCalculator(${this.id})`;
+  }
+
+  /**
+   * Initialize strategies in the registry
+   */
+  private initializeStrategies(): void {
+    // This would typically register all available strategies
+    // For now, we'll assume they're already registered
+  }
+
+  /**
+   * Apply size constraints
+   */
+  private applyConstraints(value: number): number {
+    if (this.minSize !== undefined && value < this.minSize) {
+      return this.minSize;
+    }
+    
+    if (this.maxSize !== undefined && value > this.maxSize) {
+      return this.maxSize;
+    }
+    
+    return value;
+  }
+
+  /**
+   * Get fallback value
+   */
+  private getFallbackValue(): number {
+    if (typeof this.baseValue === 'number') {
+      return this.baseValue;
+    }
+    
+    return DEFAULT_FALLBACK_VALUES.SIZE;
+  }
+
+  /**
+   * Update performance metrics
+   */
+  private updatePerformanceMetrics(startTime: number): void {
+    const endTime = performance.now();
+    const calculationTime = endTime - startTime;
+    
+    this.performanceMetrics.totalCalculations++;
+    this.performanceMetrics.strategyExecutions++;
+    
+    // Update average calculation time
+    const totalTime = this.performanceMetrics.averageCalculationTime * (this.performanceMetrics.totalCalculations - 1);
+    this.performanceMetrics.averageCalculationTime = (totalTime + calculationTime) / this.performanceMetrics.totalCalculations;
   }
 }
