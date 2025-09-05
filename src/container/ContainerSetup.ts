@@ -31,6 +31,9 @@ import { UnitMementoManager } from '../mementos/UnitMementoManager';
 import { LoggingObserver } from '../observers/LoggingObserver';
 import { PerformanceObserver } from '../observers/PerformanceObserver';
 import { ProductionMonitoringSystem } from '../monitoring/ProductionMonitoringSystem';
+import { UnitSystemManagerFactory } from '../factories/UnitSystemManagerFactory';
+import { RefactoredUnitCalculatorFactory } from '../factories/RefactoredUnitCalculatorFactory';
+import { RefactoredUnitSystemManager } from '../managers/RefactoredUnitSystemManager';
 import { logger } from '../core/Logger';
 
 /**
@@ -68,6 +71,10 @@ export function setupContainer(): void {
       }
     };
   });
+
+  // Register refactored factory services
+  container.registerSingleton(TOKENS.UNIT_SYSTEM_MANAGER_FACTORY, () => new UnitSystemManagerFactory(container));
+  container.registerSingleton(TOKENS.REFACTORED_UNIT_CALCULATOR_FACTORY, () => new RefactoredUnitCalculatorFactory(container));
 
   // Register command services
   container.registerClass(TOKENS.BATCH_CALCULATION_COMMAND, BatchCalculationCommand, [TOKENS.LOGGER]);
@@ -129,35 +136,32 @@ export function setupContainer(): void {
   // Register monitoring services
   container.registerClass(TOKENS.PRODUCTION_MONITORING_SYSTEM, ProductionMonitoringSystem, [TOKENS.LOGGER]);
 
-  // Register strategy registries (placeholders for now - will be implemented in Phase 3)
+  // Register strategy registries with actual implementations
   container.registerSingleton(TOKENS.SIZE_VALUE_STRATEGY_REGISTRY, () => {
-    // Placeholder - will be replaced with actual registry in Phase 3
-    return {
-      register: () => {},
-      getStrategy: () => () => 0,
-      hasStrategy: () => false,
-      getRegisteredStrategies: () => [],
-    };
+    const { SizeUnitStrategyRegistry } = require('../strategies/registry/SizeUnitStrategyRegistry');
+    const { SIZE_UNIT_STRATEGIES } = require('../strategies/implementations/SizeUnitStrategies');
+    
+    const registry = new SizeUnitStrategyRegistry();
+    registry.registerStrategies(SIZE_UNIT_STRATEGIES);
+    return registry;
   });
 
   container.registerSingleton(TOKENS.POSITION_VALUE_STRATEGY_REGISTRY, () => {
-    // Placeholder - will be replaced with actual registry in Phase 3
-    return {
-      register: () => {},
-      getStrategy: () => () => 0,
-      hasStrategy: () => false,
-      getRegisteredStrategies: () => [],
-    };
+    const { PositionUnitStrategyRegistry } = require('../strategies/registry/PositionUnitStrategyRegistry');
+    const { POSITION_UNIT_STRATEGIES } = require('../strategies/implementations/PositionUnitStrategies');
+    
+    const registry = new PositionUnitStrategyRegistry();
+    registry.registerStrategies(POSITION_UNIT_STRATEGIES);
+    return registry;
   });
 
   container.registerSingleton(TOKENS.SCALE_VALUE_STRATEGY_REGISTRY, () => {
-    // Placeholder - will be replaced with actual registry in Phase 3
-    return {
-      register: () => {},
-      getStrategy: () => () => 0,
-      hasStrategy: () => false,
-      getRegisteredStrategies: () => [],
-    };
+    const { ScaleUnitStrategyRegistry } = require('../strategies/registry/ScaleUnitStrategyRegistry');
+    const { SCALE_UNIT_STRATEGIES } = require('../strategies/implementations/ScaleUnitStrategies');
+    
+    const registry = new ScaleUnitStrategyRegistry();
+    registry.registerStrategies(SCALE_UNIT_STRATEGIES);
+    return registry;
   });
 
   // Register cache services

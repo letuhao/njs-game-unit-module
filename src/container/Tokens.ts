@@ -96,6 +96,8 @@ export const TOKENS = {
 
   // Factory Services
   UNIT_CALCULATOR_FACTORY: Symbol('UnitCalculatorFactory'),
+  UNIT_SYSTEM_MANAGER_FACTORY: Symbol('UnitSystemManagerFactory'),
+  REFACTORED_UNIT_CALCULATOR_FACTORY: Symbol('RefactoredUnitCalculatorFactory'),
   STRATEGY_FACTORY: Symbol('StrategyFactory'),
   COMMAND_FACTORY: Symbol('CommandFactory'),
 } as const;
@@ -195,6 +197,8 @@ export type ServiceTypes = {
 
   // Factory Services
   [TOKENS.UNIT_CALCULATOR_FACTORY]: Constructor<any>;
+  [TOKENS.UNIT_SYSTEM_MANAGER_FACTORY]: Constructor<any>;
+  [TOKENS.REFACTORED_UNIT_CALCULATOR_FACTORY]: Constructor<any>;
   [TOKENS.STRATEGY_FACTORY]: Constructor<any>;
   [TOKENS.COMMAND_FACTORY]: Constructor<any>;
 };
