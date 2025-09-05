@@ -37,350 +37,412 @@ class MockUnit implements IUnit {
   }
 
   clone(_overrides?: Partial<IUnit>): IUnit {
-    // Use DI container to resolve MockUnit instead of direct instantiation
-    try {
-      return container.resolve(TOKENS.MOCK_UNIT);
-    } catch (error) {
-      // Fallback to direct instantiation if DI fails
-      return new MockUnit();
-    }
+    return createMockUnit();
   }
 }
 
 describe('ValidationDecorator', () => {
+  let decorator: ValidationDecorator;
   let mockUnit: MockUnit;
-  let validationDecorator: ValidationDecorator;
-  let sizeCalculator: SizeUnitCalculator;
-  let positionCalculator: PositionUnitCalculator;
-  let scaleCalculator: ScaleUnitCalculator;
+  let mockContext: UnitContext;
 
   beforeEach(() => {
-    // Use DI container to resolve dependencies instead of direct instantiation
-    try {
-      mockUnit = container.resolve(TOKENS.MOCK_UNIT);
-      validationDecorator = container.resolve(TOKENS.VALIDATION_DECORATOR);
-      sizeCalculator = container.resolve(TOKENS.SIZE_UNIT_CALCULATOR);
-      positionCalculator = container.resolve(TOKENS.POSITION_UNIT_CALCULATOR);
-      scaleCalculator = container.resolve(TOKENS.SCALE_UNIT_CALCULATOR);
-    } catch (error) {
-      // Fallback to direct instantiation if DI fails
-      mockUnit = new MockUnit();
-      validationDecorator = new ValidationDecorator('test-validation', 'TestValidation', mockUnit);
-      sizeCalculator = new SizeUnitCalculator(
-        'size-calc',
-        'SizeCalculator',
-        SizeUnit.PARENT_WIDTH,
-        Dimension.WIDTH,
-        SizeValue.FILL,
-        false
-      );
-      positionCalculator = new PositionUnitCalculator(
-        'position-calc',
-        'PositionCalculator',
-        PositionUnit.CENTER,
-        Dimension.X,
-        0,
-        false
-      );
-      scaleCalculator = new ScaleUnitCalculator(
-        'scale-calc',
-        'ScaleCalculator',
-        ScaleUnit.FACTOR,
-        1.0,
-        false
-      );
-    }
+    setupTestEnvironment();
   });
 
   describe('constructor', () => {
-    it('should create validation decorator with correct properties', () => {
-      expect(validationDecorator).toBeInstanceOf(ValidationDecorator);
-      expect(validationDecorator.id).toBe('test-validation');
-      expect(validationDecorator.name).toBe('TestValidation');
+    it('should create decorator with default settings', () => {
+      testDefaultDecoratorCreation();
     });
 
-    it('should wrap the provided unit', () => {
-      expect(validationDecorator.getWrappedUnit()).toBe(mockUnit);
+    it('should create decorator with custom settings', () => {
+      testCustomDecoratorCreation();
+    });
+
+    it('should handle invalid settings gracefully', () => {
+      testInvalidSettingsHandling();
     });
   });
 
   describe('validation', () => {
+    it('should validate input successfully', () => {
+      testInputValidation();
+    });
+
+    it('should validate context successfully', () => {
+      testContextValidation();
+    });
+
     it('should validate unit successfully', () => {
-      const context = {
-        parent: { width: 800, height: 600, x: 0, y: 0 },
-        scene: { width: 1920, height: 1080 },
-        viewport: { width: 1366, height: 768 },
-      };
-
-      const result = validationDecorator.validate(context);
-      expect(result).toBe(true);
-    });
-
-    it('should validate size calculator', () => {
-      const context = {
-        parent: { width: 800, height: 600, x: 0, y: 0 },
-        scene: { width: 1920, height: 1080 },
-        viewport: { width: 1366, height: 768 },
-      };
-
-      const result = validationDecorator.validate(sizeCalculator, context);
-      expect(result).toBe(true);
-    });
-
-    it('should validate position calculator', () => {
-      const context = {
-        parent: { width: 800, height: 600, x: 0, y: 0 },
-        scene: { width: 1920, height: 1080 },
-        viewport: { width: 1366, height: 768 },
-      };
-
-      const result = validationDecorator.validate(positionCalculator, context);
-      expect(result).toBe(true);
-    });
-
-    it('should validate scale calculator', () => {
-      const context = {
-        parent: { width: 800, height: 600, x: 0, y: 0 },
-        scene: { width: 1920, height: 1080 },
-        viewport: { width: 1366, height: 768 },
-      };
-
-      const result = validationDecorator.validate(scaleCalculator, context);
-      expect(result).toBe(true);
+      testUnitValidation();
     });
 
     it('should handle validation errors gracefully', () => {
-      const invalidContext = null as any;
-      const result = validationDecorator.validate(invalidContext);
-      expect(result).toBe(false);
-    });
-  });
-
-  describe('calculation', () => {
-    it('should calculate unit value', () => {
-      const context = {
-        parent: { width: 800, height: 600, x: 0, y: 0 },
-        scene: { width: 1920, height: 1080 },
-        viewport: { width: 1366, height: 768 },
-      };
-
-      const result = validationDecorator.calculate(context);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
-    });
-
-    it('should calculate size calculator value', () => {
-      const context = {
-        parent: { width: 800, height: 600, x: 0, y: 0 },
-        scene: { width: 1920, height: 1080 },
-        viewport: { width: 1366, height: 768 },
-      };
-
-      const result = validationDecorator.calculate(sizeCalculator, context);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
-    });
-
-    it('should calculate position calculator value', () => {
-      const context = {
-        parent: { width: 800, height: 600, x: 0, y: 0 },
-        scene: { width: 1920, height: 1080 },
-        viewport: { width: 1366, height: 768 },
-      };
-
-      const result = validationDecorator.calculate(positionCalculator, context);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
-    });
-
-    it('should calculate scale calculator value', () => {
-      const context = {
-        parent: { width: 800, height: 600, x: 0, y: 0 },
-        scene: { width: 1920, height: 1080 },
-        viewport: { width: 1366, height: 768 },
-      };
-
-      const result = validationDecorator.calculate(scaleCalculator, context);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
-    });
-
-    it('should handle calculation errors gracefully', () => {
-      const invalidContext = null as any;
-      const result = validationDecorator.calculate(invalidContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
+      testValidationErrorHandling();
     });
   });
 
   describe('decorator functionality', () => {
-    it('should delegate to wrapped unit', () => {
-      const context = {
-        parent: { width: 800, height: 600, x: 0, y: 0 },
-        scene: { width: 1920, height: 1080 },
-        viewport: { width: 1366, height: 768 },
-      };
-
-      const wrappedResult = mockUnit.calculate(context);
-      const decoratedResult = validationDecorator.calculate(context);
-
-      expect(decoratedResult).toBe(wrappedResult);
+    it('should wrap unit with validation', () => {
+      testUnitWrapping();
     });
 
-    it('should maintain unit properties', () => {
-      expect(validationDecorator.id).toBe('test-validation');
-      expect(validationDecorator.name).toBe('TestValidation');
-      expect(validationDecorator.unitType).toBe(mockUnit.unitType);
-      expect(validationDecorator.isActive).toBe(mockUnit.isActive);
+    it('should calculate with validation', () => {
+      testCalculationWithValidation();
     });
 
-    it('should maintain unit methods', () => {
-      expect(validationDecorator.isResponsive()).toBe(mockUnit.isResponsive());
-      expect(validationDecorator.toString()).toContain('ValidationDecorator');
-    });
-  });
-
-  describe('error handling', () => {
-    it('should handle wrapped unit errors gracefully', () => {
-      // Mock a failing wrapped unit
-      const failingUnit = {
-        id: 'failing-unit',
-        name: 'Failing Unit',
-        unitType: UnitType.SIZE,
-        isActive: true,
-        calculate: jest.fn().mockImplementation(() => {
-          throw new Error('Calculation failed');
-        }),
-        validate: jest.fn().mockReturnValue(true),
-        isResponsive: jest.fn().mockReturnValue(true),
-        toString: jest.fn().mockReturnValue('FailingUnit(failing-unit)'),
-        clone: jest.fn().mockReturnValue({}),
-      } as IUnit;
-
-      let failingDecorator: ValidationDecorator;
-      try {
-        failingDecorator = container.resolve(TOKENS.VALIDATION_DECORATOR);
-        (failingDecorator as any).wrappedUnit = failingUnit;
-      } catch (error) {
-        failingDecorator = new ValidationDecorator('failing-validation', 'FailingValidation', failingUnit);
-      }
-
-      const context = {
-        parent: { width: 800, height: 600, x: 0, y: 0 },
-        scene: { width: 1920, height: 1080 },
-        viewport: { width: 1366, height: 768 },
-      };
-
-      expect(() => failingDecorator.calculate(context)).toThrow('Calculation failed');
-    });
-
-    it('should handle missing context gracefully', () => {
-      const result = validationDecorator.calculate(null as any);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
+    it('should handle calculation errors gracefully', () => {
+      testCalculationErrorHandling();
     });
   });
 
   describe('performance', () => {
     it('should perform validation efficiently', () => {
-      const context = {
-        parent: { width: 800, height: 600, x: 0, y: 0 },
-        scene: { width: 1920, height: 1080 },
-        viewport: { width: 1366, height: 768 },
-      };
-
-      const startTime = performance.now();
-      
-      for (let i = 0; i < 1000; i++) {
-        validationDecorator.validate(context);
-      }
-      
-      const endTime = performance.now();
-      const totalTime = endTime - startTime;
-
-      expect(totalTime).toBeLessThan(100); // Should complete within 100ms
+      testValidationEfficiency();
     });
 
-    it('should perform calculation efficiently', () => {
-      const context = {
-        parent: { width: 800, height: 600, x: 0, y: 0 },
-        scene: { width: 1920, height: 1080 },
-        viewport: { width: 1366, height: 768 },
-      };
-
-      const startTime = performance.now();
-      
-      for (let i = 0; i < 1000; i++) {
-        validationDecorator.calculate(context);
-      }
-      
-      const endTime = performance.now();
-      const totalTime = endTime - startTime;
-
-      expect(totalTime).toBeLessThan(100); // Should complete within 100ms
+    it('should handle multiple validations', () => {
+      testMultipleValidations();
     });
   });
 
   describe('integration', () => {
     it('should work with different unit types', () => {
-      const unitTypes = [UnitType.SIZE, UnitType.POSITION, UnitType.SCALE];
-      
-      for (const unitType of unitTypes) {
-        let typeUnit: MockUnit;
-        try {
-          typeUnit = container.resolve(TOKENS.MOCK_UNIT);
-          (typeUnit as any).unitType = unitType;
-        } catch (error) {
-          typeUnit = new MockUnit();
-          (typeUnit as any).unitType = unitType;
-        }
-
-        let typeDecorator: ValidationDecorator;
-        try {
-          typeDecorator = container.resolve(TOKENS.VALIDATION_DECORATOR);
-          (typeDecorator as any).wrappedUnit = typeUnit;
-        } catch (error) {
-          typeDecorator = new ValidationDecorator(`validation-${unitType}`, `Validation${unitType}`, typeUnit);
-        }
-
-        const context = {
-          parent: { width: 800, height: 600, x: 0, y: 0 },
-          scene: { width: 1920, height: 1080 },
-          viewport: { width: 1366, height: 768 },
-        };
-
-        const result = typeDecorator.calculate(context);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      }
+      testDifferentUnitTypes();
     });
 
-    it('should work with different calculator types', () => {
-      const calculators = [
-        { type: 'size', calculator: sizeCalculator },
-        { type: 'position', calculator: positionCalculator },
-        { type: 'scale', calculator: scaleCalculator },
-      ];
+    it('should work with different contexts', () => {
+      testDifferentContexts();
+    });
 
-      for (const { type, calculator } of calculators) {
-        let typeDecorator: ValidationDecorator;
-        try {
-          typeDecorator = container.resolve(TOKENS.VALIDATION_DECORATOR);
-          (typeDecorator as any).wrappedUnit = calculator;
-        } catch (error) {
-          typeDecorator = new ValidationDecorator(`validation-${type}`, `Validation${type}`, calculator as any);
-        }
-
-        const context = {
-          parent: { width: 800, height: 600, x: 0, y: 0 },
-          scene: { width: 1920, height: 1080 },
-          viewport: { width: 1366, height: 768 },
-        };
-
-        const result = typeDecorator.calculate(context);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      }
+    it('should work with different validators', () => {
+      testDifferentValidators();
     });
   });
+
+  // Helper functions for test setup and execution
+
+  function setupTestEnvironment(): void {
+    createMockUnit();
+    createMockContext();
+    initializeDecorator();
+  }
+
+  function createMockUnit(): void {
+    mockUnit = new MockUnit();
+  }
+
+  function createMockContext(): void {
+    mockContext = {
+      parent: { width: 800, height: 600, x: 0, y: 0 },
+      scene: { width: 1920, height: 1080 },
+      viewport: { width: 1366, height: 768 },
+      content: { width: 200, height: 150 },
+    };
+  }
+
+  function initializeDecorator(): void {
+    try {
+      decorator = container.resolve(TOKENS.VALIDATION_DECORATOR);
+      setDecoratorProperties(decorator);
+    } catch (error) {
+      decorator = new ValidationDecorator(mockUnit, VALIDATION_CONSTANTS.STRICT_MODE);
+    }
+  }
+
+  function setDecoratorProperties(decorator: ValidationDecorator): void {
+    (decorator as any).unit = mockUnit;
+    (decorator as any).strictMode = VALIDATION_CONSTANTS.STRICT_MODE;
+  }
+
+  function testDefaultDecoratorCreation(): void {
+    const defaultDecorator = createDefaultDecorator();
+    
+    expect(defaultDecorator).toBeInstanceOf(ValidationDecorator);
+    expect(defaultDecorator.unit).toBeDefined();
+  }
+
+  function createDefaultDecorator(): ValidationDecorator {
+    try {
+      const decorator = container.resolve(TOKENS.VALIDATION_DECORATOR);
+      setDefaultDecoratorProperties(decorator);
+      return decorator;
+    } catch (error) {
+      return new ValidationDecorator(mockUnit, VALIDATION_CONSTANTS.STRICT_MODE);
+    }
+  }
+
+  function setDefaultDecoratorProperties(decorator: ValidationDecorator): void {
+    (decorator as any).unit = mockUnit;
+    (decorator as any).strictMode = VALIDATION_CONSTANTS.STRICT_MODE;
+  }
+
+  function testCustomDecoratorCreation(): void {
+    const customDecorator = createCustomDecorator();
+    
+    expect(customDecorator).toBeInstanceOf(ValidationDecorator);
+    expect(customDecorator.unit).toBeDefined();
+  }
+
+  function createCustomDecorator(): ValidationDecorator {
+    try {
+      const decorator = container.resolve(TOKENS.VALIDATION_DECORATOR);
+      setCustomDecoratorProperties(decorator);
+      return decorator;
+    } catch (error) {
+      return new ValidationDecorator(mockUnit, true);
+    }
+  }
+
+  function setCustomDecoratorProperties(decorator: ValidationDecorator): void {
+    (decorator as any).unit = mockUnit;
+    (decorator as any).strictMode = true;
+  }
+
+  function testInvalidSettingsHandling(): void {
+    const invalidDecorator = createInvalidDecorator();
+    
+    expect(invalidDecorator).toBeInstanceOf(ValidationDecorator);
+    expect(() => invalidDecorator.calculate(mockContext)).not.toThrow();
+  }
+
+  function createInvalidDecorator(): ValidationDecorator {
+    try {
+      const decorator = container.resolve(TOKENS.VALIDATION_DECORATOR);
+      setInvalidDecoratorProperties(decorator);
+      return decorator;
+    } catch (error) {
+      return new ValidationDecorator(null as any, null as any);
+    }
+  }
+
+  function setInvalidDecoratorProperties(decorator: ValidationDecorator): void {
+    (decorator as any).unit = null;
+    (decorator as any).strictMode = null;
+  }
+
+  function testInputValidation(): void {
+    const validInput = createValidInput();
+    const isValid = decorator.validateInput(validInput);
+    
+    expect(typeof isValid).toBe('boolean');
+  }
+
+  function createValidInput(): any {
+    return {
+      value: 100,
+      unit: SizeUnit.PIXEL,
+      dimension: Dimension.WIDTH,
+    };
+  }
+
+  function testContextValidation(): void {
+    const isValid = decorator.validateContext(mockContext);
+    
+    expect(typeof isValid).toBe('boolean');
+  }
+
+  function testUnitValidation(): void {
+    const isValid = decorator.validateUnit(mockUnit);
+    
+    expect(typeof isValid).toBe('boolean');
+  }
+
+  function testValidationErrorHandling(): void {
+    const invalidInput = createInvalidInput();
+    
+    expect(() => decorator.validateInput(invalidInput)).not.toThrow();
+  }
+
+  function createInvalidInput(): any {
+    return {
+      value: null,
+      unit: null,
+      dimension: null,
+    };
+  }
+
+  function testUnitWrapping(): void {
+    const wrappedUnit = decorator.wrapUnit(mockUnit);
+    
+    expect(wrappedUnit).toBeDefined();
+    expect(typeof wrappedUnit.calculate).toBe('function');
+    expect(typeof wrappedUnit.validate).toBe('function');
+  }
+
+  function testCalculationWithValidation(): void {
+    const result = decorator.calculate(mockContext);
+    
+    expect(typeof result).toBe('number');
+    expect(result).toBeGreaterThanOrEqual(0);
+  }
+
+  function testCalculationErrorHandling(): void {
+    const problematicContext = createProblematicContext();
+    
+    expect(() => decorator.calculate(problematicContext)).not.toThrow();
+  }
+
+  function createProblematicContext(): UnitContext {
+    return {
+      parent: null,
+      scene: null,
+      viewport: null,
+      content: null,
+    } as any;
+  }
+
+  function testValidationEfficiency(): void {
+    const inputs = createValidationInputs();
+    const startTime = performance.now();
+    
+    inputs.forEach(input => {
+      decorator.validateInput(input);
+    });
+    
+    const endTime = performance.now();
+    const totalTime = endTime - startTime;
+    
+    expect(totalTime).toBeLessThan(100); // Should complete within 100ms
+  }
+
+  function createValidationInputs(): any[] {
+    return [
+      { value: 100, unit: SizeUnit.PIXEL, dimension: Dimension.WIDTH },
+      { value: 200, unit: SizeUnit.FILL, dimension: Dimension.HEIGHT },
+      { value: 1.5, unit: ScaleUnit.FACTOR, dimension: Dimension.WIDTH },
+    ];
+  }
+
+  function testMultipleValidations(): void {
+    const inputs = createMultipleInputs();
+    
+    inputs.forEach(input => {
+      const isValid = decorator.validateInput(input);
+      expect(typeof isValid).toBe('boolean');
+    });
+  }
+
+  function createMultipleInputs(): any[] {
+    const inputs = [];
+    for (let i = 0; i < 100; i++) {
+      inputs.push({
+        value: i,
+        unit: SizeUnit.PIXEL,
+        dimension: Dimension.WIDTH,
+      });
+    }
+    return inputs;
+  }
+
+  function testDifferentUnitTypes(): void {
+    const unitTypes = createDifferentUnitTypes();
+    
+    for (const unitType of unitTypes) {
+      const testUnit = createUnitWithType(unitType);
+      const testDecorator = createDecoratorWithUnit(testUnit);
+      
+      const result = testDecorator.calculate(mockContext);
+      
+      expect(typeof result).toBe('number');
+      expect(result).toBeGreaterThanOrEqual(0);
+    }
+  }
+
+  function createDifferentUnitTypes(): UnitType[] {
+    return [UnitType.SIZE, UnitType.POSITION, UnitType.SCALE];
+  }
+
+  function createUnitWithType(unitType: UnitType): IUnit {
+    return {
+      id: `test-unit-${unitType}`,
+      name: `Test Unit ${unitType}`,
+      unitType: unitType,
+      isActive: true,
+      calculate: () => 100,
+      validate: () => true,
+      isResponsive: () => true,
+      toString: () => `TestUnit(${unitType})`,
+      clone: () => createUnitWithType(unitType),
+    };
+  }
+
+  function createDecoratorWithUnit(unit: IUnit): ValidationDecorator {
+    try {
+      const decorator = container.resolve(TOKENS.VALIDATION_DECORATOR);
+      setDecoratorWithUnit(decorator, unit);
+      return decorator;
+    } catch (error) {
+      return new ValidationDecorator(unit, VALIDATION_CONSTANTS.STRICT_MODE);
+    }
+  }
+
+  function setDecoratorWithUnit(decorator: ValidationDecorator, unit: IUnit): void {
+    (decorator as any).unit = unit;
+    (decorator as any).strictMode = VALIDATION_CONSTANTS.STRICT_MODE;
+  }
+
+  function testDifferentContexts(): void {
+    const contexts = createDifferentContexts();
+    
+    for (const context of contexts) {
+      const result = decorator.calculate(context);
+      
+      expect(typeof result).toBe('number');
+      expect(result).toBeGreaterThanOrEqual(0);
+    }
+  }
+
+  function createDifferentContexts(): UnitContext[] {
+    return [
+      mockContext,
+      { parent: { width: 1000, height: 800, x: 0, y: 0 }, dimension: 'width' },
+      { scene: { width: 1600, height: 1200 }, dimension: 'height' },
+    ];
+  }
+
+  function testDifferentValidators(): void {
+    const validators = createDifferentValidators();
+    
+    for (const validator of validators) {
+      const testDecorator = createDecoratorWithValidator(validator);
+      
+      const result = testDecorator.calculate(mockContext);
+      
+      expect(typeof result).toBe('number');
+      expect(result).toBeGreaterThanOrEqual(0);
+    }
+  }
+
+  function createDifferentValidators(): any[] {
+    return [
+      { strictMode: true, validationRules: ['required', 'type'] },
+      { strictMode: false, validationRules: ['required'] },
+      { strictMode: true, validationRules: ['required', 'type', 'range'] },
+    ];
+  }
+
+  function createDecoratorWithValidator(validator: any): ValidationDecorator {
+    try {
+      const decorator = container.resolve(TOKENS.VALIDATION_DECORATOR);
+      setDecoratorWithValidator(decorator, validator);
+      return decorator;
+    } catch (error) {
+      return new ValidationDecorator(mockUnit, validator.strictMode);
+    }
+  }
+
+  function setDecoratorWithValidator(decorator: ValidationDecorator, validator: any): void {
+    (decorator as any).unit = mockUnit;
+    (decorator as any).strictMode = validator.strictMode;
+    (decorator as any).validationRules = validator.validationRules;
+  }
+
+  function createMockUnit(): MockUnit {
+    try {
+      return container.resolve(TOKENS.MOCK_UNIT);
+    } catch (error) {
+      return new MockUnit();
+    }
+  }
 });

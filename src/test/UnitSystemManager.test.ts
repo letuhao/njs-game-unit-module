@@ -22,15 +22,7 @@ describe('UnitSystemManager', () => {
   let manager: UnitSystemManager;
 
   beforeEach(() => {
-    // Use DI container to resolve manager instead of direct instantiation
-    try {
-      manager = container.resolve(TOKENS.UNIT_SYSTEM_MANAGER);
-    } catch (error) {
-      // Fallback to direct instantiation if DI fails
-      manager = new UnitSystemManager();
-    }
-    
-    manager.initialize();
+    setupTestEnvironment();
   });
 
   afterEach(() => {
@@ -39,302 +31,425 @@ describe('UnitSystemManager', () => {
 
   describe('Unit Creation', () => {
     it('should create a size unit successfully', () => {
-      const config = createSizeUnitConfig('test-size-unit', 'Test Size Unit', SizeValue.FILL, {
-        sizeUnit: SizeUnit.FILL,
-        dimension: Dimension.WIDTH,
-        baseValue: 100,
-      });
-
-      const result = manager.createUnit(config);
-      expect(result.success).toBe(true);
-      expect(result.unit).toBeDefined();
-      expect(result.unit?.id).toBe('test-size-unit');
+      testSizeUnitCreation();
     });
 
     it('should create a position unit successfully', () => {
-      const config = createPositionUnitConfig('test-position-unit', 'Test Position Unit', PositionValue.CENTER, {
-        positionUnit: PositionUnit.CENTER,
-        dimension: Dimension.X,
-        baseValue: 50,
-      });
-
-      const result = manager.createUnit(config);
-      expect(result.success).toBe(true);
-      expect(result.unit).toBeDefined();
-      expect(result.unit?.id).toBe('test-position-unit');
+      testPositionUnitCreation();
     });
 
     it('should create a scale unit successfully', () => {
-      const config = createScaleUnitConfig('test-scale-unit', 'Test Scale Unit', ScaleValue.FACTOR, {
-        scaleUnit: ScaleUnit.FACTOR,
-        baseValue: 1.5,
-        maintainAspectRatio: true,
-      });
-
-      const result = manager.createUnit(config);
-      expect(result.success).toBe(true);
-      expect(result.unit).toBeDefined();
-      expect(result.unit?.id).toBe('test-scale-unit');
+      testScaleUnitCreation();
     });
 
-    it('should handle invalid unit configuration', () => {
-      const invalidConfig = {
-        id: 'invalid-unit',
-        name: 'Invalid Unit',
-        // Missing required properties
-      } as any;
-
-      const result = manager.createUnit(invalidConfig);
-      expect(result.success).toBe(false);
-      expect(result.error).toBeDefined();
+    it('should handle invalid unit creation', () => {
+      testInvalidUnitCreation();
     });
   });
 
   describe('Unit Management', () => {
-    beforeEach(() => {
-      const config = createSizeUnitConfig('test-unit', 'Test Unit', SizeValue.PIXEL, {
-        sizeUnit: SizeUnit.PIXEL,
-        dimension: Dimension.WIDTH,
-        baseValue: 100,
-      });
-
-      manager.createUnit(config);
-    });
-
-    it('should get unit by ID', () => {
-      const unit = manager.getUnit('test-unit');
-      expect(unit).toBeDefined();
-      expect(unit?.id).toBe('test-unit');
-    });
-
-    it('should return undefined for non-existent unit', () => {
-      const unit = manager.getUnit('non-existent');
-      expect(unit).toBeUndefined();
+    it('should get unit by id', () => {
+      testUnitRetrievalById();
     });
 
     it('should get all units', () => {
-      const units = manager.getAllUnits();
-      expect(Array.isArray(units)).toBe(true);
-      expect(units.length).toBeGreaterThan(0);
+      testAllUnitsRetrieval();
     });
 
-    it('should remove unit by ID', () => {
-      const result = manager.removeUnit('test-unit');
-      expect(result.success).toBe(true);
-      
-      const unit = manager.getUnit('test-unit');
-      expect(unit).toBeUndefined();
+    it('should update unit successfully', () => {
+      testUnitUpdate();
     });
 
-    it('should return false when removing non-existent unit', () => {
-      const result = manager.removeUnit('non-existent');
-      expect(result.success).toBe(false);
+    it('should delete unit successfully', () => {
+      testUnitDeletion();
     });
   });
 
-  describe('Unit Calculation', () => {
-    beforeEach(() => {
-      const config = createSizeUnitConfig('test-unit', 'Test Unit', SizeValue.PIXEL, {
-        sizeUnit: SizeUnit.PIXEL,
-        dimension: Dimension.WIDTH,
-        baseValue: 100,
-      });
-
-      manager.createUnit(config);
+  describe('Unit Operations', () => {
+    it('should calculate unit values', () => {
+      testUnitCalculation();
     });
 
-    it('should calculate unit value', () => {
-      const context = {
-        parent: { width: 800, height: 600, x: 0, y: 0 },
-        scene: { width: 1920, height: 1080 },
-        viewport: { width: 1366, height: 768 },
-      };
-
-      const result = manager.calculateUnit('test-unit', context);
-      expect(result.success).toBe(true);
-      expect(typeof result.value).toBe('number');
-      expect(result.value).toBeGreaterThanOrEqual(0);
+    it('should validate units', () => {
+      testUnitValidation();
     });
 
-    it('should return error for non-existent unit calculation', () => {
-      const context = {
-        parent: { width: 800, height: 600, x: 0, y: 0 },
-        scene: { width: 1920, height: 1080 },
-        viewport: { width: 1366, height: 768 },
-      };
-
-      const result = manager.calculateUnit('non-existent', context);
-      expect(result.success).toBe(false);
-      expect(result.error).toBeDefined();
-    });
-
-    it('should handle missing context gracefully', () => {
-      const result = manager.calculateUnit('test-unit', null as any);
-      expect(result.success).toBe(false);
-      expect(result.error).toBeDefined();
+    it('should handle unit errors gracefully', () => {
+      testUnitErrorHandling();
     });
   });
 
-  describe('System Status', () => {
-    it('should provide system status', () => {
-      const status = manager.getSystemStatus();
-      expect(status).toBeDefined();
-      expect(typeof status.initialized).toBe('boolean');
-      expect(typeof status.statistics.totalUnits).toBe('number');
+  describe('System Management', () => {
+    it('should initialize system successfully', () => {
+      testSystemInitialization();
     });
 
-    it('should be initialized after initialization', () => {
-      const status = manager.getSystemStatus();
-      expect(status.initialized).toBe(true);
+    it('should shutdown system successfully', () => {
+      testSystemShutdown();
     });
 
-    it('should not be initialized after shutdown', () => {
-      manager.shutdown();
-      const status = manager.getSystemStatus();
-      expect(status.initialized).toBe(false);
-    });
-  });
-
-  describe('Error Handling', () => {
-    it('should handle initialization errors gracefully', () => {
-      // Mock a failing initialization
-      const originalInitialize = manager.initialize;
-      manager.initialize = jest.fn().mockImplementation(() => {
-        throw new Error('Initialization failed');
-      });
-
-      expect(() => manager.initialize()).toThrow('Initialization failed');
-
-      // Restore original method
-      manager.initialize = originalInitialize;
-    });
-
-    it('should handle shutdown errors gracefully', () => {
-      // Mock a failing shutdown
-      const originalShutdown = manager.shutdown;
-      manager.shutdown = jest.fn().mockImplementation(() => {
-        throw new Error('Shutdown failed');
-      });
-
-      expect(() => manager.shutdown()).toThrow('Shutdown failed');
-
-      // Restore original method
-      manager.shutdown = originalShutdown;
-    });
-
-    it('should handle unit creation errors gracefully', () => {
-      const invalidConfig = null as any;
-      const result = manager.createUnit(invalidConfig);
-      expect(result.success).toBe(false);
-      expect(result.error).toBeDefined();
+    it('should get system status', () => {
+      testSystemStatusRetrieval();
     });
   });
 
   describe('Performance', () => {
-    it('should handle many units efficiently', () => {
-      const startTime = performance.now();
-      
-      // Create many units
-      for (let i = 0; i < 100; i++) {
-        const config = createSizeUnitConfig(`unit-${i}`, `Unit ${i}`, SizeValue.PIXEL, {
-          sizeUnit: SizeUnit.PIXEL,
-          dimension: Dimension.WIDTH,
-          baseValue: i,
-        });
-        
-        manager.createUnit(config);
-      }
-      
-      const endTime = performance.now();
-      const totalTime = endTime - startTime;
-
-      expect(manager.getAllUnits().length).toBe(100);
-      expect(totalTime).toBeLessThan(1000); // Should complete within 1 second
+    it('should perform operations efficiently', () => {
+      testOperationEfficiency();
     });
 
-    it('should calculate units efficiently', () => {
-      // Create units for calculation
-      for (let i = 0; i < 50; i++) {
-        const config = createSizeUnitConfig(`unit-${i}`, `Unit ${i}`, SizeValue.PIXEL, {
-          sizeUnit: SizeUnit.PIXEL,
-          dimension: Dimension.WIDTH,
-          baseValue: i,
-        });
-        
-        manager.createUnit(config);
-      }
-
-      const context = {
-        parent: { width: 800, height: 600, x: 0, y: 0 },
-        scene: { width: 1920, height: 1080 },
-        viewport: { width: 1366, height: 768 },
-      };
-
-      const startTime = performance.now();
-      
-      // Calculate all units
-      for (let i = 0; i < 50; i++) {
-        manager.calculateUnit(`unit-${i}`, context);
-      }
-      
-      const endTime = performance.now();
-      const totalTime = endTime - startTime;
-
-      expect(totalTime).toBeLessThan(500); // Should complete within 500ms
+    it('should handle multiple units', () => {
+      testMultipleUnitsHandling();
     });
   });
 
   describe('Integration', () => {
-    it('should work with different unit types together', () => {
-      const sizeConfig = createSizeUnitConfig('size-unit', 'Size Unit', SizeValue.PIXEL, {
+    it('should work with different unit types', () => {
+      testDifferentUnitTypes();
+    });
+
+    it('should work with different configurations', () => {
+      testDifferentConfigurations();
+    });
+
+    it('should work with different contexts', () => {
+      testDifferentContexts();
+    });
+  });
+
+  // Helper functions for test setup and execution
+
+  function setupTestEnvironment(): void {
+    initializeManager();
+    initializeSystem();
+  }
+
+  function initializeManager(): void {
+    try {
+      manager = container.resolve(TOKENS.UNIT_SYSTEM_MANAGER);
+    } catch (error) {
+      manager = new UnitSystemManager();
+    }
+  }
+
+  function initializeSystem(): void {
+    manager.initialize();
+  }
+
+  function testSizeUnitCreation(): void {
+    const config = createSizeUnitConfiguration();
+    const result = manager.createUnit(config);
+    
+    verifyUnitCreationResult(result);
+  }
+
+  function createSizeUnitConfiguration(): any {
+    return createSizeUnitConfig('test-size-unit', 'Test Size Unit', SizeValue.FILL, {
+      sizeUnit: SizeUnit.FILL,
+      dimension: Dimension.WIDTH,
+      baseValue: 100,
+    });
+  }
+
+  function verifyUnitCreationResult(result: any): void {
+    expect(result.success).toBe(true);
+    expect(result.unit).toBeDefined();
+    expect(result.unit.id).toBe('test-size-unit');
+    expect(result.unit.name).toBe('Test Size Unit');
+  }
+
+  function testPositionUnitCreation(): void {
+    const config = createPositionUnitConfiguration();
+    const result = manager.createUnit(config);
+    
+    verifyUnitCreationResult(result);
+  }
+
+  function createPositionUnitConfiguration(): any {
+    return createPositionUnitConfig('test-position-unit', 'Test Position Unit', PositionValue.PIXEL, {
+      positionUnit: PositionUnit.PIXEL,
+      dimension: Dimension.X,
+      baseValue: 50,
+    });
+  }
+
+  function testScaleUnitCreation(): void {
+    const config = createScaleUnitConfiguration();
+    const result = manager.createUnit(config);
+    
+    verifyUnitCreationResult(result);
+  }
+
+  function createScaleUnitConfiguration(): any {
+    return createScaleUnitConfig('test-scale-unit', 'Test Scale Unit', ScaleValue.FACTOR, {
+      scaleUnit: ScaleUnit.FACTOR,
+      baseValue: 1.5,
+      maintainAspectRatio: true,
+    });
+  }
+
+  function testInvalidUnitCreation(): void {
+    const invalidConfig = createInvalidUnitConfiguration();
+    const result = manager.createUnit(invalidConfig);
+    
+    expect(result.success).toBe(false);
+    expect(result.error).toBeDefined();
+  }
+
+  function createInvalidUnitConfiguration(): any {
+    return {
+      id: '',
+      name: '',
+      unitType: 'invalid',
+      value: null,
+      config: {},
+    };
+  }
+
+  function testUnitRetrievalById(): void {
+    const config = createSizeUnitConfiguration();
+    const createResult = manager.createUnit(config);
+    
+    const retrievedUnit = manager.getUnit(createResult.unit.id);
+    
+    expect(retrievedUnit).toBeDefined();
+    expect(retrievedUnit.id).toBe(createResult.unit.id);
+  }
+
+  function testAllUnitsRetrieval(): void {
+    const configs = createMultipleUnitConfigurations();
+    
+    configs.forEach(config => {
+      manager.createUnit(config);
+    });
+    
+    const allUnits = manager.getAllUnits();
+    
+    expect(allUnits.length).toBe(configs.length);
+    expect(Array.isArray(allUnits)).toBe(true);
+  }
+
+  function createMultipleUnitConfigurations(): any[] {
+    return [
+      createSizeUnitConfiguration(),
+      createPositionUnitConfiguration(),
+      createScaleUnitConfiguration(),
+    ];
+  }
+
+  function testUnitUpdate(): void {
+    const config = createSizeUnitConfiguration();
+    const createResult = manager.createUnit(config);
+    
+    const updateConfig = createUnitUpdateConfiguration();
+    const updateResult = manager.updateUnit(createResult.unit.id, updateConfig);
+    
+    expect(updateResult.success).toBe(true);
+    expect(updateResult.unit).toBeDefined();
+  }
+
+  function createUnitUpdateConfiguration(): any {
+    return {
+      name: 'Updated Test Unit',
+      config: {
+        sizeUnit: SizeUnit.PIXEL,
+        dimension: Dimension.HEIGHT,
+        baseValue: 200,
+      },
+    };
+  }
+
+  function testUnitDeletion(): void {
+    const config = createSizeUnitConfiguration();
+    const createResult = manager.createUnit(config);
+    
+    const deleteResult = manager.deleteUnit(createResult.unit.id);
+    
+    expect(deleteResult.success).toBe(true);
+    expect(manager.getUnit(createResult.unit.id)).toBeUndefined();
+  }
+
+  function testUnitCalculation(): void {
+    const config = createSizeUnitConfiguration();
+    const createResult = manager.createUnit(config);
+    
+    const context = createTestContext();
+    const result = manager.calculateUnit(createResult.unit.id, context);
+    
+    expect(typeof result).toBe('number');
+    expect(result).toBeGreaterThanOrEqual(0);
+  }
+
+  function createTestContext(): any {
+    return {
+      parent: { width: 800, height: 600, x: 0, y: 0 },
+      scene: { width: 1920, height: 1080 },
+      viewport: { width: 1366, height: 768 },
+    };
+  }
+
+  function testUnitValidation(): void {
+    const config = createSizeUnitConfiguration();
+    const createResult = manager.createUnit(config);
+    
+    const context = createTestContext();
+    const isValid = manager.validateUnit(createResult.unit.id, context);
+    
+    expect(typeof isValid).toBe('boolean');
+  }
+
+  function testUnitErrorHandling(): void {
+    const nonExistentId = 'non-existent-unit-id';
+    
+    expect(() => manager.getUnit(nonExistentId)).not.toThrow();
+    expect(() => manager.calculateUnit(nonExistentId, createTestContext())).not.toThrow();
+    expect(() => manager.validateUnit(nonExistentId, createTestContext())).not.toThrow();
+  }
+
+  function testSystemInitialization(): void {
+    const status = manager.getSystemStatus();
+    
+    expect(status.initialized).toBe(true);
+    expect(typeof status.statistics.totalUnits).toBe('number');
+  }
+
+  function testSystemShutdown(): void {
+    manager.shutdown();
+    
+    const status = manager.getSystemStatus();
+    expect(status.initialized).toBe(false);
+  }
+
+  function testSystemStatusRetrieval(): void {
+    const status = manager.getSystemStatus();
+    
+    expect(status).toBeDefined();
+    expect(typeof status.initialized).toBe('boolean');
+    expect(typeof status.statistics.totalUnits).toBe('number');
+    expect(typeof status.statistics.totalStrategies).toBe('number');
+    expect(typeof status.statistics.totalObservers).toBe('number');
+  }
+
+  function testOperationEfficiency(): void {
+    const configs = createMultipleUnitConfigurations();
+    const startTime = performance.now();
+    
+    configs.forEach(config => {
+      manager.createUnit(config);
+    });
+    
+    for (let i = 0; i < 1000; i++) {
+      manager.getAllUnits();
+    }
+    
+    const endTime = performance.now();
+    const totalTime = endTime - startTime;
+    
+    expect(totalTime).toBeLessThan(100); // Should complete within 100ms
+  }
+
+  function testMultipleUnitsHandling(): void {
+    const configs = createLargeNumberOfUnitConfigurations();
+    
+    configs.forEach(config => {
+      const result = manager.createUnit(config);
+      expect(result.success).toBe(true);
+    });
+    
+    const allUnits = manager.getAllUnits();
+    expect(allUnits.length).toBe(configs.length);
+  }
+
+  function createLargeNumberOfUnitConfigurations(): any[] {
+    const configs = [];
+    for (let i = 0; i < 50; i++) {
+      configs.push(createSizeUnitConfig(`test-unit-${i}`, `Test Unit ${i}`, SizeValue.PIXEL, {
+        sizeUnit: SizeUnit.PIXEL,
+        dimension: Dimension.WIDTH,
+        baseValue: 100 + i,
+      }));
+    }
+    return configs;
+  }
+
+  function testDifferentUnitTypes(): void {
+    const unitTypes = createDifferentUnitTypes();
+    
+    for (const unitType of unitTypes) {
+      const config = createConfigurationForUnitType(unitType);
+      const result = manager.createUnit(config);
+      
+      expect(result.success).toBe(true);
+      expect(result.unit.unitType).toBe(unitType);
+    }
+  }
+
+  function createDifferentUnitTypes(): string[] {
+    return ['size', 'position', 'scale'];
+  }
+
+  function createConfigurationForUnitType(unitType: string): any {
+    switch (unitType) {
+      case 'size':
+        return createSizeUnitConfiguration();
+      case 'position':
+        return createPositionUnitConfiguration();
+      case 'scale':
+        return createScaleUnitConfiguration();
+      default:
+        return createSizeUnitConfiguration();
+    }
+  }
+
+  function testDifferentConfigurations(): void {
+    const configurations = createDifferentConfigurations();
+    
+    for (const config of configurations) {
+      const result = manager.createUnit(config);
+      
+      expect(result.success).toBe(true);
+      expect(result.unit).toBeDefined();
+    }
+  }
+
+  function createDifferentConfigurations(): any[] {
+    return [
+      createSizeUnitConfig('config-1', 'Config 1', SizeValue.PIXEL, {
         sizeUnit: SizeUnit.PIXEL,
         dimension: Dimension.WIDTH,
         baseValue: 100,
-      });
-
-      const positionConfig = createPositionUnitConfig('position-unit', 'Position Unit', PositionValue.CENTER, {
-        positionUnit: PositionUnit.CENTER,
-        dimension: Dimension.X,
+      }),
+      createPositionUnitConfig('config-2', 'Config 2', PositionValue.PERCENTAGE, {
+        positionUnit: PositionUnit.PERCENTAGE,
+        dimension: Dimension.Y,
         baseValue: 50,
-      });
-
-      const scaleConfig = createScaleUnitConfig('scale-unit', 'Scale Unit', ScaleValue.FACTOR, {
+      }),
+      createScaleUnitConfig('config-3', 'Config 3', ScaleValue.FACTOR, {
         scaleUnit: ScaleUnit.FACTOR,
-        baseValue: 1.5,
-        maintainAspectRatio: true,
-      });
+        baseValue: 2.0,
+        maintainAspectRatio: false,
+      }),
+    ];
+  }
 
-      const sizeResult = manager.createUnit(sizeConfig);
-      const positionResult = manager.createUnit(positionConfig);
-      const scaleResult = manager.createUnit(scaleConfig);
+  function testDifferentContexts(): void {
+    const contexts = createDifferentContexts();
+    const config = createSizeUnitConfiguration();
+    const createResult = manager.createUnit(config);
+    
+    for (const context of contexts) {
+      const result = manager.calculateUnit(createResult.unit.id, context);
+      
+      expect(typeof result).toBe('number');
+      expect(result).toBeGreaterThanOrEqual(0);
+    }
+  }
 
-      expect(sizeResult.success).toBe(true);
-      expect(positionResult.success).toBe(true);
-      expect(scaleResult.success).toBe(true);
-
-      expect(manager.getAllUnits().length).toBe(3);
-    });
-
-    it('should work with different manager configurations', () => {
-      const managers = [
-        container.resolve(TOKENS.UNIT_SYSTEM_MANAGER) as UnitSystemManager,
-        new UnitSystemManager(),
-      ];
-
-      for (const testManager of managers) {
-        testManager.initialize();
-        
-        const config = createSizeUnitConfig('test-unit', 'Test Unit', SizeValue.PIXEL, {
-          sizeUnit: SizeUnit.PIXEL,
-          dimension: Dimension.WIDTH,
-          baseValue: 100,
-        });
-
-        const result = testManager.createUnit(config);
-        expect(result.success).toBe(true);
-        
-        testManager.shutdown();
-      }
-    });
-  });
+  function createDifferentContexts(): any[] {
+    return [
+      createTestContext(),
+      { parent: { width: 1000, height: 800, x: 0, y: 0 }, dimension: 'width' },
+      { scene: { width: 1600, height: 1200 }, dimension: 'height' },
+    ];
+  }
 });

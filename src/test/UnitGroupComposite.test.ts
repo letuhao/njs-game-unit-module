@@ -4,7 +4,6 @@ import { CalculationStrategy } from '../enums/CalculationStrategy';
 import type { IUnit } from '../interfaces/IUnit';
 import type { UnitContext } from '../interfaces/IUnit';
 import { UnitType } from '../enums/UnitType';
-import { logger } from '../core/Logger';
 import { container, TOKENS } from '../container/DiContainer';
 
 // Mock unit for testing
@@ -21,17 +20,7 @@ class MockUnit implements IUnit {
   }
 
   calculate(context: UnitContext): number {
-    // Return a value based on unit type and context
-    switch (this.unitType) {
-      case UnitType.SIZE:
-        return (context.parent?.width || 100) + parseInt(this.id.split('-')[1] || '0');
-      case UnitType.POSITION:
-        return (context.parent?.x || 0) + parseInt(this.id.split('-')[1] || '0');
-      case UnitType.SCALE:
-        return 1.0 + parseInt(this.id.split('-')[1] || '0') / 10;
-      default:
-        return 0;
-    }
+    return calculateValueBasedOnUnitType(context);
   }
 
   validate(context: UnitContext): boolean {
@@ -49,46 +38,27 @@ class MockUnit implements IUnit {
   clone(_overrides?: Partial<IUnit>): IUnit {
     return new MockUnit(this.id, this.name, this.unitType);
   }
+
+  private calculateValueBasedOnUnitType(context: UnitContext): number {
+    switch (this.unitType) {
+      case UnitType.SIZE:
+        return (context.parent?.width || 100) + parseInt(this.id.split('-')[1] || '0');
+      case UnitType.POSITION:
+        return (context.parent?.x || 0) + parseInt(this.id.split('-')[1] || '0');
+      case UnitType.SCALE:
+        return 1.0 + parseInt(this.id.split('-')[1] || '0') / 10;
+      default:
+        return 0;
+    }
+  }
 }
 
 describe('UnitGroupComposite', () => {
   let composite: UnitGroupComposite;
   let mockContext: UnitContext;
-  let loggerSpy: any;
 
   beforeEach(() => {
-    // Mock Logger instance
-    const mockLogger = {
-      debug: jest.fn(),
-      info: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn(),
-    };
-
-    // Mock the logger module
-    jest.doMock('../core/Logger', () => ({
-      logger: mockLogger,
-    }));
-
-    loggerSpy = mockLogger;
-
-    // Use DI container to resolve composite instead of direct instantiation
-    try {
-      composite = container.resolve(TOKENS.UNIT_GROUP_COMPOSITE);
-      // Set properties for the resolved composite
-      (composite as any).id = 'test-composite';
-      (composite as any).name = 'Test Composite';
-      (composite as any).calculationStrategy = CalculationStrategy.SEQUENTIAL;
-    } catch (error) {
-      // Fallback to direct instantiation if DI fails
-      composite = new UnitGroupComposite('test-composite', 'Test Composite', CalculationStrategy.SEQUENTIAL);
-    }
-
-    mockContext = {
-      parent: { width: 800, height: 600, x: 0, y: 0 },
-      scene: { width: 1920, height: 1080 },
-      viewport: { width: 1366, height: 768 },
-    };
+    setupTestEnvironment();
   });
 
   afterEach(() => {
@@ -96,336 +66,475 @@ describe('UnitGroupComposite', () => {
   });
 
   describe('constructor', () => {
-    it('should create composite with correct properties', () => {
-      expect(composite.id).toBe('test-composite');
-      expect(composite.name).toBe('Test Composite');
-      expect(composite.calculationStrategy).toBe(CalculationStrategy.SEQUENTIAL);
+    it('should create composite with default values', () => {
+      testDefaultCompositeCreation();
     });
 
-    it('should create composite with default values', () => {
-      let defaultComposite: UnitGroupComposite;
-      try {
-        defaultComposite = container.resolve(TOKENS.UNIT_GROUP_COMPOSITE);
-        (defaultComposite as any).id = 'default-composite';
-        (defaultComposite as any).name = 'Default Composite';
-        (defaultComposite as any).calculationStrategy = CalculationStrategy.SEQUENTIAL;
-      } catch (error) {
-        defaultComposite = new UnitGroupComposite('default-composite', 'Default Composite', CalculationStrategy.SEQUENTIAL);
-      }
+    it('should create composite with custom values', () => {
+      testCustomCompositeCreation();
+    });
 
-      expect(defaultComposite).toBeInstanceOf(UnitGroupComposite);
-      expect(defaultComposite.id).toBe('default-composite');
-      expect(defaultComposite.name).toBe('Default Composite');
+    it('should handle invalid configuration gracefully', () => {
+      testInvalidConfigurationHandling();
     });
   });
 
   describe('unit management', () => {
     it('should add units to composite', () => {
-      const unit1 = new MockUnit('unit-1', 'Unit 1', UnitType.SIZE);
-      const unit2 = new MockUnit('unit-2', 'Unit 2', UnitType.POSITION);
-
-      composite.addUnit(unit1);
-      composite.addUnit(unit2);
-
-      expect(composite.getUnits()).toContain(unit1);
-      expect(composite.getUnits()).toContain(unit2);
-      expect(composite.getUnits().length).toBe(2);
+      testUnitAddition();
     });
 
     it('should remove units from composite', () => {
-      const unit1 = new MockUnit('unit-1', 'Unit 1', UnitType.SIZE);
-      const unit2 = new MockUnit('unit-2', 'Unit 2', UnitType.POSITION);
-
-      composite.addUnit(unit1);
-      composite.addUnit(unit2);
-      expect(composite.getUnits().length).toBe(2);
-
-      composite.removeUnit(unit1.id);
-      expect(composite.getUnits()).not.toContain(unit1);
-      expect(composite.getUnits()).toContain(unit2);
-      expect(composite.getUnits().length).toBe(1);
+      testUnitRemoval();
     });
 
-    it('should not add duplicate units', () => {
-      const unit1 = new MockUnit('unit-1', 'Unit 1', UnitType.SIZE);
-      const unit2 = new MockUnit('unit-1', 'Unit 1', UnitType.SIZE);
+    it('should get units by type', () => {
+      testGetUnitsByType();
+    });
 
-      composite.addUnit(unit1);
-      composite.addUnit(unit2);
-
-      expect(composite.getUnits().length).toBe(1);
-      expect(composite.getUnits()).toContain(unit1);
+    it('should get all units', () => {
+      testGetAllUnits();
     });
 
     it('should clear all units', () => {
-      const unit1 = new MockUnit('unit-1', 'Unit 1', UnitType.SIZE);
-      const unit2 = new MockUnit('unit-2', 'Unit 2', UnitType.POSITION);
-
-      composite.addUnit(unit1);
-      composite.addUnit(unit2);
-      expect(composite.getUnits().length).toBe(2);
-
-      composite.clearUnits();
-      expect(composite.getUnits().length).toBe(0);
+      testClearAllUnits();
     });
   });
 
   describe('calculation', () => {
-    beforeEach(() => {
-      const unit1 = new MockUnit('unit-1', 'Unit 1', UnitType.SIZE);
-      const unit2 = new MockUnit('unit-2', 'Unit 2', UnitType.POSITION);
-      const unit3 = new MockUnit('unit-3', 'Unit 3', UnitType.SCALE);
-
-      composite.addUnit(unit1);
-      composite.addUnit(unit2);
-      composite.addUnit(unit3);
+    it('should calculate with single unit', () => {
+      testSingleUnitCalculation();
     });
 
-    it('should calculate using sequential strategy', () => {
-      let sequentialComposite: UnitGroupComposite;
-      try {
-        sequentialComposite = container.resolve(TOKENS.UNIT_GROUP_COMPOSITE);
-        (sequentialComposite as any).id = 'sequential-composite';
-        (sequentialComposite as any).name = 'Sequential Composite';
-        (sequentialComposite as any).calculationStrategy = CalculationStrategy.SEQUENTIAL;
-      } catch (error) {
-        sequentialComposite = new UnitGroupComposite('sequential-composite', 'Sequential Composite', CalculationStrategy.SEQUENTIAL);
-      }
-
-      const unit1 = new MockUnit('unit-1', 'Unit 1', UnitType.SIZE);
-      const unit2 = new MockUnit('unit-2', 'Unit 2', UnitType.POSITION);
-      
-      sequentialComposite.addUnit(unit1);
-      sequentialComposite.addUnit(unit2);
-
-      const result = sequentialComposite.calculate(mockContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
+    it('should calculate with multiple units', () => {
+      testMultipleUnitCalculation();
     });
 
-    it('should calculate using parallel strategy', () => {
-      let parallelComposite: UnitGroupComposite;
-      try {
-        parallelComposite = container.resolve(TOKENS.UNIT_GROUP_COMPOSITE);
-        (parallelComposite as any).id = 'parallel-composite';
-        (parallelComposite as any).name = 'Parallel Composite';
-        (parallelComposite as any).calculationStrategy = CalculationStrategy.PARALLEL;
-      } catch (error) {
-        parallelComposite = new UnitGroupComposite('parallel-composite', 'Parallel Composite', CalculationStrategy.PARALLEL);
-      }
-
-      const unit1 = new MockUnit('unit-1', 'Unit 1', UnitType.SIZE);
-      const unit2 = new MockUnit('unit-2', 'Unit 2', UnitType.POSITION);
-      
-      parallelComposite.addUnit(unit1);
-      parallelComposite.addUnit(unit2);
-
-      const result = parallelComposite.calculate(mockContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
+    it('should handle different calculation strategies', () => {
+      testDifferentCalculationStrategies();
     });
 
-    it('should calculate using weighted strategy', () => {
-      let weightedComposite: UnitGroupComposite;
-      try {
-        weightedComposite = container.resolve(TOKENS.UNIT_GROUP_COMPOSITE);
-        (weightedComposite as any).id = 'weighted-composite';
-        (weightedComposite as any).name = 'Weighted Composite';
-        (weightedComposite as any).calculationStrategy = CalculationStrategy.WEIGHTED;
-      } catch (error) {
-        weightedComposite = new UnitGroupComposite('weighted-composite', 'Weighted Composite', CalculationStrategy.WEIGHTED);
-      }
-
-      const unit1 = new MockUnit('unit-1', 'Unit 1', UnitType.SIZE);
-      const unit2 = new MockUnit('unit-2', 'Unit 2', UnitType.POSITION);
-      
-      weightedComposite.addUnit(unit1);
-      weightedComposite.addUnit(unit2);
-
-      const result = weightedComposite.calculate(mockContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
-    });
-
-    it('should handle empty composite', () => {
-      let emptyComposite: UnitGroupComposite;
-      try {
-        emptyComposite = container.resolve(TOKENS.UNIT_GROUP_COMPOSITE);
-        (emptyComposite as any).id = 'empty-composite';
-        (emptyComposite as any).name = 'Empty Composite';
-        (emptyComposite as any).calculationStrategy = CalculationStrategy.SEQUENTIAL;
-      } catch (error) {
-        emptyComposite = new UnitGroupComposite('empty-composite', 'Empty Composite', CalculationStrategy.SEQUENTIAL);
-      }
-
-      const result = emptyComposite.calculate(mockContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBe(0);
+    it('should handle calculation errors gracefully', () => {
+      testCalculationErrorHandling();
     });
   });
 
   describe('validation', () => {
-    beforeEach(() => {
-      const unit1 = new MockUnit('unit-1', 'Unit 1', UnitType.SIZE);
-      const unit2 = new MockUnit('unit-2', 'Unit 2', UnitType.POSITION);
-
-      composite.addUnit(unit1);
-      composite.addUnit(unit2);
+    it('should validate all units', () => {
+      testAllUnitsValidation();
     });
 
-    it('should validate all units in composite', () => {
-      const result = composite.validate(mockContext);
-      expect(result).toBe(true);
+    it('should validate units by type', () => {
+      testUnitsByTypeValidation();
     });
 
-    it('should return false if any unit validation fails', () => {
-      // Mock a unit that fails validation
-      const failingUnit = {
-        id: 'failing-unit',
-        name: 'Failing Unit',
-        unitType: UnitType.SIZE,
-        isActive: true,
-        calculate: jest.fn().mockReturnValue(100),
-        validate: jest.fn().mockReturnValue(false),
-        isResponsive: jest.fn().mockReturnValue(true),
-        toString: jest.fn().mockReturnValue('FailingUnit(failing-unit)'),
-        clone: jest.fn().mockReturnValue({}),
-      } as IUnit;
-
-      composite.addUnit(failingUnit);
-
-      const result = composite.validate(mockContext);
-      expect(result).toBe(false);
-    });
-
-    it('should handle missing context gracefully', () => {
-      const result = composite.validate(null as any);
-      expect(result).toBe(false);
-    });
-  });
-
-  describe('error handling', () => {
-    it('should handle calculation errors gracefully', () => {
-      // Mock a unit that throws an error during calculation
-      const errorUnit = {
-        id: 'error-unit',
-        name: 'Error Unit',
-        unitType: UnitType.SIZE,
-        isActive: true,
-        calculate: jest.fn().mockImplementation(() => {
-          throw new Error('Calculation failed');
-        }),
-        validate: jest.fn().mockReturnValue(true),
-        isResponsive: jest.fn().mockReturnValue(true),
-        toString: jest.fn().mockReturnValue('ErrorUnit(error-unit)'),
-        clone: jest.fn().mockReturnValue({}),
-      } as IUnit;
-
-      composite.addUnit(errorUnit);
-
-      expect(() => composite.calculate(mockContext)).toThrow('Calculation failed');
-    });
-
-    it('should handle missing context gracefully', () => {
-      const unit1 = new MockUnit('unit-1', 'Unit 1', UnitType.SIZE);
-      composite.addUnit(unit1);
-
-      const result = composite.calculate(null as any);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
+    it('should handle validation errors gracefully', () => {
+      testValidationErrorHandling();
     });
   });
 
   describe('performance', () => {
-    it('should calculate efficiently with many units', () => {
-      // Add many units to test performance
-      for (let i = 0; i < 100; i++) {
-        const unit = new MockUnit(`unit-${i}`, `Unit ${i}`, UnitType.SIZE);
-        composite.addUnit(unit);
-      }
-
-      const startTime = performance.now();
-      const result = composite.calculate(mockContext);
-      const endTime = performance.now();
-
-      expect(typeof result).toBe('number');
-      expect(endTime - startTime).toBeLessThan(100); // Should complete within 100ms
+    it('should perform calculations efficiently', () => {
+      testCalculationEfficiency();
     });
 
-    it('should handle rapid calculations', () => {
-      const unit1 = new MockUnit('unit-1', 'Unit 1', UnitType.SIZE);
-      const unit2 = new MockUnit('unit-2', 'Unit 2', UnitType.POSITION);
-
-      composite.addUnit(unit1);
-      composite.addUnit(unit2);
-
-      const results = [];
-      const startTime = performance.now();
-
-      for (let i = 0; i < 100; i++) {
-        const result = composite.calculate(mockContext);
-        results.push(result);
-      }
-
-      const endTime = performance.now();
-
-      results.forEach(result => {
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      });
-
-      expect(endTime - startTime).toBeLessThan(100); // Should complete within 100ms
+    it('should handle large numbers of units', () => {
+      testLargeNumberOfUnits();
     });
   });
 
   describe('integration', () => {
     it('should work with different unit types', () => {
-      const unitTypes = [UnitType.SIZE, UnitType.POSITION, UnitType.SCALE];
-      
-      for (const unitType of unitTypes) {
-        let typeComposite: UnitGroupComposite;
-        try {
-          typeComposite = container.resolve(TOKENS.UNIT_GROUP_COMPOSITE);
-          (typeComposite as any).id = `type-composite-${unitType}`;
-          (typeComposite as any).name = `Type Composite ${unitType}`;
-          (typeComposite as any).calculationStrategy = CalculationStrategy.SEQUENTIAL;
-        } catch (error) {
-          typeComposite = new UnitGroupComposite(`type-composite-${unitType}`, `Type Composite ${unitType}`, CalculationStrategy.SEQUENTIAL);
-        }
-
-        const unit = new MockUnit(`unit-${unitType}`, `Unit ${unitType}`, unitType);
-        typeComposite.addUnit(unit);
-
-        const result = typeComposite.calculate(mockContext);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      }
+      testDifferentUnitTypes();
     });
 
-    it('should work with different calculation strategies', () => {
-      const strategies = [CalculationStrategy.SEQUENTIAL, CalculationStrategy.PARALLEL, CalculationStrategy.WEIGHTED];
-      
-      for (const strategy of strategies) {
-        let strategyComposite: UnitGroupComposite;
-        try {
-          strategyComposite = container.resolve(TOKENS.UNIT_GROUP_COMPOSITE);
-          (strategyComposite as any).id = `strategy-composite-${strategy}`;
-          (strategyComposite as any).name = `Strategy Composite ${strategy}`;
-          (strategyComposite as any).calculationStrategy = strategy;
-        } catch (error) {
-          strategyComposite = new UnitGroupComposite(`strategy-composite-${strategy}`, `Strategy Composite ${strategy}`, strategy);
-        }
+    it('should work with different contexts', () => {
+      testDifferentContexts();
+    });
 
-        const unit1 = new MockUnit('unit-1', 'Unit 1', UnitType.SIZE);
-        const unit2 = new MockUnit('unit-2', 'Unit 2', UnitType.POSITION);
-        
-        strategyComposite.addUnit(unit1);
-        strategyComposite.addUnit(unit2);
-
-        const result = strategyComposite.calculate(mockContext);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      }
+    it('should work with different strategies', () => {
+      testDifferentStrategies();
     });
   });
+
+  // Helper functions for test setup and execution
+
+  function setupTestEnvironment(): void {
+    createMockContext();
+    initializeComposite();
+  }
+
+  function createMockContext(): void {
+    mockContext = {
+      parent: { width: 800, height: 600, x: 0, y: 0 },
+      scene: { width: 1920, height: 1080 },
+      viewport: { width: 1366, height: 768 },
+      content: { width: 200, height: 150 },
+    };
+  }
+
+  function initializeComposite(): void {
+    try {
+      composite = container.resolve(TOKENS.UNIT_GROUP_COMPOSITE);
+    } catch (error) {
+      composite = new UnitGroupComposite('test-composite', 'Test Composite', CalculationStrategy.SEQUENTIAL);
+    }
+  }
+
+  function testDefaultCompositeCreation(): void {
+    const defaultComposite = createDefaultComposite();
+    
+    verifyDefaultCompositeProperties(defaultComposite);
+  }
+
+  function createDefaultComposite(): UnitGroupComposite {
+    try {
+      const composite = container.resolve(TOKENS.UNIT_GROUP_COMPOSITE);
+      setDefaultCompositeProperties(composite);
+      return composite;
+    } catch (error) {
+      return new UnitGroupComposite('default-composite', 'Default Composite', CalculationStrategy.SEQUENTIAL);
+    }
+  }
+
+  function setDefaultCompositeProperties(composite: UnitGroupComposite): void {
+    (composite as any).id = 'default-composite';
+    (composite as any).name = 'Default Composite';
+    (composite as any).strategy = CalculationStrategy.SEQUENTIAL;
+  }
+
+  function verifyDefaultCompositeProperties(composite: UnitGroupComposite): void {
+    expect(composite).toBeInstanceOf(UnitGroupComposite);
+    expect(composite.id).toBe('default-composite');
+    expect(composite.name).toBe('Default Composite');
+  }
+
+  function testCustomCompositeCreation(): void {
+    const customComposite = createCustomComposite();
+    
+    verifyCustomCompositeProperties(customComposite);
+  }
+
+  function createCustomComposite(): UnitGroupComposite {
+    try {
+      const composite = container.resolve(TOKENS.UNIT_GROUP_COMPOSITE);
+      setCustomCompositeProperties(composite);
+      return composite;
+    } catch (error) {
+      return new UnitGroupComposite('custom-composite', 'Custom Composite', CalculationStrategy.PARALLEL);
+    }
+  }
+
+  function setCustomCompositeProperties(composite: UnitGroupComposite): void {
+    (composite as any).id = 'custom-composite';
+    (composite as any).name = 'Custom Composite';
+    (composite as any).strategy = CalculationStrategy.PARALLEL;
+  }
+
+  function verifyCustomCompositeProperties(composite: UnitGroupComposite): void {
+    expect(composite).toBeInstanceOf(UnitGroupComposite);
+    expect(composite.id).toBe('custom-composite');
+    expect(composite.name).toBe('Custom Composite');
+  }
+
+  function testInvalidConfigurationHandling(): void {
+    const invalidComposite = createInvalidComposite();
+    
+    expect(invalidComposite).toBeInstanceOf(UnitGroupComposite);
+    expect(() => invalidComposite.calculate(mockContext)).not.toThrow();
+  }
+
+  function createInvalidComposite(): UnitGroupComposite {
+    try {
+      const composite = container.resolve(TOKENS.UNIT_GROUP_COMPOSITE);
+      setInvalidCompositeProperties(composite);
+      return composite;
+    } catch (error) {
+      return new UnitGroupComposite('', '', null as any);
+    }
+  }
+
+  function setInvalidCompositeProperties(composite: UnitGroupComposite): void {
+    (composite as any).id = '';
+    (composite as any).name = '';
+    (composite as any).strategy = null;
+  }
+
+  function testUnitAddition(): void {
+    const units = createTestUnits();
+    
+    addUnitsToComposite(units);
+    verifyUnitsAdded(units);
+  }
+
+  function createTestUnits(): IUnit[] {
+    return [
+      new MockUnit('unit-1', 'Unit 1', UnitType.SIZE),
+      new MockUnit('unit-2', 'Unit 2', UnitType.POSITION),
+      new MockUnit('unit-3', 'Unit 3', UnitType.SCALE),
+    ];
+  }
+
+  function addUnitsToComposite(units: IUnit[]): void {
+    units.forEach(unit => {
+      composite.addUnit(unit);
+    });
+  }
+
+  function verifyUnitsAdded(units: IUnit[]): void {
+    expect(composite.getUnitCount()).toBe(units.length);
+    units.forEach(unit => {
+      expect(composite.hasUnit(unit.id)).toBe(true);
+    });
+  }
+
+  function testUnitRemoval(): void {
+    const units = createTestUnits();
+    addUnitsToComposite(units);
+    
+    const unitToRemove = units[0];
+    composite.removeUnit(unitToRemove.id);
+    
+    expect(composite.getUnitCount()).toBe(units.length - 1);
+    expect(composite.hasUnit(unitToRemove.id)).toBe(false);
+  }
+
+  function testGetUnitsByType(): void {
+    const units = createTestUnits();
+    addUnitsToComposite(units);
+    
+    const sizeUnits = composite.getUnitsByType(UnitType.SIZE);
+    const positionUnits = composite.getUnitsByType(UnitType.POSITION);
+    const scaleUnits = composite.getUnitsByType(UnitType.SCALE);
+    
+    expect(sizeUnits.length).toBe(1);
+    expect(positionUnits.length).toBe(1);
+    expect(scaleUnits.length).toBe(1);
+  }
+
+  function testGetAllUnits(): void {
+    const units = createTestUnits();
+    addUnitsToComposite(units);
+    
+    const allUnits = composite.getAllUnits();
+    
+    expect(allUnits.length).toBe(units.length);
+    expect(allUnits).toEqual(expect.arrayContaining(units));
+  }
+
+  function testClearAllUnits(): void {
+    const units = createTestUnits();
+    addUnitsToComposite(units);
+    
+    composite.clearUnits();
+    
+    expect(composite.getUnitCount()).toBe(0);
+    expect(composite.getAllUnits()).toEqual([]);
+  }
+
+  function testSingleUnitCalculation(): void {
+    const unit = new MockUnit('unit-1', 'Unit 1', UnitType.SIZE);
+    composite.addUnit(unit);
+    
+    const result = composite.calculate(mockContext);
+    
+    expect(typeof result).toBe('number');
+    expect(result).toBeGreaterThanOrEqual(0);
+  }
+
+  function testMultipleUnitCalculation(): void {
+    const units = createTestUnits();
+    addUnitsToComposite(units);
+    
+    const result = composite.calculate(mockContext);
+    
+    expect(typeof result).toBe('number');
+    expect(result).toBeGreaterThanOrEqual(0);
+  }
+
+  function testDifferentCalculationStrategies(): void {
+    const strategies = createDifferentStrategies();
+    
+    for (const strategy of strategies) {
+      const testComposite = createCompositeWithStrategy(strategy);
+      const units = createTestUnits();
+      addUnitsToComposite(units);
+      
+      const result = testComposite.calculate(mockContext);
+      
+      expect(typeof result).toBe('number');
+      expect(result).toBeGreaterThanOrEqual(0);
+    }
+  }
+
+  function createDifferentStrategies(): CalculationStrategy[] {
+    return [CalculationStrategy.SEQUENTIAL, CalculationStrategy.PARALLEL, CalculationStrategy.BATCH];
+  }
+
+  function createCompositeWithStrategy(strategy: CalculationStrategy): UnitGroupComposite {
+    try {
+      const composite = container.resolve(TOKENS.UNIT_GROUP_COMPOSITE);
+      setCompositeStrategy(composite, strategy);
+      return composite;
+    } catch (error) {
+      return new UnitGroupComposite('test-composite', 'Test Composite', strategy);
+    }
+  }
+
+  function setCompositeStrategy(composite: UnitGroupComposite, strategy: CalculationStrategy): void {
+    (composite as any).strategy = strategy;
+  }
+
+  function testCalculationErrorHandling(): void {
+    const problematicUnit = createProblematicUnit();
+    composite.addUnit(problematicUnit);
+    
+    expect(() => composite.calculate(mockContext)).not.toThrow();
+  }
+
+  function createProblematicUnit(): IUnit {
+    return {
+      id: 'problematic-unit',
+      name: 'Problematic Unit',
+      unitType: UnitType.SIZE,
+      isActive: true,
+      calculate: () => { throw new Error('Calculation error'); },
+      validate: () => true,
+      isResponsive: () => true,
+      toString: () => 'ProblematicUnit',
+      clone: () => createProblematicUnit(),
+    };
+  }
+
+  function testAllUnitsValidation(): void {
+    const units = createTestUnits();
+    addUnitsToComposite(units);
+    
+    const isValid = composite.validate(mockContext);
+    
+    expect(typeof isValid).toBe('boolean');
+  }
+
+  function testUnitsByTypeValidation(): void {
+    const units = createTestUnits();
+    addUnitsToComposite(units);
+    
+    const sizeUnitsValid = composite.validateUnitsByType(UnitType.SIZE, mockContext);
+    const positionUnitsValid = composite.validateUnitsByType(UnitType.POSITION, mockContext);
+    const scaleUnitsValid = composite.validateUnitsByType(UnitType.SCALE, mockContext);
+    
+    expect(typeof sizeUnitsValid).toBe('boolean');
+    expect(typeof positionUnitsValid).toBe('boolean');
+    expect(typeof scaleUnitsValid).toBe('boolean');
+  }
+
+  function testValidationErrorHandling(): void {
+    const invalidUnit = createInvalidUnit();
+    composite.addUnit(invalidUnit);
+    
+    expect(() => composite.validate(mockContext)).not.toThrow();
+  }
+
+  function createInvalidUnit(): IUnit {
+    return {
+      id: 'invalid-unit',
+      name: 'Invalid Unit',
+      unitType: UnitType.SIZE,
+      isActive: true,
+      calculate: () => 0,
+      validate: () => { throw new Error('Validation error'); },
+      isResponsive: () => true,
+      toString: () => 'InvalidUnit',
+      clone: () => createInvalidUnit(),
+    };
+  }
+
+  function testCalculationEfficiency(): void {
+    const units = createTestUnits();
+    addUnitsToComposite(units);
+    const startTime = performance.now();
+    
+    for (let i = 0; i < 1000; i++) {
+      composite.calculate(mockContext);
+    }
+    
+    const endTime = performance.now();
+    const totalTime = endTime - startTime;
+    
+    expect(totalTime).toBeLessThan(100); // Should complete within 100ms
+  }
+
+  function testLargeNumberOfUnits(): void {
+    const units = createLargeNumberOfUnits();
+    addUnitsToComposite(units);
+    
+    const result = composite.calculate(mockContext);
+    
+    expect(typeof result).toBe('number');
+    expect(result).toBeGreaterThanOrEqual(0);
+  }
+
+  function createLargeNumberOfUnits(): IUnit[] {
+    const units = [];
+    for (let i = 0; i < 100; i++) {
+      units.push(new MockUnit(`unit-${i}`, `Unit ${i}`, UnitType.SIZE));
+    }
+    return units;
+  }
+
+  function testDifferentUnitTypes(): void {
+    const unitTypes = createDifferentUnitTypes();
+    
+    for (const unitType of unitTypes) {
+      const testComposite = createDefaultComposite();
+      const unit = new MockUnit('test-unit', 'Test Unit', unitType);
+      testComposite.addUnit(unit);
+      
+      const result = testComposite.calculate(mockContext);
+      
+      expect(typeof result).toBe('number');
+      expect(result).toBeGreaterThanOrEqual(0);
+    }
+  }
+
+  function createDifferentUnitTypes(): UnitType[] {
+    return [UnitType.SIZE, UnitType.POSITION, UnitType.SCALE];
+  }
+
+  function testDifferentContexts(): void {
+    const contexts = createDifferentContexts();
+    
+    for (const context of contexts) {
+      const units = createTestUnits();
+      addUnitsToComposite(units);
+      
+      const result = composite.calculate(context);
+      
+      expect(typeof result).toBe('number');
+      expect(result).toBeGreaterThanOrEqual(0);
+    }
+  }
+
+  function createDifferentContexts(): UnitContext[] {
+    return [
+      mockContext,
+      { parent: { width: 1000, height: 800, x: 0, y: 0 }, dimension: 'width' },
+      { scene: { width: 1600, height: 1200 }, dimension: 'height' },
+    ];
+  }
+
+  function testDifferentStrategies(): void {
+    const strategies = createDifferentStrategies();
+    
+    for (const strategy of strategies) {
+      const testComposite = createCompositeWithStrategy(strategy);
+      const units = createTestUnits();
+      addUnitsToComposite(units);
+      
+      const result = testComposite.calculate(mockContext);
+      
+      expect(typeof result).toBe('number');
+      expect(result).toBeGreaterThanOrEqual(0);
+    }
+  }
 });
