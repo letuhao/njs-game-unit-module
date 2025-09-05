@@ -1,102 +1,35 @@
-import type { ScaleValue } from '../../enums/ScaleValue';
-import type { ScaleUnit } from '../../enums/ScaleUnit';
+import { ScaleValue } from '../../enums/ScaleValue';
+import { ScaleUnit } from '../../enums/ScaleUnit';
+import { IBaseStrategyInput } from './IBaseStrategyInput';
 
 /**
- * Core scale strategy input interface - basic properties
+ * Scale Strategy Input Interface
+ * Represents scale-related strategy inputs
  */
-export interface IScaleStrategyInputCore {
-  /** Unique identifier for the strategy input */
-  readonly id: string;
-
-  /** Human-readable name for the strategy input */
-  readonly name: string;
-
+export interface IScaleStrategyInput extends IBaseStrategyInput {
   /** Scale value */
-  readonly value: number | ScaleValue;
+  value?: number | string | ScaleValue | ScaleUnit;
 
   /** Scale unit */
-  readonly unit: ScaleUnit;
+  unit?: ScaleUnit;
 
-  /** Whether the strategy input is valid */
-  readonly isValid: boolean;
-}
+  /** Scale value type */
+  valueType?: ScaleValue;
 
-/**
- * Scale strategy input operations interface - operations and methods
- */
-export interface IScaleStrategyInputOperations {
-  /** Get the calculated scale value */
-  getScaleValue(): number;
+  /** Parent scale reference */
+  parentScale?: {
+    getValue(parent: unknown): number;
+  };
 
-  /** Get the scale unit */
-  getScaleUnit(): ScaleUnit;
+  /** Scale string for parsing */
+  scaleString?: string;
 
-  /** Validate the scale strategy input */
-  validate(): boolean;
+  /** Scale array for multiple values */
+  scaleArray?: (number | string | ScaleValue | ScaleUnit)[];
 
-  /** Clone the scale strategy input */
-  clone(): IScaleStrategyInput;
-}
-
-/**
- * Complete scale strategy input interface
- * Combines all scale strategy input functionality
- */
-export interface IScaleStrategyInput extends 
-  IScaleStrategyInputCore,
-  IScaleStrategyInputOperations {
-}
-
-/**
- * Scale strategy input factory interface - creation methods
- */
-export interface IScaleStrategyInputFactory {
-  /** Create a scale strategy input from a number */
-  createFromNumber(
-    value: number,
-    unit: ScaleUnit
-  ): IScaleStrategyInput;
-
-  /** Create a scale strategy input from a ScaleValue */
-  createFromScaleValue(
-    value: ScaleValue,
-    unit: ScaleUnit
-  ): IScaleStrategyInput;
-
-  /** Create a scale strategy input from a string */
-  createFromString(
-    value: string,
-    unit: ScaleUnit
-  ): IScaleStrategyInput;
-
-  /** Create a scale strategy input from an object */
-  createFromObject(config: {
-    id: string;
-    name: string;
-    value: number | ScaleValue | string;
-    unit: ScaleUnit;
-  }): IScaleStrategyInput;
-}
-
-/**
- * Scale strategy input validator interface - validation methods
- */
-export interface IScaleStrategyInputValidator {
-  /** Validate a scale strategy input */
-  validate(input: IScaleStrategyInput): boolean;
-
-  /** Get validation errors */
-  getErrors(): string[];
-
-  /** Clear validation errors */
-  clearErrors(): void;
-
-  /** Check if the input is a valid number */
-  isValidNumber(value: unknown): value is number;
-
-  /** Check if the input is a valid ScaleValue */
-  isValidScaleValue(value: unknown): value is ScaleValue;
-
-  /** Check if the input is a valid ScaleUnit */
-  isValidScaleUnit(value: unknown): value is ScaleUnit;
+  /** Scale constraints */
+  constraints?: {
+    min?: number;
+    max?: number;
+  };
 }

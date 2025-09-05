@@ -1,113 +1,39 @@
-import type { PositionValue } from '../../enums/PositionValue';
-import type { PositionUnit } from '../../enums/PositionUnit';
+import { PositionValue } from '../../enums/PositionValue';
+import { PositionUnit } from '../../enums/PositionUnit';
 import { Dimension } from '../../enums/Dimension';
+import { IBaseStrategyInput } from './IBaseStrategyInput';
 
 /**
- * Core position strategy input interface - basic properties
+ * Position Strategy Input Interface
+ * Represents position-related strategy inputs
  */
-export interface IPositionStrategyInputCore {
-  /** Unique identifier for the strategy input */
-  readonly id: string;
-
-  /** Human-readable name for the strategy input */
-  readonly name: string;
-
+export interface IPositionStrategyInput extends IBaseStrategyInput {
   /** Position value */
-  readonly value: number | PositionValue;
+  value?: number | string | PositionValue | PositionUnit;
 
   /** Position axis */
-  readonly axis: Dimension.X | Dimension.Y | Dimension.XY;
+  axis?: Dimension;
 
   /** Position unit */
-  readonly unit: PositionUnit;
+  unit?: PositionUnit;
 
-  /** Whether the strategy input is valid */
-  readonly isValid: boolean;
-}
+  /** Position value type */
+  valueType?: PositionValue;
 
-/**
- * Position strategy input operations interface - operations and methods
- */
-export interface IPositionStrategyInputOperations {
-  /** Get the calculated position value */
-  getPositionValue(): number;
+  /** Parent position reference */
+  parentPosition?: {
+    getValue(parent: unknown): number;
+  };
 
-  /** Get the position unit */
-  getPositionUnit(): PositionUnit;
+  /** Position string for parsing */
+  positionString?: string;
 
-  /** Get the position axis */
-  getAxis(): Dimension.X | Dimension.Y | Dimension.XY;
+  /** Position array for multiple values */
+  positionArray?: (number | string | PositionValue | PositionUnit)[];
 
-  /** Validate the position strategy input */
-  validate(): boolean;
-
-  /** Clone the position strategy input */
-  clone(): IPositionStrategyInput;
-}
-
-/**
- * Complete position strategy input interface
- * Combines all position strategy input functionality
- */
-export interface IPositionStrategyInput extends 
-  IPositionStrategyInputCore,
-  IPositionStrategyInputOperations {
-}
-
-/**
- * Position strategy input factory interface - creation methods
- */
-export interface IPositionStrategyInputFactory {
-  /** Create a position strategy input from a number */
-  createFromNumber(
-    value: number,
-    unit: PositionUnit,
-    axis: Dimension.X | Dimension.Y | Dimension.XY
-  ): IPositionStrategyInput;
-
-  /** Create a position strategy input from a PositionValue */
-  createFromPositionValue(
-    value: PositionValue,
-    unit: PositionUnit,
-    axis: Dimension.X | Dimension.Y | Dimension.XY
-  ): IPositionStrategyInput;
-
-  /** Create a position strategy input from a string */
-  createFromString(
-    value: string,
-    unit: PositionUnit,
-    axis: Dimension.X | Dimension.Y | Dimension.XY
-  ): IPositionStrategyInput;
-
-  /** Create a position strategy input from an object */
-  createFromObject(config: {
-    id: string;
-    name: string;
-    value: number | PositionValue | string;
-    unit: PositionUnit;
-    axis: Dimension.X | Dimension.Y | Dimension.XY;
-  }): IPositionStrategyInput;
-}
-
-/**
- * Position strategy input validator interface - validation methods
- */
-export interface IPositionStrategyInputValidator {
-  /** Validate a position strategy input */
-  validate(input: IPositionStrategyInput): boolean;
-
-  /** Get validation errors */
-  getErrors(): string[];
-
-  /** Clear validation errors */
-  clearErrors(): void;
-
-  /** Check if the input is a valid number */
-  isValidNumber(value: unknown): value is number;
-
-  /** Check if the input is a valid PositionValue */
-  isValidPositionValue(value: unknown): value is PositionValue;
-
-  /** Check if the input is a valid PositionUnit */
-  isValidPositionUnit(value: unknown): value is PositionUnit;
+  /** Position constraints */
+  constraints?: {
+    min?: number;
+    max?: number;
+  };
 }

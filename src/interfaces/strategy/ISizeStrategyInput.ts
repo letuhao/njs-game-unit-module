@@ -1,113 +1,39 @@
-import type { SizeValue } from '../../enums/SizeValue';
-import type { SizeUnit } from '../../enums/SizeUnit';
+import { SizeValue } from '../../enums/SizeValue';
+import { SizeUnit } from '../../enums/SizeUnit';
 import { Dimension } from '../../enums/Dimension';
+import { IBaseStrategyInput } from './IBaseStrategyInput';
 
 /**
- * Core size strategy input interface - basic properties
+ * Size Strategy Input Interface
+ * Represents size-related strategy inputs
  */
-export interface ISizeStrategyInputCore {
-  /** Unique identifier for the strategy input */
-  readonly id: string;
-
-  /** Human-readable name for the strategy input */
-  readonly name: string;
-
+export interface ISizeStrategyInput extends IBaseStrategyInput {
   /** Size value */
-  readonly value: number | SizeValue;
+  value?: number | string | SizeValue | SizeUnit;
 
   /** Size dimension */
-  readonly dimension: Dimension.WIDTH | Dimension.HEIGHT | Dimension.BOTH;
+  dimension?: Dimension;
 
   /** Size unit */
-  readonly unit: SizeUnit;
+  unit?: SizeUnit;
 
-  /** Whether the strategy input is valid */
-  readonly isValid: boolean;
-}
+  /** Size value type */
+  valueType?: SizeValue;
 
-/**
- * Size strategy input operations interface - operations and methods
- */
-export interface ISizeStrategyInputOperations {
-  /** Get the calculated size value */
-  getSizeValue(): number;
+  /** Parent size reference */
+  parentSize?: {
+    getValue(parent: unknown): number;
+  };
 
-  /** Get the size unit */
-  getSizeUnit(): SizeUnit;
+  /** Size string for parsing */
+  sizeString?: string;
 
-  /** Get the size dimension */
-  getDimension(): Dimension.WIDTH | Dimension.HEIGHT | Dimension.BOTH;
+  /** Size array for multiple values */
+  sizeArray?: (number | string | SizeValue | SizeUnit)[];
 
-  /** Validate the size strategy input */
-  validate(): boolean;
-
-  /** Clone the size strategy input */
-  clone(): ISizeStrategyInput;
-}
-
-/**
- * Complete size strategy input interface
- * Combines all size strategy input functionality
- */
-export interface ISizeStrategyInput extends 
-  ISizeStrategyInputCore,
-  ISizeStrategyInputOperations {
-}
-
-/**
- * Size strategy input factory interface - creation methods
- */
-export interface ISizeStrategyInputFactory {
-  /** Create a size strategy input from a number */
-  createFromNumber(
-    value: number,
-    unit: SizeUnit,
-    dimension: Dimension.WIDTH | Dimension.HEIGHT | Dimension.BOTH
-  ): ISizeStrategyInput;
-
-  /** Create a size strategy input from a SizeValue */
-  createFromSizeValue(
-    value: SizeValue,
-    unit: SizeUnit,
-    dimension: Dimension.WIDTH | Dimension.HEIGHT | Dimension.BOTH
-  ): ISizeStrategyInput;
-
-  /** Create a size strategy input from a string */
-  createFromString(
-    value: string,
-    unit: SizeUnit,
-    dimension: Dimension.WIDTH | Dimension.HEIGHT | Dimension.BOTH
-  ): ISizeStrategyInput;
-
-  /** Create a size strategy input from an object */
-  createFromObject(config: {
-    id: string;
-    name: string;
-    value: number | SizeValue | string;
-    unit: SizeUnit;
-    dimension: Dimension.WIDTH | Dimension.HEIGHT | Dimension.BOTH;
-  }): ISizeStrategyInput;
-}
-
-/**
- * Size strategy input validator interface - validation methods
- */
-export interface ISizeStrategyInputValidator {
-  /** Validate a size strategy input */
-  validate(input: ISizeStrategyInput): boolean;
-
-  /** Get validation errors */
-  getErrors(): string[];
-
-  /** Clear validation errors */
-  clearErrors(): void;
-
-  /** Check if the input is a valid number */
-  isValidNumber(value: unknown): value is number;
-
-  /** Check if the input is a valid SizeValue */
-  isValidSizeValue(value: unknown): value is SizeValue;
-
-  /** Check if the input is a valid SizeUnit */
-  isValidSizeUnit(value: unknown): value is SizeUnit;
+  /** Size constraints */
+  constraints?: {
+    min?: number;
+    max?: number;
+  };
 }
