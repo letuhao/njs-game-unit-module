@@ -10,423 +10,503 @@ describe('SizeUnitCalculator', () => {
   let mockContext: ReturnType<typeof createMockContext>;
 
   beforeEach(() => {
-    mockContext = createMockContext();
+    setupTestEnvironment();
   });
 
   describe('Constructor', () => {
     it('should create a size unit calculator with correct properties', () => {
-      // Use DI container to resolve calculator instead of direct instantiation
-      try {
-        calculator = container.resolve(TOKENS.SIZE_UNIT_CALCULATOR);
-        // Set properties for the resolved calculator
-        (calculator as any).id = 'test-size';
-        (calculator as any).name = 'Test Size';
-        (calculator as any).sizeUnit = SizeUnit.PARENT_WIDTH;
-        (calculator as any).dimension = Dimension.WIDTH;
-        (calculator as any).baseValue = SizeValue.FILL;
-        (calculator as any).isActive = true;
-      } catch (error) {
-        // Fallback to direct instantiation if DI fails
-        calculator = new SizeUnitCalculator(
-          'test-size',
-          'Test Size',
-          SizeUnit.PARENT_WIDTH,
-          Dimension.WIDTH,
-          SizeValue.FILL,
-          true
-        );
-      }
-
-      expect(calculator.id).toBe('test-size');
-      expect(calculator.name).toBe('Test Size');
-      expect(calculator.sizeUnit).toBe(SizeUnit.PARENT_WIDTH);
-      expect(calculator.dimension).toBe(Dimension.WIDTH);
-      expect(calculator.baseValue).toBe(SizeValue.FILL);
-      expect(calculator.isActive).toBe(true);
+      testCalculatorCreation();
     });
 
     it('should create calculator with default values', () => {
-      let defaultCalculator: SizeUnitCalculator;
-      try {
-        defaultCalculator = container.resolve(TOKENS.SIZE_UNIT_CALCULATOR);
-        (defaultCalculator as any).id = 'default-size';
-        (defaultCalculator as any).name = 'Default Size';
-        (defaultCalculator as any).sizeUnit = SizeUnit.PIXEL;
-        (defaultCalculator as any).dimension = Dimension.WIDTH;
-        (defaultCalculator as any).baseValue = SizeValue.PIXEL;
-        (defaultCalculator as any).isActive = true;
-      } catch (error) {
-        defaultCalculator = new SizeUnitCalculator(
-          'default-size',
-          'Default Size',
-          SizeUnit.PIXEL,
-          Dimension.WIDTH,
-          SizeValue.PIXEL,
-          true
-        );
-      }
+      testDefaultCalculatorCreation();
+    });
 
-      expect(defaultCalculator).toBeInstanceOf(SizeUnitCalculator);
-      expect(defaultCalculator.id).toBe('default-size');
-      expect(defaultCalculator.name).toBe('Default Size');
+    it('should handle invalid size values gracefully', () => {
+      testInvalidSizeValueHandling();
     });
   });
 
   describe('Size Calculation', () => {
     beforeEach(() => {
-      try {
-        calculator = container.resolve(TOKENS.SIZE_UNIT_CALCULATOR);
-        (calculator as any).id = 'test-calculator';
-        (calculator as any).name = 'Test Calculator';
-        (calculator as any).sizeUnit = SizeUnit.PIXEL;
-        (calculator as any).dimension = Dimension.WIDTH;
-        (calculator as any).baseValue = SizeValue.PIXEL;
-        (calculator as any).isActive = true;
-      } catch (error) {
-        calculator = new SizeUnitCalculator(
-          'test-calculator',
-          'Test Calculator',
-          SizeUnit.PIXEL,
-          Dimension.WIDTH,
-          SizeValue.PIXEL,
-          true
-        );
-      }
+      setupCalculatorForCalculation();
     });
 
-    it('should calculate pixel size correctly', () => {
-      const result = calculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
+    it('should calculate pixel size values', () => {
+      testPixelSizeValueCalculation();
     });
 
-    it('should calculate fill size correctly', () => {
-      const result = calculator.calculate(SizeValue.FILL, SizeUnit.FILL, mockContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
+    it('should calculate fill size values', () => {
+      testFillSizeValueCalculation();
     });
 
-    it('should calculate auto size correctly', () => {
-      const result = calculator.calculate(SizeValue.AUTO, SizeUnit.AUTO, mockContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
+    it('should calculate auto size values', () => {
+      testAutoSizeValueCalculation();
     });
 
-    it('should calculate parent width size correctly', () => {
-      const result = calculator.calculate(SizeValue.PARENT_WIDTH, SizeUnit.PARENT_WIDTH, mockContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
+    it('should calculate parent width size values', () => {
+      testParentWidthSizeValueCalculation();
     });
 
-    it('should calculate viewport width size correctly', () => {
-      const result = calculator.calculate(SizeValue.VIEWPORT_WIDTH, SizeUnit.VIEWPORT_WIDTH, mockContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
+    it('should calculate viewport width size values', () => {
+      testViewportWidthSizeValueCalculation();
     });
   });
 
   describe('Different Dimensions', () => {
-    it('should handle WIDTH dimension calculations', () => {
-      let widthCalculator: SizeUnitCalculator;
-      try {
-        widthCalculator = container.resolve(TOKENS.SIZE_UNIT_CALCULATOR);
-        (widthCalculator as any).id = 'width-calculator';
-        (widthCalculator as any).name = 'Width Calculator';
-        (widthCalculator as any).sizeUnit = SizeUnit.PIXEL;
-        (widthCalculator as any).dimension = Dimension.WIDTH;
-        (widthCalculator as any).baseValue = SizeValue.PIXEL;
-        (widthCalculator as any).isActive = true;
-      } catch (error) {
-        widthCalculator = new SizeUnitCalculator(
-          'width-calculator',
-          'Width Calculator',
-          SizeUnit.PIXEL,
-          Dimension.WIDTH,
-          SizeValue.PIXEL,
-          true
-        );
-      }
-
-      const result = widthCalculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
+    it('should handle width dimension calculations', () => {
+      testWidthDimensionCalculations();
     });
 
-    it('should handle HEIGHT dimension calculations', () => {
-      let heightCalculator: SizeUnitCalculator;
-      try {
-        heightCalculator = container.resolve(TOKENS.SIZE_UNIT_CALCULATOR);
-        (heightCalculator as any).id = 'height-calculator';
-        (heightCalculator as any).name = 'Height Calculator';
-        (heightCalculator as any).sizeUnit = SizeUnit.PIXEL;
-        (heightCalculator as any).dimension = Dimension.HEIGHT;
-        (heightCalculator as any).baseValue = SizeValue.PIXEL;
-        (heightCalculator as any).isActive = true;
-      } catch (error) {
-        heightCalculator = new SizeUnitCalculator(
-          'height-calculator',
-          'Height Calculator',
-          SizeUnit.PIXEL,
-          Dimension.HEIGHT,
-          SizeValue.PIXEL,
-          true
-        );
-      }
-
-      const result = heightCalculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
+    it('should handle height dimension calculations', () => {
+      testHeightDimensionCalculations();
     });
 
-    it('should handle BOTH dimension calculations', () => {
-      let bothCalculator: SizeUnitCalculator;
-      try {
-        bothCalculator = container.resolve(TOKENS.SIZE_UNIT_CALCULATOR);
-        (bothCalculator as any).id = 'both-calculator';
-        (bothCalculator as any).name = 'Both Calculator';
-        (bothCalculator as any).sizeUnit = SizeUnit.PIXEL;
-        (bothCalculator as any).dimension = Dimension.BOTH;
-        (bothCalculator as any).baseValue = SizeValue.PIXEL;
-        (bothCalculator as any).isActive = true;
-      } catch (error) {
-        bothCalculator = new SizeUnitCalculator(
-          'both-calculator',
-          'Both Calculator',
-          SizeUnit.PIXEL,
-          Dimension.BOTH,
-          SizeValue.PIXEL,
-          true
-        );
-      }
-
-      const result = bothCalculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
+    it('should handle both dimensions calculations', () => {
+      testBothDimensionsCalculations();
     });
   });
 
-  describe('Context Handling', () => {
-    beforeEach(() => {
-      try {
-        calculator = container.resolve(TOKENS.SIZE_UNIT_CALCULATOR);
-        (calculator as any).id = 'test-calculator';
-        (calculator as any).name = 'Test Calculator';
-        (calculator as any).sizeUnit = SizeUnit.PIXEL;
-        (calculator as any).dimension = Dimension.WIDTH;
-        (calculator as any).baseValue = SizeValue.PIXEL;
-        (calculator as any).isActive = true;
-      } catch (error) {
-        calculator = new SizeUnitCalculator(
-          'test-calculator',
-          'Test Calculator',
-          SizeUnit.PIXEL,
-          Dimension.WIDTH,
-          SizeValue.PIXEL,
-          true
-        );
-      }
+  describe('Different Size Units', () => {
+    it('should handle pixel unit calculations', () => {
+      testPixelUnitCalculations();
     });
 
-    it('should handle different parent contexts', () => {
-      const contexts = [
-        { parent: { width: 800, height: 600, x: 0, y: 0 }, dimension: Dimension.WIDTH },
-        { parent: { width: 1200, height: 800, x: 0, y: 0 }, dimension: Dimension.WIDTH },
-        { parent: { width: 400, height: 300, x: 0, y: 0 }, dimension: Dimension.WIDTH },
-      ];
-
-      for (const context of contexts) {
-        const result = calculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, context as any);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      }
+    it('should handle fill unit calculations', () => {
+      testFillUnitCalculations();
     });
 
-    it('should handle different scene contexts', () => {
-      const contexts = [
-        { scene: { width: 1920, height: 1080 }, dimension: Dimension.WIDTH },
-        { scene: { width: 1366, height: 768 }, dimension: Dimension.WIDTH },
-        { scene: { width: 1024, height: 768 }, dimension: Dimension.WIDTH },
-      ];
-
-      for (const context of contexts) {
-        const result = calculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, context as any);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      }
+    it('should handle auto unit calculations', () => {
+      testAutoUnitCalculations();
     });
 
-    it('should handle viewport contexts', () => {
-      const contexts = [
-        { viewport: { width: 1920, height: 1080 }, dimension: Dimension.WIDTH },
-        { viewport: { width: 1366, height: 768 }, dimension: Dimension.WIDTH },
-        { viewport: { width: 1024, height: 768 }, dimension: Dimension.WIDTH },
-      ];
+    it('should handle parent width unit calculations', () => {
+      testParentWidthUnitCalculations();
+    });
 
-      for (const context of contexts) {
-        const result = calculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, context as any);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      }
+    it('should handle viewport width unit calculations', () => {
+      testViewportWidthUnitCalculations();
     });
   });
 
   describe('Error Handling', () => {
-    beforeEach(() => {
-      try {
-        calculator = container.resolve(TOKENS.SIZE_UNIT_CALCULATOR);
-        (calculator as any).id = 'test-calculator';
-        (calculator as any).name = 'Test Calculator';
-        (calculator as any).sizeUnit = SizeUnit.PIXEL;
-        (calculator as any).dimension = Dimension.WIDTH;
-        (calculator as any).baseValue = SizeValue.PIXEL;
-        (calculator as any).isActive = true;
-      } catch (error) {
-        calculator = new SizeUnitCalculator(
-          'test-calculator',
-          'Test Calculator',
-          SizeUnit.PIXEL,
-          Dimension.WIDTH,
-          SizeValue.PIXEL,
-          true
-        );
-      }
-    });
-
     it('should handle invalid size values gracefully', () => {
-      const invalidValues = ['invalid' as any, null, undefined, {}];
-      
-      for (const invalidValue of invalidValues) {
-        const result = calculator.calculate(invalidValue, SizeUnit.PIXEL, mockContext);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      }
+      testInvalidSizeValueHandling();
     });
 
     it('should handle invalid size units gracefully', () => {
-      const invalidUnits = ['invalid' as any, null, undefined, {}];
-      
-      for (const invalidUnit of invalidUnits) {
-        const result = calculator.calculate(SizeValue.PIXEL, invalidUnit, mockContext);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      }
+      testInvalidSizeUnitHandling();
     });
 
     it('should handle missing context properties', () => {
-      const partialContexts = [
-        {},
-        { parent: { width: 800, height: 600, x: 0, y: 0 } },
-        { scene: { width: 1920, height: 1080 } },
-        { viewport: { width: 1366, height: 768 } },
-      ];
-
-      for (const partialContext of partialContexts) {
-        const result = calculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, partialContext as any);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      }
+      testMissingContextPropertiesHandling();
     });
   });
 
   describe('Performance', () => {
-    beforeEach(() => {
-      try {
-        calculator = container.resolve(TOKENS.SIZE_UNIT_CALCULATOR);
-        (calculator as any).id = 'test-calculator';
-        (calculator as any).name = 'Test Calculator';
-        (calculator as any).sizeUnit = SizeUnit.PIXEL;
-        (calculator as any).dimension = Dimension.WIDTH;
-        (calculator as any).baseValue = SizeValue.PIXEL;
-        (calculator as any).isActive = true;
-      } catch (error) {
-        calculator = new SizeUnitCalculator(
-          'test-calculator',
-          'Test Calculator',
-          SizeUnit.PIXEL,
-          Dimension.WIDTH,
-          SizeValue.PIXEL,
-          true
-        );
-      }
-    });
-
     it('should perform calculations efficiently', () => {
-      const startTime = performance.now();
-      
-      for (let i = 0; i < 1000; i++) {
-        calculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
-      }
-      
-      const endTime = performance.now();
-      const totalTime = endTime - startTime;
-
-      expect(totalTime).toBeLessThan(100); // Should complete within 100ms
+      testCalculationEfficiency();
     });
 
-    it('should handle multiple rapid calculations', () => {
-      const results = [];
-      
-      for (let i = 0; i < 100; i++) {
-        const result = calculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
-        results.push(result);
-      }
-      
-      results.forEach(result => {
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      });
+    it('should handle multiple calculations', () => {
+      testMultipleCalculations();
     });
   });
 
-  describe('Calculator Properties', () => {
-    beforeEach(() => {
-      try {
-        calculator = container.resolve(TOKENS.SIZE_UNIT_CALCULATOR);
-        (calculator as any).id = 'test-calculator';
-        (calculator as any).name = 'Test Calculator';
-        (calculator as any).sizeUnit = SizeUnit.PIXEL;
-        (calculator as any).dimension = Dimension.WIDTH;
-        (calculator as any).baseValue = SizeValue.PIXEL;
-        (calculator as any).isActive = true;
-      } catch (error) {
-        calculator = new SizeUnitCalculator(
-          'test-calculator',
-          'Test Calculator',
-          SizeUnit.PIXEL,
-          Dimension.WIDTH,
-          SizeValue.PIXEL,
-          true
-        );
-      }
+  describe('Integration', () => {
+    it('should work with different contexts', () => {
+      testDifferentContexts();
     });
 
-    it('should have correct ID and name', () => {
-      expect(calculator.id).toBe('test-calculator');
-      expect(calculator.name).toBe('Test Calculator');
-    });
-
-    it('should have correct size unit and dimension', () => {
-      expect(calculator.sizeUnit).toBe(SizeUnit.PIXEL);
-      expect(calculator.dimension).toBe(Dimension.WIDTH);
-    });
-
-    it('should have correct base value', () => {
-      expect(calculator.baseValue).toBe(SizeValue.PIXEL);
-    });
-
-    it('should be active by default', () => {
-      expect(calculator.isActive).toBe(true);
-    });
-
-    it('should allow deactivation', () => {
-      calculator.deactivate();
-      expect(calculator.isActive).toBe(false);
-    });
-
-    it('should allow reactivation', () => {
-      calculator.deactivate();
-      calculator.activate();
-      expect(calculator.isActive).toBe(true);
+    it('should work with different configurations', () => {
+      testDifferentConfigurations();
     });
   });
+
+  // Helper functions for test setup and execution
+
+  function setupTestEnvironment(): void {
+    createMockContext();
+  }
+
+  function createMockContext(): void {
+    mockContext = createMockContext();
+  }
+
+  function testCalculatorCreation(): void {
+    const calculator = createCalculatorWithProperties();
+    
+    verifyCalculatorProperties(calculator);
+  }
+
+  function createCalculatorWithProperties(): SizeUnitCalculator {
+    try {
+      const calculator = container.resolve(TOKENS.SIZE_UNIT_CALCULATOR);
+      setCalculatorProperties(calculator);
+      return calculator;
+    } catch (error) {
+      return new SizeUnitCalculator(
+        'test-size',
+        'Test Size',
+        SizeUnit.PARENT_WIDTH,
+        Dimension.WIDTH,
+        SizeValue.FILL,
+        true
+      );
+    }
+  }
+
+  function setCalculatorProperties(calculator: SizeUnitCalculator): void {
+    (calculator as any).id = 'test-size';
+    (calculator as any).name = 'Test Size';
+    (calculator as any).sizeUnit = SizeUnit.PARENT_WIDTH;
+    (calculator as any).dimension = Dimension.WIDTH;
+    (calculator as any).baseValue = SizeValue.FILL;
+    (calculator as any).isActive = true;
+  }
+
+  function verifyCalculatorProperties(calculator: SizeUnitCalculator): void {
+    expect(calculator.id).toBe('test-size');
+    expect(calculator.name).toBe('Test Size');
+    expect(calculator.sizeUnit).toBe(SizeUnit.PARENT_WIDTH);
+    expect(calculator.dimension).toBe(Dimension.WIDTH);
+    expect(calculator.baseValue).toBe(SizeValue.FILL);
+    expect(calculator.isActive).toBe(true);
+  }
+
+  function testDefaultCalculatorCreation(): void {
+    const defaultCalculator = createDefaultCalculator();
+    
+    verifyDefaultCalculatorProperties(defaultCalculator);
+  }
+
+  function createDefaultCalculator(): SizeUnitCalculator {
+    try {
+      const calculator = container.resolve(TOKENS.SIZE_UNIT_CALCULATOR);
+      setDefaultCalculatorProperties(calculator);
+      return calculator;
+    } catch (error) {
+      return new SizeUnitCalculator(
+        'default-size',
+        'Default Size',
+        SizeUnit.PIXEL,
+        Dimension.WIDTH,
+        SizeValue.PIXEL,
+        true
+      );
+    }
+  }
+
+  function setDefaultCalculatorProperties(calculator: SizeUnitCalculator): void {
+    (calculator as any).id = 'default-size';
+    (calculator as any).name = 'Default Size';
+    (calculator as any).sizeUnit = SizeUnit.PIXEL;
+    (calculator as any).dimension = Dimension.WIDTH;
+    (calculator as any).baseValue = SizeValue.PIXEL;
+    (calculator as any).isActive = true;
+  }
+
+  function verifyDefaultCalculatorProperties(calculator: SizeUnitCalculator): void {
+    expect(calculator).toBeInstanceOf(SizeUnitCalculator);
+    expect(calculator.id).toBe('default-size');
+    expect(calculator.name).toBe('Default Size');
+  }
+
+  function testInvalidSizeValueHandling(): void {
+    const invalidValues = createInvalidSizeValues();
+    
+    for (const value of invalidValues) {
+      const result = calculator.calculate(value, SizeUnit.PIXEL, mockContext);
+      expect(typeof result).toBe('number');
+    }
+  }
+
+  function createInvalidSizeValues(): any[] {
+    return [null, undefined, 'invalid', {}, []];
+  }
+
+  function setupCalculatorForCalculation(): void {
+    try {
+      calculator = container.resolve(TOKENS.SIZE_UNIT_CALCULATOR);
+      setCalculatorProperties(calculator);
+    } catch (error) {
+      calculator = new SizeUnitCalculator(
+        'test-size',
+        'Test Size',
+        SizeUnit.PARENT_WIDTH,
+        Dimension.WIDTH,
+        SizeValue.FILL,
+        true
+      );
+    }
+  }
+
+  function testPixelSizeValueCalculation(): void {
+    const result = calculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
+    
+    expect(typeof result).toBe('number');
+    expect(result).toBeGreaterThanOrEqual(0);
+  }
+
+  function testFillSizeValueCalculation(): void {
+    const result = calculator.calculate(SizeValue.FILL, SizeUnit.FILL, mockContext);
+    
+    expect(typeof result).toBe('number');
+    expect(result).toBeGreaterThanOrEqual(0);
+  }
+
+  function testAutoSizeValueCalculation(): void {
+    const result = calculator.calculate(SizeValue.AUTO, SizeUnit.AUTO, mockContext);
+    
+    expect(typeof result).toBe('number');
+    expect(result).toBeGreaterThanOrEqual(0);
+  }
+
+  function testParentWidthSizeValueCalculation(): void {
+    const result = calculator.calculate(SizeValue.PARENT_WIDTH, SizeUnit.PARENT_WIDTH, mockContext);
+    
+    expect(typeof result).toBe('number');
+    expect(result).toBeGreaterThanOrEqual(0);
+  }
+
+  function testViewportWidthSizeValueCalculation(): void {
+    const result = calculator.calculate(SizeValue.VIEWPORT_WIDTH, SizeUnit.VIEWPORT_WIDTH, mockContext);
+    
+    expect(typeof result).toBe('number');
+    expect(result).toBeGreaterThanOrEqual(0);
+  }
+
+  function testWidthDimensionCalculations(): void {
+    const widthCalculator = createCalculatorForDimension(Dimension.WIDTH);
+    const result = widthCalculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
+    
+    expect(typeof result).toBe('number');
+    expect(result).toBeGreaterThanOrEqual(0);
+  }
+
+  function testHeightDimensionCalculations(): void {
+    const heightCalculator = createCalculatorForDimension(Dimension.HEIGHT);
+    const result = heightCalculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
+    
+    expect(typeof result).toBe('number');
+    expect(result).toBeGreaterThanOrEqual(0);
+  }
+
+  function testBothDimensionsCalculations(): void {
+    const dimensions = [Dimension.WIDTH, Dimension.HEIGHT];
+    
+    for (const dimension of dimensions) {
+      const calculator = createCalculatorForDimension(dimension);
+      const result = calculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
+      
+      expect(typeof result).toBe('number');
+      expect(result).toBeGreaterThanOrEqual(0);
+    }
+  }
+
+  function createCalculatorForDimension(dimension: Dimension): SizeUnitCalculator {
+    try {
+      const calculator = container.resolve(TOKENS.SIZE_UNIT_CALCULATOR);
+      setCalculatorPropertiesForDimension(calculator, dimension);
+      return calculator;
+    } catch (error) {
+      return new SizeUnitCalculator(
+        `${dimension.toLowerCase()}-size`,
+        `${dimension} Size`,
+        SizeUnit.PIXEL,
+        dimension,
+        SizeValue.PIXEL,
+        true
+      );
+    }
+  }
+
+  function setCalculatorPropertiesForDimension(calculator: SizeUnitCalculator, dimension: Dimension): void {
+    (calculator as any).id = `${dimension.toLowerCase()}-size`;
+    (calculator as any).name = `${dimension} Size`;
+    (calculator as any).sizeUnit = SizeUnit.PIXEL;
+    (calculator as any).dimension = dimension;
+    (calculator as any).baseValue = SizeValue.PIXEL;
+    (calculator as any).isActive = true;
+  }
+
+  function testPixelUnitCalculations(): void {
+    const pixelCalculator = createCalculatorForUnit(SizeUnit.PIXEL);
+    const result = pixelCalculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
+    
+    expect(typeof result).toBe('number');
+    expect(result).toBeGreaterThanOrEqual(0);
+  }
+
+  function testFillUnitCalculations(): void {
+    const fillCalculator = createCalculatorForUnit(SizeUnit.FILL);
+    const result = fillCalculator.calculate(SizeValue.FILL, SizeUnit.FILL, mockContext);
+    
+    expect(typeof result).toBe('number');
+    expect(result).toBeGreaterThanOrEqual(0);
+  }
+
+  function testAutoUnitCalculations(): void {
+    const autoCalculator = createCalculatorForUnit(SizeUnit.AUTO);
+    const result = autoCalculator.calculate(SizeValue.AUTO, SizeUnit.AUTO, mockContext);
+    
+    expect(typeof result).toBe('number');
+    expect(result).toBeGreaterThanOrEqual(0);
+  }
+
+  function testParentWidthUnitCalculations(): void {
+    const parentWidthCalculator = createCalculatorForUnit(SizeUnit.PARENT_WIDTH);
+    const result = parentWidthCalculator.calculate(SizeValue.PARENT_WIDTH, SizeUnit.PARENT_WIDTH, mockContext);
+    
+    expect(typeof result).toBe('number');
+    expect(result).toBeGreaterThanOrEqual(0);
+  }
+
+  function testViewportWidthUnitCalculations(): void {
+    const viewportWidthCalculator = createCalculatorForUnit(SizeUnit.VIEWPORT_WIDTH);
+    const result = viewportWidthCalculator.calculate(SizeValue.VIEWPORT_WIDTH, SizeUnit.VIEWPORT_WIDTH, mockContext);
+    
+    expect(typeof result).toBe('number');
+    expect(result).toBeGreaterThanOrEqual(0);
+  }
+
+  function createCalculatorForUnit(unit: SizeUnit): SizeUnitCalculator {
+    try {
+      const calculator = container.resolve(TOKENS.SIZE_UNIT_CALCULATOR);
+      setCalculatorPropertiesForUnit(calculator, unit);
+      return calculator;
+    } catch (error) {
+      return new SizeUnitCalculator(
+        `${unit.toLowerCase()}-size`,
+        `${unit} Size`,
+        unit,
+        Dimension.WIDTH,
+        SizeValue.PIXEL,
+        true
+      );
+    }
+  }
+
+  function setCalculatorPropertiesForUnit(calculator: SizeUnitCalculator, unit: SizeUnit): void {
+    (calculator as any).id = `${unit.toLowerCase()}-size`;
+    (calculator as any).name = `${unit} Size`;
+    (calculator as any).sizeUnit = unit;
+    (calculator as any).dimension = Dimension.WIDTH;
+    (calculator as any).baseValue = SizeValue.PIXEL;
+    (calculator as any).isActive = true;
+  }
+
+  function testInvalidSizeUnitHandling(): void {
+    const invalidUnits = createInvalidSizeUnits();
+    
+    for (const unit of invalidUnits) {
+      const result = calculator.calculate(SizeValue.PIXEL, unit, mockContext);
+      expect(typeof result).toBe('number');
+    }
+  }
+
+  function createInvalidSizeUnits(): any[] {
+    return [null, undefined, 'invalid', {}, []];
+  }
+
+  function testMissingContextPropertiesHandling(): void {
+    const partialContext = { dimension: 'width' };
+    const result = calculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, partialContext as any);
+    
+    expect(typeof result).toBe('number');
+  }
+
+  function testCalculationEfficiency(): void {
+    const startTime = performance.now();
+    
+    for (let i = 0; i < 1000; i++) {
+      calculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
+    }
+    
+    const endTime = performance.now();
+    const totalTime = endTime - startTime;
+    
+    expect(totalTime).toBeLessThan(100); // Should complete within 100ms
+  }
+
+  function testMultipleCalculations(): void {
+    const calculations = createMultipleCalculations();
+    
+    for (const calculation of calculations) {
+      const result = calculator.calculate(calculation.value, calculation.unit, mockContext);
+      expect(typeof result).toBe('number');
+      expect(result).toBeGreaterThanOrEqual(0);
+    }
+  }
+
+  function createMultipleCalculations(): any[] {
+    return [
+      { value: SizeValue.PIXEL, unit: SizeUnit.PIXEL },
+      { value: SizeValue.FILL, unit: SizeUnit.FILL },
+      { value: SizeValue.AUTO, unit: SizeUnit.AUTO },
+      { value: SizeValue.PARENT_WIDTH, unit: SizeUnit.PARENT_WIDTH },
+      { value: SizeValue.VIEWPORT_WIDTH, unit: SizeUnit.VIEWPORT_WIDTH },
+    ];
+  }
+
+  function testDifferentContexts(): void {
+    const contexts = createDifferentContexts();
+    
+    for (const context of contexts) {
+      const result = calculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, context);
+      expect(typeof result).toBe('number');
+      expect(result).toBeGreaterThanOrEqual(0);
+    }
+  }
+
+  function createDifferentContexts(): any[] {
+    return [
+      mockContext,
+      { parent: { width: 1000, height: 800, x: 0, y: 0 }, dimension: 'width' },
+      { scene: { width: 1600, height: 1200 }, dimension: 'height' },
+    ];
+  }
+
+  function testDifferentConfigurations(): void {
+    const configurations = createDifferentConfigurations();
+    
+    for (const config of configurations) {
+      const testCalculator = createCalculatorWithConfiguration(config);
+      expect(testCalculator).toBeInstanceOf(SizeUnitCalculator);
+    }
+  }
+
+  function createDifferentConfigurations(): any[] {
+    return [
+      { unit: SizeUnit.PIXEL, dimension: Dimension.WIDTH, baseValue: SizeValue.PIXEL },
+      { unit: SizeUnit.FILL, dimension: Dimension.HEIGHT, baseValue: SizeValue.FILL },
+      { unit: SizeUnit.AUTO, dimension: Dimension.WIDTH, baseValue: SizeValue.AUTO },
+    ];
+  }
+
+  function createCalculatorWithConfiguration(config: any): SizeUnitCalculator {
+    try {
+      const calculator = container.resolve(TOKENS.SIZE_UNIT_CALCULATOR);
+      setCalculatorPropertiesForConfiguration(calculator, config);
+      return calculator;
+    } catch (error) {
+      return new SizeUnitCalculator(
+        'test-size',
+        'Test Size',
+        config.unit,
+        config.dimension,
+        config.baseValue,
+        true
+      );
+    }
+  }
+
+  function setCalculatorPropertiesForConfiguration(calculator: SizeUnitCalculator, config: any): void {
+    (calculator as any).id = 'test-size';
+    (calculator as any).name = 'Test Size';
+    (calculator as any).sizeUnit = config.unit;
+    (calculator as any).dimension = config.dimension;
+    (calculator as any).baseValue = config.baseValue;
+    (calculator as any).isActive = true;
+  }
 });

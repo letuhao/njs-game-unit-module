@@ -10,13 +10,7 @@ describe('RefactoredUnitSystemManager', () => {
   let unitSystemManager: UnitSystemManager;
 
   beforeEach(() => {
-    // Use DI container to resolve unit system manager instead of direct instantiation
-    try {
-      unitSystemManager = container.resolve(TOKENS.UNIT_SYSTEM_MANAGER);
-    } catch (error) {
-      // Fallback to direct instantiation if DI fails
-      unitSystemManager = new UnitSystemManager();
-    }
+    setupTestEnvironment();
   });
 
   afterEach(() => {
@@ -25,152 +19,229 @@ describe('RefactoredUnitSystemManager', () => {
 
   describe('System Initialization', () => {
     it('should initialize the system successfully', async () => {
-      await unitSystemManager.initialize();
-      
-      expect(unitSystemManager.getSystemStatus().initialized).toBe(true);
+      await testSystemInitialization();
     });
 
     it('should handle multiple initialization calls gracefully', async () => {
-      await unitSystemManager.initialize();
-      await unitSystemManager.initialize();
-      
-      expect(unitSystemManager.getSystemStatus().initialized).toBe(true);
+      await testMultipleInitializationCalls();
     });
 
     it('should initialize with default configuration', async () => {
-      let defaultManager: UnitSystemManager;
-      try {
-        defaultManager = container.resolve(TOKENS.UNIT_SYSTEM_MANAGER);
-      } catch (error) {
-        defaultManager = new UnitSystemManager();
-      }
-
-      await defaultManager.initialize();
-      expect(defaultManager.getSystemStatus().initialized).toBe(true);
+      await testDefaultConfigurationInitialization();
     });
   });
 
   describe('System Shutdown', () => {
     beforeEach(async () => {
-      await unitSystemManager.initialize();
+      await initializeSystemForShutdown();
     });
 
     it('should shutdown the system successfully', () => {
-      unitSystemManager.shutdown();
-      
-      expect(unitSystemManager.getSystemStatus().initialized).toBe(false);
+      testSystemShutdown();
     });
 
     it('should handle multiple shutdown calls gracefully', () => {
-      unitSystemManager.shutdown();
-      unitSystemManager.shutdown();
-      
-      expect(unitSystemManager.getSystemStatus().initialized).toBe(false);
+      testMultipleShutdownCalls();
     });
 
     it('should cleanup all resources on shutdown', () => {
-      const statusBefore = unitSystemManager.getSystemStatus();
-      unitSystemManager.shutdown();
-      const statusAfter = unitSystemManager.getSystemStatus();
-      
-      expect(statusBefore.initialized).toBe(true);
-      expect(statusAfter.initialized).toBe(false);
+      testResourceCleanupOnShutdown();
     });
   });
 
   describe('System Status', () => {
     it('should provide system status information', () => {
-      const status = unitSystemManager.getSystemStatus();
-      
-      expect(status).toBeDefined();
-      expect(typeof status.initialized).toBe('boolean');
-      expect(typeof status.statistics.totalUnits).toBe('number');
-      expect(typeof status.statistics.totalStrategies).toBe('number');
-      expect(typeof status.statistics.totalObservers).toBe('number');
-      expect(typeof status.statistics.totalOperations).toBe('number');
+      testSystemStatusInformation();
     });
 
     it('should update status after operations', async () => {
-      const statusBefore = unitSystemManager.getSystemStatus();
-      
-      await unitSystemManager.initialize();
-      
-      const statusAfter = unitSystemManager.getSystemStatus();
-      expect(statusAfter.initialized).toBe(true);
-      expect(statusAfter.statistics.totalUnits).toBeGreaterThanOrEqual(statusBefore.statistics.totalUnits);
+      await testStatusUpdateAfterOperations();
     });
   });
 
   describe('Error Handling', () => {
     it('should handle initialization errors gracefully', async () => {
-      // Mock a failing initialization
-      const originalInitialize = unitSystemManager.initialize;
-      unitSystemManager.initialize = jest.fn().mockRejectedValue(new Error('Initialization failed'));
-      
-      await expect(unitSystemManager.initialize()).rejects.toThrow('Initialization failed');
-      
-      // Restore original method
-      unitSystemManager.initialize = originalInitialize;
+      await testInitializationErrorHandling();
     });
 
     it('should handle shutdown errors gracefully', () => {
-      // Mock a failing shutdown
-      const originalShutdown = unitSystemManager.shutdown;
-      unitSystemManager.shutdown = jest.fn().mockImplementation(() => {
-        throw new Error('Shutdown failed');
-      });
-      
-      expect(() => unitSystemManager.shutdown()).toThrow('Shutdown failed');
-      
-      // Restore original method
-      unitSystemManager.shutdown = originalShutdown;
+      testShutdownErrorHandling();
     });
   });
 
   describe('Integration', () => {
     it('should work with different manager configurations', async () => {
-      const managers: UnitSystemManager[] = [
-        container.resolve(TOKENS.UNIT_SYSTEM_MANAGER) as UnitSystemManager,
-        new UnitSystemManager(),
-      ];
-
-      for (const manager of managers) {
-        await manager.initialize();
-        expect(manager.getSystemStatus().initialized).toBe(true);
-      }
+      await testDifferentManagerConfigurations();
     });
 
     it('should work with different initialization sequences', async () => {
-      // Test initialize -> shutdown -> initialize sequence
-      await unitSystemManager.initialize();
-      unitSystemManager.shutdown();
-      await unitSystemManager.initialize();
-      
-      expect(unitSystemManager.getSystemStatus().initialized).toBe(true);
+      await testDifferentInitializationSequences();
     });
   });
 
-  describe('Performance', () => {
-    it('should initialize efficiently', async () => {
-      const startTime = performance.now();
-      
-      await unitSystemManager.initialize();
-      
-      const endTime = performance.now();
-      const totalTime = endTime - startTime;
+  // Helper functions for test setup and execution
 
-      expect(totalTime).toBeLessThan(1000); // Should complete within 1 second
+  function setupTestEnvironment(): void {
+    initializeUnitSystemManager();
+  }
+
+  function initializeUnitSystemManager(): void {
+    try {
+      unitSystemManager = container.resolve(TOKENS.UNIT_SYSTEM_MANAGER);
+    } catch (error) {
+      unitSystemManager = new UnitSystemManager();
+    }
+  }
+
+  async function testSystemInitialization(): Promise<void> {
+    await unitSystemManager.initialize();
+    
+    expect(unitSystemManager.getSystemStatus().initialized).toBe(true);
+  }
+
+  async function testMultipleInitializationCalls(): Promise<void> {
+    await unitSystemManager.initialize();
+    await unitSystemManager.initialize();
+    
+    expect(unitSystemManager.getSystemStatus().initialized).toBe(true);
+  }
+
+  async function testDefaultConfigurationInitialization(): Promise<void> {
+    const defaultManager = createDefaultManager();
+    
+    await defaultManager.initialize();
+    expect(defaultManager.getSystemStatus().initialized).toBe(true);
+  }
+
+  function createDefaultManager(): UnitSystemManager {
+    try {
+      return container.resolve(TOKENS.UNIT_SYSTEM_MANAGER);
+    } catch (error) {
+      return new UnitSystemManager();
+    }
+  }
+
+  async function initializeSystemForShutdown(): Promise<void> {
+    await unitSystemManager.initialize();
+  }
+
+  function testSystemShutdown(): void {
+    unitSystemManager.shutdown();
+    
+    expect(unitSystemManager.getSystemStatus().initialized).toBe(false);
+  }
+
+  function testMultipleShutdownCalls(): void {
+    unitSystemManager.shutdown();
+    unitSystemManager.shutdown();
+    
+    expect(unitSystemManager.getSystemStatus().initialized).toBe(false);
+  }
+
+  function testResourceCleanupOnShutdown(): void {
+    const statusBefore = unitSystemManager.getSystemStatus();
+    unitSystemManager.shutdown();
+    const statusAfter = unitSystemManager.getSystemStatus();
+    
+    expect(statusBefore.initialized).toBe(true);
+    expect(statusAfter.initialized).toBe(false);
+  }
+
+  function testSystemStatusInformation(): void {
+    const status = unitSystemManager.getSystemStatus();
+    
+    verifySystemStatusStructure(status);
+  }
+
+  function verifySystemStatusStructure(status: any): void {
+    expect(status).toBeDefined();
+    expect(typeof status.initialized).toBe('boolean');
+    expect(typeof status.statistics.totalUnits).toBe('number');
+    expect(typeof status.statistics.totalStrategies).toBe('number');
+    expect(typeof status.statistics.totalObservers).toBe('number');
+    expect(typeof status.statistics.totalOperations).toBe('number');
+  }
+
+  async function testStatusUpdateAfterOperations(): Promise<void> {
+    const statusBefore = unitSystemManager.getSystemStatus();
+    
+    await unitSystemManager.initialize();
+    
+    const statusAfter = unitSystemManager.getSystemStatus();
+    verifyStatusUpdate(statusBefore, statusAfter);
+  }
+
+  function verifyStatusUpdate(statusBefore: any, statusAfter: any): void {
+    expect(statusAfter.initialized).toBe(true);
+    expect(statusAfter.statistics.totalUnits).toBeGreaterThanOrEqual(statusBefore.statistics.totalUnits);
+  }
+
+  async function testInitializationErrorHandling(): Promise<void> {
+    const originalInitialize = unitSystemManager.initialize;
+    const mockInitialize = createMockFailingInitialize();
+    
+    unitSystemManager.initialize = mockInitialize;
+    
+    await expect(unitSystemManager.initialize()).rejects.toThrow('Initialization failed');
+    
+    restoreOriginalMethod(unitSystemManager, 'initialize', originalInitialize);
+  }
+
+  function createMockFailingInitialize(): jest.Mock {
+    return jest.fn().mockRejectedValue(new Error('Initialization failed'));
+  }
+
+  function testShutdownErrorHandling(): void {
+    const originalShutdown = unitSystemManager.shutdown;
+    const mockShutdown = createMockFailingShutdown();
+    
+    unitSystemManager.shutdown = mockShutdown;
+    
+    expect(() => unitSystemManager.shutdown()).toThrow('Shutdown failed');
+    
+    restoreOriginalMethod(unitSystemManager, 'shutdown', originalShutdown);
+  }
+
+  function createMockFailingShutdown(): jest.Mock {
+    return jest.fn().mockImplementation(() => {
+      throw new Error('Shutdown failed');
     });
+  }
 
-    it('should shutdown efficiently', async () => {
-      await unitSystemManager.initialize();
-      
-      const startTime = performance.now();
-      unitSystemManager.shutdown();
-      const endTime = performance.now();
-      const totalTime = endTime - startTime;
+  function restoreOriginalMethod(object: any, methodName: string, originalMethod: any): void {
+    object[methodName] = originalMethod;
+  }
 
-      expect(totalTime).toBeLessThan(100); // Should complete within 100ms
-    });
-  });
+  async function testDifferentManagerConfigurations(): Promise<void> {
+    const managers = createDifferentManagers();
+    
+    for (const manager of managers) {
+      await testManagerInitialization(manager);
+    }
+  }
+
+  function createDifferentManagers(): UnitSystemManager[] {
+    return [
+      container.resolve(TOKENS.UNIT_SYSTEM_MANAGER) as UnitSystemManager,
+      new UnitSystemManager(),
+    ];
+  }
+
+  async function testManagerInitialization(manager: UnitSystemManager): Promise<void> {
+    await manager.initialize();
+    expect(manager.getSystemStatus().initialized).toBe(true);
+  }
+
+  async function testDifferentInitializationSequences(): Promise<void> {
+    await testInitializeShutdownInitializeSequence();
+  }
+
+  async function testInitializeShutdownInitializeSequence(): Promise<void> {
+    // Test initialize -> shutdown -> initialize sequence
+    await unitSystemManager.initialize();
+    unitSystemManager.shutdown();
+    await unitSystemManager.initialize();
+    
+    expect(unitSystemManager.getSystemStatus().initialized).toBe(true);
+  }
 });

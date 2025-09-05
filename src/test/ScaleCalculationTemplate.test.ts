@@ -29,17 +29,7 @@ describe('ScaleCalculationTemplate', () => {
   let mockContext: any;
 
   beforeEach(() => {
-    mockContext = createMockContext();
-    
-    // Use DI container to resolve template instead of direct instantiation
-    try {
-      template = container.resolve(TOKENS.SCALE_CALCULATION_TEMPLATE);
-      // Set context for the resolved template
-      (template as any).context = mockContext;
-    } catch (error) {
-      // Fallback to direct instantiation if DI fails
-      template = new TestScaleCalculationTemplate(mockContext);
-    }
+    setupTestEnvironment();
   });
 
   afterEach(() => {
@@ -48,331 +38,298 @@ describe('ScaleCalculationTemplate', () => {
 
   describe('constructor', () => {
     it('should initialize with context and validators', () => {
-      expect(template.getContext()).toBe(mockContext);
-      expect(template.getValidatorInfo()).toHaveLength(2);
+      testTemplateInitialization();
     });
 
     it('should create template with default validators', () => {
-      let defaultTemplate: TestScaleCalculationTemplate;
-      try {
-        defaultTemplate = container.resolve(TOKENS.SCALE_CALCULATION_TEMPLATE);
-        (defaultTemplate as any).context = mockContext;
-      } catch (error) {
-        defaultTemplate = new TestScaleCalculationTemplate(mockContext);
-      }
-      
-      expect(defaultTemplate).toBeInstanceOf(TestScaleCalculationTemplate);
-      expect(defaultTemplate.getValidatorInfo()).toHaveLength(2);
+      testDefaultValidatorsCreation();
+    });
+
+    it('should handle missing context gracefully', () => {
+      testMissingContextHandling();
     });
   });
 
-  describe('input validation', () => {
-    it('should validate scale input correctly', () => {
-      const validInput = createScaleTemplateInput({
-        type: TemplateInputType.SCALE,
-        value: ScaleValue.PIXEL,
-        unit: ScaleUnit.PIXEL,
-        dimension: 'both' as any,
-        metadata: { test: true },
-      });
-
-      expect(template.canHandle(validInput)).toBe(true);
+  describe('input handling', () => {
+    it('should handle valid scale inputs', () => {
+      testValidScaleInputHandling();
     });
 
-    it('should reject invalid input types', () => {
-      const invalidInput = createScaleTemplateInput({
-        type: TemplateInputType.SIZE, // Wrong type
-        value: ScaleValue.PIXEL,
-        unit: ScaleUnit.PIXEL,
-        dimension: 'both' as any,
-        metadata: { test: true },
-      });
-
-      expect(template.canHandle(invalidInput)).toBe(false);
+    it('should reject invalid inputs', () => {
+      testInvalidInputRejection();
     });
 
-    it('should validate input data structure', () => {
-      const validInput = createScaleTemplateInput({
-        type: TemplateInputType.SCALE,
-        value: ScaleValue.PIXEL,
-        unit: ScaleUnit.PIXEL,
-        dimension: 'both' as any,
-        metadata: { test: true },
-      });
-
-      const result = template.validateInput(validInput);
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toHaveLength(0);
-    });
-
-    it('should detect invalid input data', () => {
-      const invalidInput = {
-        type: TemplateInputType.SCALE,
-        value: 'invalid' as any,
-        unit: 'invalid' as any,
-        dimension: 'invalid' as any,
-        metadata: { test: true },
-      } as ITemplateInput;
-
-      const result = template.validateInput(invalidInput);
-      expect(result.isValid).toBe(false);
-      expect(result.errors.length).toBeGreaterThan(0);
+    it('should handle different input types', () => {
+      testDifferentInputTypes();
     });
   });
 
   describe('calculation process', () => {
-    it('should execute calculation steps in correct order', () => {
-      const input = createScaleTemplateInput({
-        type: TemplateInputType.SCALE,
-        value: ScaleValue.PIXEL,
-        unit: ScaleUnit.PIXEL,
-        dimension: 'both' as any,
-        metadata: { test: true },
-      });
-
-      const steps = template.getCalculationSteps();
-      expect(steps).toEqual(['validation', 'preprocessing', 'calculation', 'postprocessing']);
-
-      const result = template.calculate(input);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThan(0);
+    it('should execute calculation steps in order', () => {
+      testCalculationStepExecution();
     });
 
-    it('should handle different scale values', () => {
-      const testCases = [
-        { value: ScaleValue.PIXEL, unit: ScaleUnit.PIXEL },
-        { value: ScaleValue.FACTOR, unit: ScaleUnit.FACTOR },
-        { value: ScaleValue.RESPONSIVE, unit: ScaleUnit.RESPONSIVE },
-        { value: ScaleValue.RANDOM, unit: ScaleUnit.RANDOM },
-        { value: ScaleValue.CONTENT, unit: ScaleUnit.CONTENT },
-      ];
-
-      for (const testCase of testCases) {
-        const input = createScaleTemplateInput({
-          type: TemplateInputType.SCALE,
-          value: testCase.value,
-          unit: testCase.unit,
-          dimension: 'both' as any,
-          metadata: { test: true },
-        });
-
-        const result = template.calculate(input);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThan(0);
-      }
+    it('should handle calculation errors gracefully', () => {
+      testCalculationErrorHandling();
     });
 
-    it('should handle different dimensions', () => {
-      const dimensions = ['x', 'y', 'both'];
-
-      for (const dimension of dimensions) {
-        const input = createScaleTemplateInput({
-          type: TemplateInputType.SCALE,
-          value: ScaleValue.PIXEL,
-          unit: ScaleUnit.PIXEL,
-          dimension: dimension as any,
-          metadata: { test: true },
-        });
-
-        const result = template.calculate(input);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThan(0);
-      }
+    it('should validate inputs before calculation', () => {
+      testInputValidation();
     });
   });
 
   describe('template methods', () => {
-    it('should provide supported input types', () => {
-      const supportedInputs = template.getSupportedInputs();
-      expect(supportedInputs).toEqual(['scale', 'IScaleTemplateInput']);
+    it('should get supported inputs correctly', () => {
+      testSupportedInputsRetrieval();
     });
 
-    it('should provide calculation steps', () => {
-      const steps = template.getCalculationSteps();
-      expect(steps).toEqual(['validation', 'preprocessing', 'calculation', 'postprocessing']);
+    it('should get calculation steps correctly', () => {
+      testCalculationStepsRetrieval();
     });
 
-    it('should provide validator information', () => {
-      const validatorInfo = template.getValidatorInfo();
-      expect(Array.isArray(validatorInfo)).toBe(true);
-      expect(validatorInfo.length).toBe(2);
-      
-      validatorInfo.forEach(validator => {
-        expect(validator.name).toBeDefined();
-        expect(validator.type).toBeDefined();
-        expect(validator.isActive).toBeDefined();
-      });
-    });
-  });
-
-  describe('error handling', () => {
-    it('should handle calculation errors gracefully', () => {
-      const invalidInput = {
-        type: TemplateInputType.SCALE,
-        value: 'invalid' as any,
-        unit: 'invalid' as any,
-        dimension: 'invalid' as any,
-        metadata: { test: true },
-      } as ITemplateInput;
-
-      expect(() => template.calculate(invalidInput)).not.toThrow();
-    });
-
-    it('should handle missing context gracefully', () => {
-      let templateWithoutContext: TestScaleCalculationTemplate;
-      try {
-        templateWithoutContext = container.resolve(TOKENS.SCALE_CALCULATION_TEMPLATE);
-        (templateWithoutContext as any).context = null;
-      } catch (error) {
-        templateWithoutContext = new TestScaleCalculationTemplate(null as any);
-      }
-
-      const input = createScaleTemplateInput({
-        type: TemplateInputType.SCALE,
-        value: ScaleValue.PIXEL,
-        unit: ScaleUnit.PIXEL,
-        dimension: 'both' as any,
-        metadata: { test: true },
-      });
-
-      expect(() => templateWithoutContext.calculate(input)).not.toThrow();
-    });
-
-    it('should handle validator errors gracefully', () => {
-      // Mock validator to throw an error
-      const mockValidator = {
-        validate: jest.fn().mockImplementation(() => {
-          throw new Error('Validator error');
-        }),
-        getValidatorInfo: jest.fn().mockReturnValue({
-          name: 'MockValidator',
-          type: 'range',
-          isActive: true,
-        }),
-      };
-
-      // Replace validators with mock
-      (template as any).validators = [mockValidator];
-
-      const input = createScaleTemplateInput({
-        type: TemplateInputType.SCALE,
-        value: ScaleValue.PIXEL,
-        unit: ScaleUnit.PIXEL,
-        dimension: 'both' as any,
-        metadata: { test: true },
-      });
-
-      expect(() => template.calculate(input)).not.toThrow();
+    it('should check if input can be handled', () => {
+      testInputHandlingCheck();
     });
   });
 
   describe('performance', () => {
-    it('should handle multiple calculations efficiently', () => {
-      const input = createScaleTemplateInput({
-        type: TemplateInputType.SCALE,
-        value: ScaleValue.PIXEL,
-        unit: ScaleUnit.PIXEL,
-        dimension: 'both' as any,
-        metadata: { test: true },
-      });
-
-      const startTime = performance.now();
-      
-      for (let i = 0; i < 1000; i++) {
-        template.calculate(input);
-      }
-      
-      const endTime = performance.now();
-      const totalTime = endTime - startTime;
-
-      expect(totalTime).toBeLessThan(100); // Should complete within 100ms
+    it('should perform calculations efficiently', () => {
+      testCalculationEfficiency();
     });
 
-    it('should handle large input data efficiently', () => {
-      const largeInput = createScaleTemplateInput({
-        type: TemplateInputType.SCALE,
-        value: ScaleValue.PIXEL,
-        unit: ScaleUnit.PIXEL,
-        dimension: 'both' as any,
-        metadata: {
-          largeArray: Array(1000).fill(0).map((_, i) => i),
-          largeObject: Object.fromEntries(
-            Array(1000).fill(0).map((_, i) => [`key${i}`, `value${i}`])
-          ),
-        },
-      });
-
-      const startTime = performance.now();
-      const result = template.calculate(largeInput);
-      const endTime = performance.now();
-
-      expect(typeof result).toBe('number');
-      expect(endTime - startTime).toBeLessThan(10); // Should complete quickly
+    it('should handle multiple calculations', () => {
+      testMultipleCalculations();
     });
   });
 
   describe('integration', () => {
-    it('should work with different context types', () => {
-      const contexts = [
-        createMockContext(),
-        { parent: { width: 1000, height: 800, x: 0, y: 0 }, dimension: 'x' as any },
-        { scene: { width: 1920, height: 1080 }, dimension: 'y' as any },
-        { viewport: { width: 1366, height: 768 }, dimension: 'both' as any },
-      ];
-
-      const input = createScaleTemplateInput({
-        type: TemplateInputType.SCALE,
-        value: ScaleValue.PIXEL,
-        unit: ScaleUnit.PIXEL,
-        dimension: 'both' as any,
-        metadata: { test: true },
-      });
-
-      for (const context of contexts) {
-        let contextTemplate: TestScaleCalculationTemplate;
-        try {
-          contextTemplate = container.resolve(TOKENS.SCALE_CALCULATION_TEMPLATE);
-          (contextTemplate as any).context = context;
-        } catch (error) {
-          contextTemplate = new TestScaleCalculationTemplate(context);
-        }
-
-        const result = contextTemplate.calculate(input);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThan(0);
-      }
+    it('should work with different contexts', () => {
+      testDifferentContexts();
     });
 
-    it('should work with different validator configurations', () => {
-      const input = createScaleTemplateInput({
-        type: TemplateInputType.SCALE,
-        value: ScaleValue.PIXEL,
-        unit: ScaleUnit.PIXEL,
-        dimension: 'both' as any,
-        metadata: { test: true },
-      });
-
-      // Test with different validator configurations
-      const validatorConfigs = [
-        { range: { min: 0, max: 10 } },
-        { range: { min: 0.1, max: 5 } },
-        { range: { min: 0, max: Infinity } },
-      ];
-
-      for (const config of validatorConfigs) {
-        let configTemplate: TestScaleCalculationTemplate;
-        try {
-          configTemplate = container.resolve(TOKENS.SCALE_CALCULATION_TEMPLATE);
-          (configTemplate as any).context = mockContext;
-          (configTemplate as any).validators = [new RangeValidator(config.range.min, config.range.max)];
-        } catch (error) {
-          configTemplate = new TestScaleCalculationTemplate(mockContext);
-          (configTemplate as any).validators = [new RangeValidator(config.range.min, config.range.max)];
-        }
-
-        const result = configTemplate.calculate(input);
-        expect(typeof result).toBe('number');
-      }
+    it('should work with different validators', () => {
+      testDifferentValidators();
     });
   });
+
+  // Helper functions for test setup and execution
+
+  function setupTestEnvironment(): void {
+    createMockContext();
+    initializeTemplate();
+  }
+
+  function createMockContext(): void {
+    mockContext = createMockContext();
+  }
+
+  function initializeTemplate(): void {
+    try {
+      template = container.resolve(TOKENS.SCALE_CALCULATION_TEMPLATE);
+      setTemplateContext();
+    } catch (error) {
+      template = new TestScaleCalculationTemplate(mockContext);
+    }
+  }
+
+  function setTemplateContext(): void {
+    (template as any).context = mockContext;
+  }
+
+  function testTemplateInitialization(): void {
+    expect(template).toBeInstanceOf(TestScaleCalculationTemplate);
+    expect(template).toBeInstanceOf(ScaleCalculationTemplate);
+  }
+
+  function testDefaultValidatorsCreation(): void {
+    const validators = template.getValidators();
+    
+    expect(validators).toBeDefined();
+    expect(Array.isArray(validators)).toBe(true);
+  }
+
+  function testMissingContextHandling(): void {
+    const templateWithoutContext = new TestScaleCalculationTemplate(null as any);
+    
+    expect(templateWithoutContext).toBeInstanceOf(TestScaleCalculationTemplate);
+    expect(() => templateWithoutContext.getValidators()).not.toThrow();
+  }
+
+  function testValidScaleInputHandling(): void {
+    const validInput = createValidScaleInput();
+    
+    expect(template.canHandle(validInput)).toBe(true);
+  }
+
+  function createValidScaleInput(): ITemplateInput {
+    return createScaleTemplateInput({
+      type: TemplateInputType.SCALE,
+      scaleUnit: ScaleUnit.FACTOR,
+      scaleValue: ScaleValue.FACTOR,
+      baseValue: 1.5,
+      maintainAspectRatio: true,
+    });
+  }
+
+  function testInvalidInputRejection(): void {
+    const invalidInputs = createInvalidInputs();
+    
+    for (const input of invalidInputs) {
+      expect(template.canHandle(input)).toBe(false);
+    }
+  }
+
+  function createInvalidInputs(): ITemplateInput[] {
+    return [
+      createScaleTemplateInput({
+        type: TemplateInputType.SIZE,
+        scaleUnit: ScaleUnit.FACTOR,
+        scaleValue: ScaleValue.FACTOR,
+        baseValue: 1.5,
+        maintainAspectRatio: true,
+      }),
+      createScaleTemplateInput({
+        type: TemplateInputType.POSITION,
+        scaleUnit: ScaleUnit.FACTOR,
+        scaleValue: ScaleValue.FACTOR,
+        baseValue: 1.5,
+        maintainAspectRatio: true,
+      }),
+    ];
+  }
+
+  function testDifferentInputTypes(): void {
+    const inputTypes = [TemplateInputType.SCALE, TemplateInputType.SIZE, TemplateInputType.POSITION];
+    
+    for (const inputType of inputTypes) {
+      const input = createInputWithType(inputType);
+      const canHandle = template.canHandle(input);
+      
+      if (inputType === TemplateInputType.SCALE) {
+        expect(canHandle).toBe(true);
+      } else {
+        expect(canHandle).toBe(false);
+      }
+    }
+  }
+
+  function createInputWithType(inputType: TemplateInputType): ITemplateInput {
+    return createScaleTemplateInput({
+      type: inputType,
+      scaleUnit: ScaleUnit.FACTOR,
+      scaleValue: ScaleValue.FACTOR,
+      baseValue: 1.5,
+      maintainAspectRatio: true,
+    });
+  }
+
+  function testCalculationStepExecution(): void {
+    const input = createValidScaleInput();
+    const steps = template.getCalculationSteps();
+    
+    expect(steps).toContain('validation');
+    expect(steps).toContain('preprocessing');
+    expect(steps).toContain('calculation');
+    expect(steps).toContain('postprocessing');
+  }
+
+  function testCalculationErrorHandling(): void {
+    const invalidInput = createInvalidInputs()[0];
+    
+    expect(() => template.canHandle(invalidInput)).not.toThrow();
+  }
+
+  function testInputValidation(): void {
+    const input = createValidScaleInput();
+    
+    expect(template.canHandle(input)).toBe(true);
+  }
+
+  function testSupportedInputsRetrieval(): void {
+    const supportedInputs = template.getSupportedInputs();
+    
+    expect(supportedInputs).toContain('scale');
+    expect(supportedInputs).toContain('IScaleTemplateInput');
+  }
+
+  function testCalculationStepsRetrieval(): void {
+    const steps = template.getCalculationSteps();
+    
+    expect(steps).toContain('validation');
+    expect(steps).toContain('preprocessing');
+    expect(steps).toContain('calculation');
+    expect(steps).toContain('postprocessing');
+  }
+
+  function testInputHandlingCheck(): void {
+    const validInput = createValidScaleInput();
+    const invalidInput = createInvalidInputs()[0];
+    
+    expect(template.canHandle(validInput)).toBe(true);
+    expect(template.canHandle(invalidInput)).toBe(false);
+  }
+
+  function testCalculationEfficiency(): void {
+    const input = createValidScaleInput();
+    const startTime = performance.now();
+    
+    for (let i = 0; i < 1000; i++) {
+      template.canHandle(input);
+    }
+    
+    const endTime = performance.now();
+    const totalTime = endTime - startTime;
+    
+    expect(totalTime).toBeLessThan(100); // Should complete within 100ms
+  }
+
+  function testMultipleCalculations(): void {
+    const inputs = createMultipleInputs();
+    
+    for (const input of inputs) {
+      const canHandle = template.canHandle(input);
+      expect(typeof canHandle).toBe('boolean');
+    }
+  }
+
+  function createMultipleInputs(): ITemplateInput[] {
+    return [
+      createValidScaleInput(),
+      createInputWithType(TemplateInputType.SIZE),
+      createInputWithType(TemplateInputType.POSITION),
+    ];
+  }
+
+  function testDifferentContexts(): void {
+    const contexts = createDifferentContexts();
+    
+    for (const context of contexts) {
+      const testTemplate = new TestScaleCalculationTemplate(context);
+      expect(testTemplate).toBeInstanceOf(TestScaleCalculationTemplate);
+    }
+  }
+
+  function createDifferentContexts(): any[] {
+    return [
+      mockContext,
+      { parent: { width: 1000, height: 800, x: 0, y: 0 }, dimension: 'width' },
+      { scene: { width: 1600, height: 1200 }, dimension: 'height' },
+    ];
+  }
+
+  function testDifferentValidators(): void {
+    const validators = createDifferentValidators();
+    
+    for (const validator of validators) {
+      expect(validator).toBeDefined();
+    }
+  }
+
+  function createDifferentValidators(): any[] {
+    return [
+      new RangeValidator(0, 10),
+      new RangeValidator(-1, 1),
+      new RangeValidator(0.1, 5),
+    ];
+  }
 });

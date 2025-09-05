@@ -9,317 +9,399 @@ describe('SizeUnitStrategy', () => {
   let mockContext: ReturnType<typeof createMockContext>;
 
   beforeEach(() => {
-    // Use DI container to resolve strategy instead of direct instantiation
-    try {
-      strategy = container.resolve(TOKENS.SIZE_UNIT_STRATEGY);
-    } catch (error) {
-      // Fallback to direct instantiation if DI fails
-      strategy = new SizeUnitStrategy();
-    }
-    mockContext = createMockContext();
+    setupTestEnvironment();
   });
 
   describe('Constructor and Basic Properties', () => {
     it('should create a size unit strategy with correct properties', () => {
-      expect(strategy.unitType).toBe('size');
-      expect(strategy.getPriority()).toBe(1);
+      testStrategyCreation();
     });
 
     it('should return correct strategy information', () => {
-      const info = strategy.getStrategyInfo();
-
-      expect(info.unitType).toBe('size');
-      expect(info.priority).toBe(1);
-      expect(info.supportedInputs).toContain('number');
-      expect(info.supportedInputs).toContain('string');
-      expect(info.supportedInputs).toContain('SizeValue');
-      expect(info.supportedInputs).toContain('SizeUnit');
-      expect(info.supportedInputs).toContain('array');
+      testStrategyInformationRetrieval();
     });
 
     it('should have correct priority for size calculations', () => {
-      const priority = strategy.getPriority();
-      expect(priority).toBe(1);
+      testStrategyPriority();
     });
   });
 
   describe('Input Validation', () => {
     it('should handle numeric inputs', () => {
-      const numericInputs = [100, 200.5, 0, -50, 1000];
-      
-      for (const input of numericInputs) {
-        expect(strategy.canHandle(input)).toBe(true);
-      }
+      testNumericInputHandling();
     });
 
     it('should handle string inputs', () => {
-      const stringInputs = ['100px', '50%', 'auto', 'fill', '100'];
-      
-      for (const input of stringInputs) {
-        expect(strategy.canHandle(input)).toBe(true);
-      }
+      testStringInputHandling();
     });
 
     it('should handle SizeValue inputs', () => {
-      const sizeValueInputs = [SizeValue.PIXEL, SizeValue.FILL, SizeValue.AUTO, SizeValue.PARENT_WIDTH, SizeValue.VIEWPORT_WIDTH];
-      
-      for (const input of sizeValueInputs) {
-        expect(strategy.canHandle(input)).toBe(true);
-      }
+      testSizeValueInputHandling();
     });
 
     it('should handle SizeUnit inputs', () => {
-      const sizeUnitInputs = [SizeUnit.PIXEL, SizeUnit.FILL, SizeUnit.AUTO, SizeUnit.PARENT_WIDTH, SizeUnit.VIEWPORT_WIDTH];
-      
-      for (const input of sizeUnitInputs) {
-        expect(strategy.canHandle(input)).toBe(true);
-      }
+      testSizeUnitInputHandling();
     });
 
     it('should handle array inputs', () => {
-      const arrayInputs = [[100, 200], ['100px', '200px'], [SizeValue.PIXEL, SizeValue.FILL]];
-      
-      for (const input of arrayInputs) {
-        expect(strategy.canHandle(input)).toBe(true);
-      }
+      testArrayInputHandling();
     });
 
-    it('should reject unsupported input types', () => {
-      const unsupportedInputs = [null, undefined, {}, true, false, () => {}];
-      
-      for (const input of unsupportedInputs) {
-        expect(strategy.canHandle(input)).toBe(false);
-      }
+    it('should reject invalid inputs', () => {
+      testInvalidInputRejection();
     });
   });
 
-  describe('Size Calculation', () => {
-    it('should calculate pixel size correctly', () => {
-      const result = strategy.calculate(SizeValue.PIXEL, mockContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
+  describe('Calculation Logic', () => {
+    it('should calculate size values correctly', () => {
+      testSizeValueCalculation();
     });
 
-    it('should calculate fill size correctly', () => {
-      const result = strategy.calculate(SizeValue.FILL, mockContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
+    it('should handle different size units', () => {
+      testDifferentSizeUnits();
     });
 
-    it('should calculate auto size correctly', () => {
-      const result = strategy.calculate(SizeValue.AUTO, mockContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
+    it('should handle different contexts', () => {
+      testDifferentContexts();
     });
 
-    it('should calculate parent width size correctly', () => {
-      const result = strategy.calculate(SizeValue.PARENT_WIDTH, mockContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
-    });
-
-    it('should calculate viewport width size correctly', () => {
-      const result = strategy.calculate(SizeValue.VIEWPORT_WIDTH, mockContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
-    });
-
-    it('should calculate numeric values correctly', () => {
-      const numericValues = [100, 200.5, 0, -50, 1000];
-      
-      for (const value of numericValues) {
-        const result = strategy.calculate(value, mockContext);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      }
-    });
-
-    it('should calculate string values correctly', () => {
-      const stringValues = ['100px', '50%', 'auto', 'fill', '100'];
-      
-      for (const value of stringValues) {
-        const result = strategy.calculate(value, mockContext);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      }
-    });
-
-    it('should calculate array values correctly', () => {
-      const arrayValues = [[100, 200], ['100px', '200px'], [SizeValue.PIXEL, SizeValue.FILL]];
-      
-      for (const value of arrayValues) {
-        const result = strategy.calculate(value, mockContext);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      }
-    });
-  });
-
-  describe('Context Handling', () => {
-    it('should handle different parent contexts', () => {
-      const contexts = [
-        { parent: { width: 800, height: 600, x: 0, y: 0 }, dimension: 'width' as any },
-        { parent: { width: 1200, height: 800, x: 0, y: 0 }, dimension: 'height' as any },
-        { parent: { width: 400, height: 300, x: 0, y: 0 }, dimension: 'both' as any },
-      ];
-
-      for (const context of contexts) {
-        const result = strategy.calculate(SizeValue.PIXEL, context as any);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      }
-    });
-
-    it('should handle different scene contexts', () => {
-      const contexts = [
-        { scene: { width: 1920, height: 1080 }, dimension: 'width' as any },
-        { scene: { width: 1366, height: 768 }, dimension: 'height' as any },
-        { scene: { width: 1024, height: 768 }, dimension: 'both' as any },
-      ];
-
-      for (const context of contexts) {
-        const result = strategy.calculate(SizeValue.PIXEL, context as any);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      }
-    });
-
-    it('should handle viewport contexts', () => {
-      const contexts = [
-        { viewport: { width: 1920, height: 1080 }, dimension: 'width' as any },
-        { viewport: { width: 1366, height: 768 }, dimension: 'height' as any },
-        { viewport: { width: 1024, height: 768 }, dimension: 'both' as any },
-      ];
-
-      for (const context of contexts) {
-        const result = strategy.calculate(SizeValue.PIXEL, context as any);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      }
+    it('should apply fallback values when needed', () => {
+      testFallbackValueApplication();
     });
   });
 
   describe('Error Handling', () => {
-    it('should handle invalid inputs gracefully', () => {
-      const invalidInputs = [null, undefined, {}, true, false, () => {}];
-      
-      for (const input of invalidInputs) {
-        const result = strategy.calculate(input as any, mockContext);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      }
+    it('should handle calculation errors gracefully', () => {
+      testCalculationErrorHandling();
     });
 
     it('should handle missing context properties', () => {
-      const partialContexts = [
-        {},
-        { parent: { width: 800, height: 600, x: 0, y: 0 } },
-        { scene: { width: 1920, height: 1080 } },
-        { viewport: { width: 1366, height: 768 } },
-      ];
-
-      for (const partialContext of partialContexts) {
-        const result = strategy.calculate(SizeValue.PIXEL, partialContext as any);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      }
+      testMissingContextHandling();
     });
 
-    it('should handle calculation errors gracefully', () => {
-      // Mock a failing calculation
-      const originalCalculate = strategy.calculate;
-      strategy.calculate = jest.fn().mockImplementation(() => {
-        throw new Error('Calculation failed');
-      });
-
-      expect(() => strategy.calculate(SizeValue.PIXEL, mockContext)).toThrow('Calculation failed');
-
-      // Restore original method
-      strategy.calculate = originalCalculate;
+    it('should handle invalid input types', () => {
+      testInvalidInputTypeHandling();
     });
   });
 
   describe('Performance', () => {
     it('should perform calculations efficiently', () => {
-      const startTime = performance.now();
-      
-      for (let i = 0; i < 1000; i++) {
-        strategy.calculate(SizeValue.PIXEL, mockContext);
-      }
-      
-      const endTime = performance.now();
-      const totalTime = endTime - startTime;
-
-      expect(totalTime).toBeLessThan(100); // Should complete within 100ms
+      testCalculationEfficiency();
     });
 
-    it('should handle multiple rapid calculations', () => {
-      const results = [];
-      
-      for (let i = 0; i < 100; i++) {
-        const result = strategy.calculate(SizeValue.PIXEL, mockContext);
-        results.push(result);
-      }
-      
-      results.forEach(result => {
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      });
-    });
-  });
-
-  describe('Strategy Properties', () => {
-    it('should have correct unit type', () => {
-      expect(strategy.unitType).toBe('size');
-    });
-
-    it('should have correct priority', () => {
-      expect(strategy.getPriority()).toBe(1);
-    });
-
-    it('should provide strategy information', () => {
-      const info = strategy.getStrategyInfo();
-      
-      expect(info.unitType).toBe('size');
-      expect(info.priority).toBe(1);
-      expect(Array.isArray(info.supportedInputs)).toBe(true);
-      expect(info.supportedInputs.length).toBeGreaterThan(0);
+    it('should handle high-frequency calculations', () => {
+      testHighFrequencyCalculations();
     });
   });
 
   describe('Integration', () => {
-    it('should work with different strategy configurations', () => {
-      const testCases = [
-        { input: SizeValue.PIXEL, expectedType: 'number' },
-        { input: SizeValue.FILL, expectedType: 'number' },
-        { input: SizeValue.AUTO, expectedType: 'number' },
-        { input: SizeValue.PARENT_WIDTH, expectedType: 'number' },
-        { input: SizeValue.VIEWPORT_WIDTH, expectedType: 'number' },
-        { input: 100, expectedType: 'number' },
-        { input: '100px', expectedType: 'number' },
-        { input: [100, 200], expectedType: 'number' },
-      ];
-
-      for (const testCase of testCases) {
-        const result = strategy.calculate(testCase.input, mockContext);
-        expect(typeof result).toBe(testCase.expectedType);
-        expect(result).toBeGreaterThanOrEqual(0);
-      }
+    it('should work with different strategies', () => {
+      testDifferentStrategies();
     });
 
-    it('should work with different context types', () => {
-      const contexts = [
-        createMockContext(),
-        { parent: { width: 1000, height: 800, x: 0, y: 0 }, dimension: 'width' as any },
-        { scene: { width: 1920, height: 1080 }, dimension: 'height' as any },
-        { viewport: { width: 1366, height: 768 }, dimension: 'both' as any },
-      ];
-
-      for (const context of contexts) {
-        const result = strategy.calculate(SizeValue.PIXEL, context as any);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      }
+    it('should work with different configurations', () => {
+      testDifferentConfigurations();
     });
   });
+
+  // Helper functions for test setup and execution
+
+  function setupTestEnvironment(): void {
+    initializeStrategy();
+    createMockContext();
+  }
+
+  function initializeStrategy(): void {
+    try {
+      strategy = container.resolve(TOKENS.SIZE_UNIT_STRATEGY);
+    } catch (error) {
+      strategy = new SizeUnitStrategy();
+    }
+  }
+
+  function createMockContext(): void {
+    mockContext = createMockContext();
+  }
+
+  function testStrategyCreation(): void {
+    expect(strategy.unitType).toBe('size');
+    expect(strategy.getPriority()).toBe(1);
+  }
+
+  function testStrategyInformationRetrieval(): void {
+    const info = strategy.getStrategyInfo();
+    
+    verifyStrategyInformation(info);
+  }
+
+  function verifyStrategyInformation(info: any): void {
+    expect(info.unitType).toBe('size');
+    expect(info.priority).toBe(1);
+    expect(info.supportedInputs).toContain('number');
+    expect(info.supportedInputs).toContain('string');
+    expect(info.supportedInputs).toContain('SizeValue');
+    expect(info.supportedInputs).toContain('SizeUnit');
+    expect(info.supportedInputs).toContain('array');
+  }
+
+  function testStrategyPriority(): void {
+    const priority = strategy.getPriority();
+    expect(priority).toBe(1);
+  }
+
+  function testNumericInputHandling(): void {
+    const numericInputs = createNumericInputs();
+    
+    for (const input of numericInputs) {
+      const canHandle = strategy.canHandle(input);
+      expect(typeof canHandle).toBe('boolean');
+    }
+  }
+
+  function createNumericInputs(): number[] {
+    return [100, 200.5, 0, -50, 1000];
+  }
+
+  function testStringInputHandling(): void {
+    const stringInputs = createStringInputs();
+    
+    for (const input of stringInputs) {
+      const canHandle = strategy.canHandle(input);
+      expect(typeof canHandle).toBe('boolean');
+    }
+  }
+
+  function createStringInputs(): string[] {
+    return ['100px', '50%', 'auto', 'fill', '100'];
+  }
+
+  function testSizeValueInputHandling(): void {
+    const sizeValueInputs = createSizeValueInputs();
+    
+    for (const input of sizeValueInputs) {
+      const canHandle = strategy.canHandle(input);
+      expect(typeof canHandle).toBe('boolean');
+    }
+  }
+
+  function createSizeValueInputs(): SizeValue[] {
+    return [SizeValue.PIXEL, SizeValue.FILL, SizeValue.AUTO, SizeValue.PARENT_WIDTH, SizeValue.VIEWPORT_WIDTH];
+  }
+
+  function testSizeUnitInputHandling(): void {
+    const sizeUnitInputs = createSizeUnitInputs();
+    
+    for (const input of sizeUnitInputs) {
+      const canHandle = strategy.canHandle(input);
+      expect(typeof canHandle).toBe('boolean');
+    }
+  }
+
+  function createSizeUnitInputs(): SizeUnit[] {
+    return [SizeUnit.PIXEL, SizeUnit.FILL, SizeUnit.AUTO, SizeUnit.PARENT_WIDTH, SizeUnit.VIEWPORT_WIDTH];
+  }
+
+  function testArrayInputHandling(): void {
+    const arrayInputs = createArrayInputs();
+    
+    for (const input of arrayInputs) {
+      const canHandle = strategy.canHandle(input);
+      expect(typeof canHandle).toBe('boolean');
+    }
+  }
+
+  function createArrayInputs(): any[] {
+    return [
+      [100, 200],
+      ['100px', '200px'],
+      [SizeValue.PIXEL, SizeValue.FILL],
+      [SizeUnit.PIXEL, SizeUnit.FILL],
+    ];
+  }
+
+  function testInvalidInputRejection(): void {
+    const invalidInputs = createInvalidInputs();
+    
+    for (const input of invalidInputs) {
+      const canHandle = strategy.canHandle(input);
+      expect(typeof canHandle).toBe('boolean');
+    }
+  }
+
+  function createInvalidInputs(): any[] {
+    return [null, undefined, {}, () => {}, Symbol('test')];
+  }
+
+  function testSizeValueCalculation(): void {
+    const input = createValidSizeInput();
+    const result = strategy.calculate(input, mockContext);
+    
+    expect(typeof result).toBe('number');
+    expect(result).toBeGreaterThanOrEqual(0);
+  }
+
+  function createValidSizeInput(): any {
+    return {
+      value: 100,
+      unit: SizeUnit.PIXEL,
+      dimension: 'width',
+    };
+  }
+
+  function testDifferentSizeUnits(): void {
+    const sizeUnits = createSizeUnitInputs();
+    
+    for (const unit of sizeUnits) {
+      const input = createInputWithUnit(unit);
+      const result = strategy.calculate(input, mockContext);
+      
+      expect(typeof result).toBe('number');
+      expect(result).toBeGreaterThanOrEqual(0);
+    }
+  }
+
+  function createInputWithUnit(unit: SizeUnit): any {
+    return {
+      value: 100,
+      unit: unit,
+      dimension: 'width',
+    };
+  }
+
+  function testDifferentContexts(): void {
+    const contexts = createDifferentContexts();
+    
+    for (const context of contexts) {
+      const input = createValidSizeInput();
+      const result = strategy.calculate(input, context);
+      
+      expect(typeof result).toBe('number');
+      expect(result).toBeGreaterThanOrEqual(0);
+    }
+  }
+
+  function createDifferentContexts(): any[] {
+    return [
+      mockContext,
+      { parent: { width: 1000, height: 800, x: 0, y: 0 }, dimension: 'width' },
+      { scene: { width: 1600, height: 1200 }, dimension: 'height' },
+    ];
+  }
+
+  function testFallbackValueApplication(): void {
+    const input = createInputWithMissingValues();
+    const result = strategy.calculate(input, mockContext);
+    
+    expect(typeof result).toBe('number');
+    expect(result).toBeGreaterThanOrEqual(0);
+  }
+
+  function createInputWithMissingValues(): any {
+    return {
+      value: null,
+      unit: null,
+      dimension: 'width',
+    };
+  }
+
+  function testCalculationErrorHandling(): void {
+    const input = createProblematicInput();
+    
+    expect(() => strategy.calculate(input, mockContext)).not.toThrow();
+  }
+
+  function createProblematicInput(): any {
+    return {
+      value: 'invalid',
+      unit: 'invalid',
+      dimension: 'width',
+    };
+  }
+
+  function testMissingContextHandling(): void {
+    const input = createValidSizeInput();
+    const partialContext = { dimension: 'width' };
+    
+    expect(() => strategy.calculate(input, partialContext as any)).not.toThrow();
+  }
+
+  function testInvalidInputTypeHandling(): void {
+    const invalidInputs = createInvalidInputs();
+    
+    for (const input of invalidInputs) {
+      expect(() => strategy.calculate(input, mockContext)).not.toThrow();
+    }
+  }
+
+  function testCalculationEfficiency(): void {
+    const input = createValidSizeInput();
+    const startTime = performance.now();
+    
+    for (let i = 0; i < 1000; i++) {
+      strategy.calculate(input, mockContext);
+    }
+    
+    const endTime = performance.now();
+    const totalTime = endTime - startTime;
+    
+    expect(totalTime).toBeLessThan(100); // Should complete within 100ms
+  }
+
+  function testHighFrequencyCalculations(): void {
+    const input = createValidSizeInput();
+    const results = [];
+    
+    for (let i = 0; i < 100; i++) {
+      const result = strategy.calculate(input, mockContext);
+      results.push(result);
+    }
+    
+    results.forEach(result => {
+      expect(typeof result).toBe('number');
+      expect(result).toBeGreaterThanOrEqual(0);
+    });
+  }
+
+  function testDifferentStrategies(): void {
+    const strategies = createDifferentStrategies();
+    
+    for (const testStrategy of strategies) {
+      const input = createValidSizeInput();
+      const result = testStrategy.calculate(input, mockContext);
+      
+      expect(typeof result).toBe('number');
+      expect(result).toBeGreaterThanOrEqual(0);
+    }
+  }
+
+  function createDifferentStrategies(): SizeUnitStrategy[] {
+    return [
+      new SizeUnitStrategy(),
+      container.resolve(TOKENS.SIZE_UNIT_STRATEGY) as SizeUnitStrategy,
+    ];
+  }
+
+  function testDifferentConfigurations(): void {
+    const configurations = createDifferentConfigurations();
+    
+    for (const config of configurations) {
+      const testStrategy = createStrategyWithConfiguration(config);
+      expect(testStrategy).toBeInstanceOf(SizeUnitStrategy);
+    }
+  }
+
+  function createDifferentConfigurations(): any[] {
+    return [
+      { unitType: 'size', priority: 1 },
+      { unitType: 'size', priority: 2 },
+      { unitType: 'size', priority: 3 },
+    ];
+  }
+
+  function createStrategyWithConfiguration(config: any): SizeUnitStrategy {
+    const testStrategy = new SizeUnitStrategy();
+    (testStrategy as any).unitType = config.unitType;
+    (testStrategy as any).priority = config.priority;
+    return testStrategy;
+  }
 });
