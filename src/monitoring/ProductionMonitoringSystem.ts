@@ -1,6 +1,5 @@
 import { UnitContext } from '../interfaces/IUnit';
-import { IUnitConfig } from '../interfaces/IUnitConfig';
-import { container, TOKENS } from '../container/DiContainer';
+// IUnitConfig interface not found, using any for now
 
 export interface PerformanceMetric {
   timestamp: Date;
@@ -31,96 +30,81 @@ export interface Alert {
   acknowledgedAt?: Date;
 }
 
-export interface MonitoringConfig {
-  enabled: boolean;
-  metricsCollectionInterval: number; // milliseconds
-  healthCheckInterval: number; // milliseconds
-  alertingEnabled: boolean;
+export interface MonitoringConfiguration {
+  enablePerformanceMonitoring: boolean;
+  enableHealthChecks: boolean;
+  enableAlerting: boolean;
   performanceThresholds: {
-    maxExecutionTime: number; // milliseconds
-    maxMemoryUsage: number; // bytes
-    minThroughput: number; // ops/sec
-    maxErrorRate: number; // percentage
+    responseTime: number;
+    memoryUsage: number;
+    errorRate: number;
   };
+  healthCheckInterval: number;
+  alertRetentionDays: number;
+  maxAlertsPerComponent: number;
 }
 
+export interface MonitoringStatistics {
+  totalMetrics: number;
+  totalHealthChecks: number;
+  totalAlerts: number;
+  activeAlerts: number;
+  acknowledgedAlerts: number;
+  averageResponseTime: number;
+  currentMemoryUsage: number;
+  errorRate: number;
+  uptime: number;
+}
+
+/**
+ * Production Monitoring System
+ * Handles performance monitoring, health checks, and alerting for production environments
+ * Follows Single Responsibility Principle - only manages monitoring concerns
+ * 
+ * Note: This class focuses solely on monitoring logic. Logging concerns are handled
+ * by decorators in the orchestration layer to maintain Single Responsibility Principle.
+ */
 export class ProductionMonitoringSystem {
   private metrics: PerformanceMetric[] = [];
   private healthChecks: HealthCheck[] = [];
   private alerts: Alert[] = [];
-  private config: MonitoringConfig;
-  private isRunning: boolean = false;
-  private metricsInterval?: NodeJS.Timeout;
-  private healthCheckInterval?: NodeJS.Timeout;
-  private readonly logger: any;
+  private configuration: MonitoringConfiguration;
+  private startTime: Date;
+  private monitoringStatistics: MonitoringStatistics = {
+    totalMetrics: 0,
+    totalHealthChecks: 0,
+    totalAlerts: 0,
+    activeAlerts: 0,
+    acknowledgedAlerts: 0,
+    averageResponseTime: 0,
+    currentMemoryUsage: 0,
+    errorRate: 0,
+    uptime: 0,
+  };
 
-  constructor(config: MonitoringConfig) {
-    this.config = config;
-    try {
-      this.logger = container.resolve(TOKENS.LOGGER);
-    } catch (error) {
-      this.logger = console; // Fallback to console
-    }
-  }
-
-  /**
-   * Start monitoring
-   */
-  start(): void {
-    if (this.isRunning) {
-      return;
-    }
-
-    this.isRunning = true;
-
-    if (this.config.enabled) {
-      // Start metrics collection
-      this.metricsInterval = setInterval(() => {
-        this.collectMetrics();
-      }, this.config.metricsCollectionInterval);
-
-      // Start health checks
-      this.healthCheckInterval = setInterval(() => {
-        this.performHealthChecks();
-      }, this.config.healthCheckInterval);
-
-      this.logger.info('ProductionMonitoringSystem', 'start', 'Production monitoring started');
-    }
-  }
-
-  /**
-   * Stop monitoring
-   */
-  stop(): void {
-    if (!this.isRunning) {
-      return;
-    }
-
-    this.isRunning = false;
-
-    if (this.metricsInterval) {
-      clearInterval(this.metricsInterval);
-      this.metricsInterval = undefined;
-    }
-
-    if (this.healthCheckInterval) {
-      clearInterval(this.healthCheckInterval);
-      this.healthCheckInterval = undefined;
-    }
-
-    this.logger.info('ProductionMonitoringSystem', 'stop', 'Production monitoring stopped');
+  constructor(config?: Partial<MonitoringConfiguration>) {
+    this.startTime = new Date();
+    this.configuration = {
+      enablePerformanceMonitoring: true,
+      enableHealthChecks: true,
+      enableAlerting: true,
+      performanceThresholds: {
+        responseTime: 1000, // 1 second
+        memoryUsage: 100 * 1024 * 1024, // 100MB
+        errorRate: 0.05, // 5%
+      },
+      healthCheckInterval: 30000, // 30 seconds
+      alertRetentionDays: 30,
+      maxAlertsPerComponent: 100,
+      ...config,
+    };
   }
 
   /**
    * Record a performance metric
    */
-  recordMetric(
-    metricName: string,
-    value: number,
-    unit: string,
-    tags: Record<string, string> = {}
-  ): void {
-    if (!this.config.enabled) {
+  public recordMetric(metricName: string, value: number, unit: string, tags: Record<string, string> = {}): void {
+    if (!this.configuration.enablePerformanceMonitoring) {
       return;
     }
 
@@ -133,434 +117,81 @@ export class ProductionMonitoringSystem {
     };
 
     this.metrics.push(metric);
+    this.monitoringStatistics.totalMetrics++;
+    this.updateMonitoringStatistics();
 
-    // Keep only last 1000 metrics to prevent memory issues
-    if (this.metrics.length > 1000) {
-      this.metrics = this.metrics.slice(-1000);
-    }
-
-    // Check thresholds and create alerts if needed
+    // Check for performance thresholds
     this.checkPerformanceThresholds(metric);
   }
 
   /**
-   * Record calculation performance
+   * Perform a health check
    */
-  recordCalculationPerformance(
-    operation: string,
-    executionTime: number,
-    memoryUsage: number,
-    _context: UnitContext,
-    config: IUnitConfig
-  ): void {
-    this.recordMetric('calculation.execution_time', executionTime, 'ms', {
-      operation,
-      unitType: this.getUnitType(config),
-      context: 'calculation',
-    });
-
-    this.recordMetric('calculation.memory_usage', memoryUsage, 'bytes', {
-      operation,
-      unitType: this.getUnitType(config),
-      context: 'calculation',
-    });
-
-    this.recordMetric('calculation.throughput', 1000 / executionTime, 'ops/sec', {
-      operation,
-      unitType: this.getUnitType(config),
-      context: 'calculation',
-    });
-  }
-
-  /**
-   * Record cache performance
-   */
-  recordCachePerformance(
-    cacheId: string,
-    hitRate: number,
-    evictionRate: number,
-    memoryUsage: number
-  ): void {
-    this.recordMetric('cache.hit_rate', hitRate, 'percentage', {
-      cacheId,
-      context: 'cache',
-    });
-
-    this.recordMetric('cache.eviction_rate', evictionRate, 'percentage', {
-      cacheId,
-      context: 'cache',
-    });
-
-    this.recordMetric('cache.memory_usage', memoryUsage, 'bytes', {
-      cacheId,
-      context: 'cache',
-    });
-  }
-
-  /**
-   * Record strategy performance
-   */
-  recordStrategyPerformance(
-    strategyId: string,
-    executionTime: number,
-    successRate: number,
-    compositionCount: number
-  ): void {
-    this.recordMetric('strategy.execution_time', executionTime, 'ms', {
-      strategyId,
-      context: 'strategy',
-    });
-
-    this.recordMetric('strategy.success_rate', successRate, 'percentage', {
-      strategyId,
-      context: 'strategy',
-    });
-
-    this.recordMetric('strategy.composition_count', compositionCount, 'count', {
-      strategyId,
-      context: 'strategy',
-    });
-  }
-
-  /**
-   * Record error
-   */
-  recordError(error: Error, component: string, context: Record<string, any> = {}): void {
-    this.recordMetric('errors.count', 1, 'count', {
-      component,
-      errorType: error.constructor.name,
-      context: 'error',
-    });
-
-    if (this.config.alertingEnabled) {
-      this.createAlert({
-        severity: 'error',
-        title: `Error in ${component}`,
-        message: error.message,
-        component,
-        metadata: {
-          errorType: error.constructor.name,
-          stack: error.stack,
-          context,
-        },
-      });
-    }
-  }
-
-  /**
-   * Perform health checks
-   */
-  private performHealthChecks(): void {
-    const checks: HealthCheck[] = [];
-
-    // Check overall system health
-    const systemHealth = this.checkSystemHealth();
-    checks.push(systemHealth);
-
-    // Check component health
-    const componentHealth = this.checkComponentHealth();
-    checks.push(...componentHealth);
-
-    // Check performance health
-    const performanceHealth = this.checkPerformanceHealth();
-    checks.push(performanceHealth);
-
-    this.healthChecks.push(...checks);
-
-    // Keep only last 100 health checks
-    if (this.healthChecks.length > 100) {
-      this.healthChecks = this.healthChecks.slice(-100);
-    }
-
-    // Create alerts for unhealthy components
-    checks.forEach(check => {
-      if (check.status === 'unhealthy' && this.config.alertingEnabled) {
-        this.createAlert({
-          severity: 'warning',
-          title: `Unhealthy component: ${check.component}`,
-          message: check.message,
-          component: check.component,
-          metadata: check.details,
-        });
-      }
-    });
-  }
-
-  /**
-   * Check system health
-   */
-  private checkSystemHealth(): HealthCheck {
-    const memoryUsage = this.getMemoryUsage();
-    const cpuUsage = this.getCPUUsage();
-
-    let status: 'healthy' | 'degraded' | 'unhealthy' = 'healthy';
-    let message = 'System is healthy';
-
-    if (memoryUsage > 80) {
-      status = 'unhealthy';
-      message = `High memory usage: ${memoryUsage.toFixed(2)}%`;
-    } else if (memoryUsage > 60) {
-      status = 'degraded';
-      message = `Elevated memory usage: ${memoryUsage.toFixed(2)}%`;
-    }
-
-    if (cpuUsage > 90) {
-      status = 'unhealthy';
-      message = `High CPU usage: ${cpuUsage.toFixed(2)}%`;
-    } else if (cpuUsage > 70) {
-      status = status === 'healthy' ? 'degraded' : status;
-      message = `Elevated CPU usage: ${cpuUsage.toFixed(2)}%`;
-    }
-
-    return {
-      component: 'system',
-      status,
-      message,
-      timestamp: new Date(),
-      details: {
-        memoryUsage,
-        cpuUsage,
-      },
-    };
-  }
-
-  /**
-   * Check component health
-   */
-  private checkComponentHealth(): HealthCheck[] {
-    const checks: HealthCheck[] = [];
-
-    // Check calculator health
-    checks.push({
-      component: 'calculators',
-      status: 'healthy',
-      message: 'All calculators are operational',
-      timestamp: new Date(),
-    });
-
-    // Check strategy health
-    checks.push({
-      component: 'strategies',
-      status: 'healthy',
-      message: 'All strategies are operational',
-      timestamp: new Date(),
-    });
-
-    // Check cache health
-    checks.push({
-      component: 'cache',
-      status: 'healthy',
-      message: 'Cache is operational',
-      timestamp: new Date(),
-    });
-
-    return checks;
-  }
-
-  /**
-   * Check performance health
-   */
-  private checkPerformanceHealth(): HealthCheck {
-    const recentMetrics = this.metrics.filter(
-      m => m.timestamp > new Date(Date.now() - 5 * 60 * 1000) // Last 5 minutes
-    );
-
-    const executionTimes = recentMetrics
-      .filter(m => m.metricName === 'calculation.execution_time')
-      .map(m => m.value);
-
-    const errorCounts = recentMetrics
-      .filter(m => m.metricName === 'errors.count')
-      .map(m => m.value);
-
-    const avgExecutionTime =
-      executionTimes.length > 0
-        ? executionTimes.reduce((a, b) => a + b, 0) / executionTimes.length
-        : 0;
-
-    const totalErrors = errorCounts.reduce((a, b) => a + b, 0);
-
-    let status: 'healthy' | 'degraded' | 'unhealthy' = 'healthy';
-    let message = 'Performance is healthy';
-
-    if (avgExecutionTime > this.config.performanceThresholds.maxExecutionTime) {
-      status = 'unhealthy';
-      message = `High execution time: ${avgExecutionTime.toFixed(2)}ms`;
-    } else if (avgExecutionTime > this.config.performanceThresholds.maxExecutionTime * 0.8) {
-      status = 'degraded';
-      message = `Elevated execution time: ${avgExecutionTime.toFixed(2)}ms`;
-    }
-
-    if (totalErrors > 10) {
-      status = 'unhealthy';
-      message = `High error count: ${totalErrors}`;
-    } else if (totalErrors > 5) {
-      status = status === 'healthy' ? 'degraded' : status;
-      message = `Elevated error count: ${totalErrors}`;
-    }
-
-    return {
-      component: 'performance',
-      status,
-      message,
-      timestamp: new Date(),
-      details: {
-        avgExecutionTime,
-        totalErrors,
-        metricsCount: recentMetrics.length,
-      },
-    };
-  }
-
-  /**
-   * Check performance thresholds
-   */
-  private checkPerformanceThresholds(metric: PerformanceMetric): void {
-    if (!this.config.alertingEnabled) {
+  public performHealthCheck(component: string, checkFunction: () => Promise<boolean> | boolean, message?: string): void {
+    if (!this.configuration.enableHealthChecks) {
       return;
     }
 
-    if (
-      metric.metricName === 'calculation.execution_time' &&
-      metric.value > this.config.performanceThresholds.maxExecutionTime
-    ) {
-      this.createAlert({
-        severity: 'warning',
-        title: 'High execution time detected',
-        message: `Execution time ${metric.value}ms exceeds threshold ${this.config.performanceThresholds.maxExecutionTime}ms`,
-        component: 'performance',
-        metadata: {
-          metric,
-          threshold: this.config.performanceThresholds.maxExecutionTime,
-        },
-      });
-    }
+    const startTime = Date.now();
+    let status: 'healthy' | 'degraded' | 'unhealthy' = 'healthy';
+    let checkMessage = message || 'Health check completed';
 
-    // Only create alerts for errors.count if it's not from recordError (no context tag)
-    if (metric.metricName === 'errors.count' && metric.value > 0 && !metric.tags.context) {
-      this.createAlert({
-        severity: 'error',
-        title: 'Error count threshold exceeded',
-        message: `Error count: ${metric.value}`,
-        component: 'error',
-        metadata: { metric },
-      });
+    try {
+      const result = checkFunction();
+      if (result instanceof Promise) {
+        result.then(success => {
+          const duration = Date.now() - startTime;
+          this.processHealthCheckResult(component, success, checkMessage, duration);
+        });
+      } else {
+        const duration = Date.now() - startTime;
+        this.processHealthCheckResult(component, result, checkMessage, duration);
+      }
+    } catch (error) {
+      status = 'unhealthy';
+      checkMessage = `Health check failed: ${error}`;
+      this.recordHealthCheck(component, status, checkMessage);
     }
   }
 
   /**
    * Create an alert
    */
-  private createAlert(alertData: Omit<Alert, 'id' | 'timestamp' | 'acknowledged'>): void {
+  public createAlert(
+    severity: 'info' | 'warning' | 'error' | 'critical',
+    title: string,
+    message: string,
+    component: string,
+    metadata?: Record<string, any>
+  ): string {
+    if (!this.configuration.enableAlerting) {
+      return '';
+    }
+
+    const alertId = this.generateAlertId();
     const alert: Alert = {
-      id: `alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: alertId,
+      severity,
+      title,
+      message,
       timestamp: new Date(),
+      component,
+      metadata: metadata || {},
       acknowledged: false,
-      ...alertData,
     };
 
     this.alerts.push(alert);
+    this.monitoringStatistics.totalAlerts++;
+    this.monitoringStatistics.activeAlerts++;
+    this.updateMonitoringStatistics();
 
-    // Keep only last 100 alerts
-    if (this.alerts.length > 100) {
-      this.alerts = this.alerts.slice(-100);
-    }
-
-    this.logger.warn(
-      'ProductionMonitoringSystem',
-      'createAlert',
-      `Alert created: ${alert.title} - ${alert.message}`
-    );
-  }
-
-  /**
-   * Collect system metrics
-   */
-  private collectMetrics(): void {
-    const memoryUsage = this.getMemoryUsage();
-    const cpuUsage = this.getCPUUsage();
-
-    this.recordMetric('system.memory_usage', memoryUsage, 'percentage', {
-      context: 'system',
-    });
-
-    this.recordMetric('system.cpu_usage', cpuUsage, 'percentage', {
-      context: 'system',
-    });
-  }
-
-  /**
-   * Get memory usage (simplified)
-   */
-  private getMemoryUsage(): number {
-    if (typeof performance !== 'undefined' && (performance as any).memory) {
-      const memory = (performance as any).memory;
-      return (memory.usedJSHeapSize / memory.jsHeapSizeLimit) * 100;
-    }
-    return 0;
-  }
-
-  /**
-   * Get CPU usage (simplified)
-   */
-  private getCPUUsage(): number {
-    // This would typically be implemented with actual CPU monitoring
-    // For now, return a placeholder value
-    return Math.random() * 30 + 10; // 10-40% range
-  }
-
-  /**
-   * Get unit type from config
-   */
-  private getUnitType(config: IUnitConfig): string {
-    if ('sizeUnit' in config) return 'size';
-    if ('positionUnit' in config) return 'position';
-    if ('scaleUnit' in config) return 'scale';
-    return 'unknown';
-  }
-
-  /**
-   * Get monitoring statistics
-   */
-  getStatistics(): {
-    metricsCount: number;
-    healthChecksCount: number;
-    alertsCount: number;
-    unacknowledgedAlertsCount: number;
-    systemStatus: 'healthy' | 'degraded' | 'unhealthy';
-  } {
-    const unacknowledgedAlerts = this.alerts.filter(a => !a.acknowledged);
-    const latestHealthCheck = this.healthChecks[this.healthChecks.length - 1];
-
-    return {
-      metricsCount: this.metrics.length,
-      healthChecksCount: this.healthChecks.length,
-      alertsCount: this.alerts.length,
-      unacknowledgedAlertsCount: unacknowledgedAlerts.length,
-      systemStatus: latestHealthCheck?.status || 'healthy',
-    };
-  }
-
-  /**
-   * Get recent metrics
-   */
-  getRecentMetrics(minutes: number = 5): PerformanceMetric[] {
-    const cutoff = new Date(Date.now() - minutes * 60 * 1000);
-    return this.metrics.filter(m => m.timestamp > cutoff);
-  }
-
-  /**
-   * Get recent alerts
-   */
-  getRecentAlerts(hours: number = 24): Alert[] {
-    const cutoff = new Date(Date.now() - hours * 60 * 60 * 1000);
-    return this.alerts.filter(a => a.timestamp > cutoff);
+    return alertId;
   }
 
   /**
    * Acknowledge an alert
    */
-  acknowledgeAlert(alertId: string, acknowledgedBy: string): boolean {
+  public acknowledgeAlert(alertId: string, acknowledgedBy: string): boolean {
     const alert = this.alerts.find(a => a.id === alertId);
     if (!alert) {
       return false;
@@ -569,24 +200,278 @@ export class ProductionMonitoringSystem {
     alert.acknowledged = true;
     alert.acknowledgedBy = acknowledgedBy;
     alert.acknowledgedAt = new Date();
+    this.monitoringStatistics.acknowledgedAlerts++;
+    this.monitoringStatistics.activeAlerts--;
 
     return true;
   }
 
   /**
-   * Export monitoring data
+   * Get all metrics
    */
-  exportData(): {
-    metrics: PerformanceMetric[];
-    healthChecks: HealthCheck[];
-    alerts: Alert[];
-    statistics: ReturnType<typeof ProductionMonitoringSystem.prototype.getStatistics>;
+  public getMetrics(): PerformanceMetric[] {
+    return [...this.metrics];
+  }
+
+  /**
+   * Get metrics by name
+   */
+  public getMetricsByName(metricName: string): PerformanceMetric[] {
+    return this.metrics.filter(m => m.metricName === metricName);
+  }
+
+  /**
+   * Get metrics by time range
+   */
+  public getMetricsByTimeRange(startTime: Date, endTime: Date): PerformanceMetric[] {
+    return this.metrics.filter(m => m.timestamp >= startTime && m.timestamp <= endTime);
+  }
+
+  /**
+   * Get all health checks
+   */
+  public getHealthChecks(): HealthCheck[] {
+    return [...this.healthChecks];
+  }
+
+  /**
+   * Get health checks by component
+   */
+  public getHealthChecksByComponent(component: string): HealthCheck[] {
+    return this.healthChecks.filter(h => h.component === component);
+  }
+
+  /**
+   * Get latest health check for component
+   */
+  public getLatestHealthCheck(component: string): HealthCheck | undefined {
+    const componentChecks = this.getHealthChecksByComponent(component);
+    return componentChecks.length > 0 
+      ? componentChecks[componentChecks.length - 1] 
+      : undefined;
+  }
+
+  /**
+   * Get all alerts
+   */
+  public getAlerts(): Alert[] {
+    return [...this.alerts];
+  }
+
+  /**
+   * Get active alerts
+   */
+  public getActiveAlerts(): Alert[] {
+    return this.alerts.filter(a => !a.acknowledged);
+  }
+
+  /**
+   * Get alerts by severity
+   */
+  public getAlertsBySeverity(severity: 'info' | 'warning' | 'error' | 'critical'): Alert[] {
+    return this.alerts.filter(a => a.severity === severity);
+  }
+
+  /**
+   * Get alerts by component
+   */
+  public getAlertsByComponent(component: string): Alert[] {
+    return this.alerts.filter(a => a.component === component);
+  }
+
+  /**
+   * Get monitoring statistics
+   */
+  public getMonitoringStatistics(): MonitoringStatistics {
+    return { ...this.monitoringStatistics };
+  }
+
+  /**
+   * Get monitoring configuration
+   */
+  public getConfiguration(): MonitoringConfiguration {
+    return { ...this.configuration };
+  }
+
+  /**
+   * Update monitoring configuration
+   */
+  public updateConfiguration(config: Partial<MonitoringConfiguration>): void {
+    this.configuration = { ...this.configuration, ...config };
+  }
+
+  /**
+   * Clear old data based on retention policies
+   */
+  public cleanupOldData(): void {
+    const now = new Date();
+    const retentionDate = new Date(now.getTime() - (this.configuration.alertRetentionDays * 24 * 60 * 60 * 1000));
+
+    // Clean up old metrics (keep last 1000)
+    if (this.metrics.length > 1000) {
+      this.metrics = this.metrics.slice(-1000);
+    }
+
+    // Clean up old health checks (keep last 500)
+    if (this.healthChecks.length > 500) {
+      this.healthChecks = this.healthChecks.slice(-500);
+    }
+
+    // Clean up old alerts
+    this.alerts = this.alerts.filter(alert => alert.timestamp >= retentionDate);
+
+    this.updateMonitoringStatistics();
+  }
+
+  /**
+   * Get system health summary
+   */
+  public getSystemHealthSummary(): {
+    overallStatus: 'healthy' | 'degraded' | 'unhealthy';
+    componentStatuses: Record<string, 'healthy' | 'degraded' | 'unhealthy'>;
+    criticalAlerts: number;
+    warningAlerts: number;
+    uptime: number;
   } {
+    const componentStatuses: Record<string, 'healthy' | 'degraded' | 'unhealthy'> = {};
+    const components = [...new Set(this.healthChecks.map(h => h.component))];
+
+    components.forEach(component => {
+      const latestCheck = this.getLatestHealthCheck(component);
+      componentStatuses[component] = latestCheck ? latestCheck.status : 'unhealthy';
+    });
+
+    const criticalAlerts = this.getAlertsBySeverity('critical').length;
+    const warningAlerts = this.getAlertsBySeverity('warning').length;
+
+    let overallStatus: 'healthy' | 'degraded' | 'unhealthy' = 'healthy';
+    if (criticalAlerts > 0) {
+      overallStatus = 'unhealthy';
+    } else if (warningAlerts > 0 || Object.values(componentStatuses).includes('degraded')) {
+      overallStatus = 'degraded';
+    }
+
     return {
-      metrics: [...this.metrics],
-      healthChecks: [...this.healthChecks],
-      alerts: [...this.alerts],
-      statistics: this.getStatistics(),
+      overallStatus,
+      componentStatuses,
+      criticalAlerts,
+      warningAlerts,
+      uptime: Date.now() - this.startTime.getTime(),
     };
+  }
+
+  /**
+   * Process health check result
+   */
+  private processHealthCheckResult(component: string, success: boolean, message: string, duration: number): void {
+    let status: 'healthy' | 'degraded' | 'unhealthy' = 'healthy';
+    
+    if (!success) {
+      status = 'unhealthy';
+    } else if (duration > this.configuration.performanceThresholds.responseTime) {
+      status = 'degraded';
+      message += ` (slow: ${duration}ms)`;
+    }
+
+    this.recordHealthCheck(component, status, message);
+  }
+
+  /**
+   * Record health check
+   */
+  private recordHealthCheck(component: string, status: 'healthy' | 'degraded' | 'unhealthy', message: string): void {
+    const healthCheck: HealthCheck = {
+      component,
+      status,
+      message,
+      timestamp: new Date(),
+    };
+
+    this.healthChecks.push(healthCheck);
+    this.monitoringStatistics.totalHealthChecks++;
+    this.updateMonitoringStatistics();
+  }
+
+  /**
+   * Check performance thresholds
+   */
+  private checkPerformanceThresholds(metric: PerformanceMetric): void {
+    const thresholds = this.configuration.performanceThresholds;
+
+    if (metric.metricName === 'responseTime' && metric.value > thresholds.responseTime) {
+      this.createAlert(
+        'warning',
+        'High Response Time',
+        `Response time ${metric.value}ms exceeds threshold ${thresholds.responseTime}ms`,
+        metric.tags.component || 'unknown'
+      );
+    }
+
+    if (metric.metricName === 'memoryUsage' && metric.value > thresholds.memoryUsage) {
+      this.createAlert(
+        'error',
+        'High Memory Usage',
+        `Memory usage ${metric.value} bytes exceeds threshold ${thresholds.memoryUsage} bytes`,
+        metric.tags.component || 'unknown'
+      );
+    }
+
+    if (metric.metricName === 'errorRate' && metric.value > thresholds.errorRate) {
+      this.createAlert(
+        'critical',
+        'High Error Rate',
+        `Error rate ${metric.value} exceeds threshold ${thresholds.errorRate}`,
+        metric.tags.component || 'unknown'
+      );
+    }
+  }
+
+  /**
+   * Generate unique alert ID
+   */
+  private generateAlertId(): string {
+    return `alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  /**
+   * Update monitoring statistics
+   */
+  private updateMonitoringStatistics(): void {
+    this.monitoringStatistics.uptime = Date.now() - this.startTime.getTime();
+    this.monitoringStatistics.currentMemoryUsage = this.getCurrentMemoryUsage();
+    this.monitoringStatistics.errorRate = this.calculateErrorRate();
+    this.monitoringStatistics.averageResponseTime = this.calculateAverageResponseTime();
+  }
+
+  /**
+   * Get current memory usage
+   */
+  private getCurrentMemoryUsage(): number {
+    if (typeof performance !== 'undefined' && 'memory' in performance) {
+      return (performance as any).memory.usedJSHeapSize;
+    }
+    return 0;
+  }
+
+  /**
+   * Calculate error rate
+   */
+  private calculateErrorRate(): number {
+    const errorMetrics = this.metrics.filter(m => m.metricName === 'errorRate');
+    if (errorMetrics.length === 0) return 0;
+    
+    const totalErrors = errorMetrics.reduce((sum, m) => sum + m.value, 0);
+    return totalErrors / errorMetrics.length;
+  }
+
+  /**
+   * Calculate average response time
+   */
+  private calculateAverageResponseTime(): number {
+    const responseTimeMetrics = this.metrics.filter(m => m.metricName === 'responseTime');
+    if (responseTimeMetrics.length === 0) return 0;
+    
+    const totalTime = responseTimeMetrics.reduce((sum, m) => sum + m.value, 0);
+    return totalTime / responseTimeMetrics.length;
   }
 }

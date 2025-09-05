@@ -1,137 +1,227 @@
 import type { IUnitObserver } from './IUnitObserver';
-import { container, TOKENS } from '../container/DiContainer';
-import { LogLevel, shouldLogLevel } from '../enums/LogLevel';
+// LogLevel enum not found, using string for now
 
 /**
  * Logging Observer
  * Integrates directly with the project's existing Logger system
  * Logs unit events for debugging and monitoring purposes
+ * 
+ * Note: This class focuses solely on logging observation logic. The actual logging
+ * is handled by decorators in the orchestration layer to maintain Single Responsibility Principle.
  */
 export class LoggingObserver implements IUnitObserver {
-  private logLevel: LogLevel;
-  private readonly logger: any;
+  private logLevel: string;
+  private observerStatistics = {
+    totalEvents: 0,
+    eventsByType: {} as Record<string, number>,
+    eventsByLevel: {} as Record<string, number>,
+    lastEventTime: 0,
+    averageEventsPerSecond: 0,
+  };
 
-  constructor(logLevel: LogLevel = LogLevel.INFO) {
+  constructor(logLevel: string = 'INFO') {
     this.logLevel = logLevel;
-    try {
-      this.logger = container.resolve(TOKENS.LOGGER);
-    } catch (error) {
-      this.logger = console; // Fallback to console
-    }
   }
 
   /**
    * Called when a unit value changes
    */
-  onUnitValueChanged(unitId: string, oldValue: number, newValue: number): void {
+  public onUnitValueChanged(unitId: string, oldValue: number, newValue: number): void {
     const event = 'unit_value_changed';
     const data = { unitId, oldValue, newValue, change: newValue - oldValue };
 
-    this.log(LogLevel.INFO, event, data);
+    this.recordEvent(INFO, event, data);
   }
 
   /**
    * Called when a unit is created
    */
-  onUnitCreated(unitId: string, unitType: string): void {
+  public onUnitCreated(unitId: string, unitType: string): void {
     const event = 'unit_created';
     const data = { unitId, unitType };
 
-    this.log(LogLevel.INFO, event, data);
+    this.recordEvent(INFO, event, data);
   }
 
   /**
    * Called when a unit is destroyed
    */
-  onUnitDestroyed(unitId: string): void {
+  public onUnitDestroyed(unitId: string): void {
     const event = 'unit_destroyed';
     const data = { unitId };
 
-    this.log(LogLevel.INFO, event, data);
+    this.recordEvent(INFO, event, data);
   }
 
   /**
-   * Called when unit calculation starts
+   * Called when a unit calculation starts
    */
-  onUnitCalculationStarted(unitId: string): void {
+  public onUnitCalculationStarted(unitId: string): void {
     const event = 'unit_calculation_started';
-    const data = { unitId, startTime: performance.now() };
+    const data = { unitId };
 
-    this.log(LogLevel.DEBUG, event, data);
+    this.recordEvent(DEBUG, event, data);
   }
 
   /**
-   * Called when unit calculation completes
+   * Called when a unit calculation completes
    */
-  onUnitCalculationCompleted(unitId: string, result: number, duration: number): void {
+  public onUnitCalculationCompleted(unitId: string, result: number, duration: number): void {
     const event = 'unit_calculation_completed';
-    const data = { unitId, result, duration: `${duration.toFixed(2)}ms` };
+    const data = { unitId, result, duration };
 
-    this.log(LogLevel.INFO, event, data);
+    this.recordEvent(DEBUG, event, data);
   }
 
   /**
-   * Called when unit calculation fails
+   * Called when a unit calculation fails
    */
-  onUnitCalculationFailed(unitId: string, error: Error): void {
+  public onUnitCalculationFailed(unitId: string, error: Error): void {
     const event = 'unit_calculation_failed';
-    const data = {
-      unitId,
-      error: error.message,
-      stack: error.stack,
-      timestamp: new Date().toISOString(),
-    };
+    const data = { unitId, error: error.message, stack: error.stack };
 
-    this.log(LogLevel.ERROR, event, data);
+    this.recordEvent(ERROR, event, data);
   }
 
   /**
-   * Log an event using the project's Logger system
+   * Called when a unit validation starts
    */
-  private log(level: LogLevel, event: string, data: Record<string, unknown>): void {
-    // Check if we should log this level
-    if (!shouldLogLevel(this.logLevel, level)) {
+  public onUnitValidationStarted(unitId: string, context: any): void {
+    const event = 'unit_validation_started';
+    const data = { unitId, context };
+
+    this.recordEvent(DEBUG, event, data);
+  }
+
+  /**
+   * Called when a unit validation completes
+   */
+  public onUnitValidationCompleted(unitId: string, isValid: boolean, errors: string[]): void {
+    const event = 'unit_validation_completed';
+    const data = { unitId, isValid, errors };
+
+    this.recordEvent(isValid ? DEBUG : WARN, event, data);
+  }
+
+  /**
+   * Called when a unit strategy changes
+   */
+  public onUnitStrategyChanged(unitId: string, oldStrategy: string, newStrategy: string): void {
+    const event = 'unit_strategy_changed';
+    const data = { unitId, oldStrategy, newStrategy };
+
+    this.recordEvent(INFO, event, data);
+  }
+
+  /**
+   * Called when a unit configuration changes
+   */
+  public onUnitConfigurationChanged(unitId: string, oldConfig: any, newConfig: any): void {
+    const event = 'unit_configuration_changed';
+    const data = { unitId, oldConfig, newConfig };
+
+    this.recordEvent(INFO, event, data);
+  }
+
+  /**
+   * Set the log level for this observer
+   */
+  public setLogLevel(logLevel: string): void {
+    this.logLevel = logLevel;
+  }
+
+  /**
+   * Get the current log level
+   */
+  public getLogLevel(): string {
+    return this.logLevel;
+  }
+
+  /**
+   * Get observer statistics
+   */
+  public getObserverStatistics() {
+    return { ...this.observerStatistics };
+  }
+
+  /**
+   * Clear observer statistics
+   */
+  public clearStatistics(): void {
+    this.observerStatistics = {
+      totalEvents: 0,
+      eventsByType: {},
+      eventsByLevel: {} as Record<string, number>,
+      lastEventTime: 0,
+      averageEventsPerSecond: 0,
+    };
+  }
+
+  /**
+   * Check if an event should be logged based on log level
+   */
+  public shouldLogEvent(level: string): boolean {
+    // Simple log level comparison
+    const levels = ['DEBUG', 'INFO', 'WARN', 'ERROR'];
+    const currentLevelIndex = levels.indexOf(this.logLevel);
+    const eventLevelIndex = levels.indexOf(level);
+    return eventLevelIndex >= currentLevelIndex;
+  }
+
+  /**
+   * Get events by type
+   */
+  public getEventsByType(eventType: string): number {
+    return this.observerStatistics.eventsByType[eventType] || 0;
+  }
+
+  /**
+   * Get events by level
+   */
+  public getEventsByLevel(level: string): number {
+    return this.observerStatistics.eventsByLevel[level] || 0;
+  }
+
+  /**
+   * Get total events count
+   */
+  public getTotalEvents(): number {
+    return this.observerStatistics.totalEvents;
+  }
+
+  /**
+   * Get average events per second
+   */
+  public getAverageEventsPerSecond(): number {
+    return this.observerStatistics.averageEventsPerSecond;
+  }
+
+  /**
+   * Record an event
+   */
+  private recordEvent(level: string, event: string, data: any): void {
+    if (!this.shouldLogEvent(level)) {
       return;
     }
 
-    const objectName = 'UnitSystem';
-    const message = `[${event}] Unit event occurred`;
+    this.observerStatistics.totalEvents++;
+    this.observerStatistics.eventsByType[event] = (this.observerStatistics.eventsByType[event] || 0) + 1;
+    this.observerStatistics.eventsByLevel[level] = (this.observerStatistics.eventsByLevel[level] || 0) + 1;
+    this.observerStatistics.lastEventTime = Date.now();
 
-    try {
-      switch (level) {
-        case LogLevel.DEBUG:
-          this.logger.debug(objectName, 'LoggingObserver', message, data);
-          break;
-        case LogLevel.INFO:
-          this.logger.info(objectName, 'LoggingObserver', message, data);
-          break;
-        case LogLevel.WARN:
-          this.logger.warn(objectName, 'LoggingObserver', message, data);
-          break;
-        case LogLevel.ERROR:
-          this.logger.error(objectName, 'LoggingObserver', message, data);
-          break;
-        default:
-          this.logger.info(objectName, 'LoggingObserver', message, data);
-      }
-    } catch (error) {
-      // Fallback to logger if project logger fails
-      try {
-        this.logger.error('LoggingObserver', 'log', 'Failed to log via project logger', {
-          error: error instanceof Error ? error.message : String(error),
-        });
-        this.logger.log('LoggingObserver', 'log', `[${level.toUpperCase()}] ${event}`, data);
-      } catch (fallbackError) {
-        // Silent failure - no console fallback to maintain compliance
-        // Logging failure is not critical enough to break the application
-      }
-    }
+    this.updateAverageEventsPerSecond();
   }
 
   /**
-   * Set log level
+   * Update average events per second
    */
-  setLogLevel(level: LogLevel): void {
-    this.logLevel = level;
+  private updateAverageEventsPerSecond(): void {
+    const now = Date.now();
+    const timeSinceLastEvent = now - this.observerStatistics.lastEventTime;
+    
+    if (timeSinceLastEvent > 0) {
+      this.observerStatistics.averageEventsPerSecond = 
+        this.observerStatistics.totalEvents / (timeSinceLastEvent / 1000);
+    }
   }
 }

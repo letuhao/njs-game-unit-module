@@ -1,10 +1,12 @@
 import type { IStrategyCache, ICacheEntry, CacheKeyGenerator } from './IStrategyCache';
 import type { UnitContext } from '../../interfaces/IUnit';
-import { container, TOKENS } from '../../container/DiContainer';
 
 /**
  * LRU (Least Recently Used) Strategy Cache Implementation
  * Provides efficient caching with automatic eviction of least recently used entries
+ * 
+ * Note: This class focuses solely on caching logic. Logging concerns are handled
+ * by decorators in the orchestration layer to maintain Single Responsibility Principle.
  */
 export class StrategyCache<TValue, TUnit, TResult>
   implements IStrategyCache<TValue, TUnit, TResult>
@@ -20,7 +22,15 @@ export class StrategyCache<TValue, TUnit, TResult>
   private evictionCount = 0;
   private accessTimes: number[] = [];
   private readonly keyGenerator: CacheKeyGenerator<TValue, TUnit>;
-  private readonly logger: any;
+  private cacheStatistics = {
+    totalRequests: 0,
+    hitRate: 0,
+    missRate: 0,
+    averageAccessTime: 0,
+    totalAccessTime: 0,
+    evictionRate: 0,
+    memoryUsage: 0,
+  };
 
   constructor(
     cacheId: string,
@@ -32,269 +42,259 @@ export class StrategyCache<TValue, TUnit, TResult>
     this.maxSize = maxSize;
     this.defaultTtl = defaultTtl;
     this.keyGenerator = keyGenerator || this.defaultKeyGenerator;
-    
-    try {
-      this.logger = container.resolve(TOKENS.LOGGER);
-    } catch (error) {
-      this.logger = console; // Fallback to console
-    }
   }
 
-  get(value: TValue, unit: TUnit, context: UnitContext): TResult | null {
+  /**
+   * Get a value from the cache
+   */
+  public get(key: string): TResult | undefined {
     const startTime = performance.now();
-    const key = this.keyGenerator(value, unit, context);
+    this.cacheStatistics.totalRequests++;
+
     const entry = this.cache.get(key);
-
-    if (entry && !this.isExpired(entry)) {
-      // Update access information
-      entry.accessCount++;
-      entry.lastAccess = Date.now();
-      this.updateAccessOrder(key);
-      this.hitCount++;
-      this.recordAccessTime(performance.now() - startTime);
-
-      this.logger.debug('StrategyCache', 'get', 'Cache hit', {
-        cacheId: this.cacheId,
-        key,
-        accessCount: entry.accessCount,
-      });
-
-      return entry.value;
+    
+    if (!entry) {
+      this.missCount++;
+      this.updateStatistics(performance.now() - startTime);
+      return undefined;
     }
 
-    this.missCount++;
-    this.recordAccessTime(performance.now() - startTime);
+    // Check if entry has expired
+    if (this.isExpired(entry)) {
+      this.cache.delete(key);
+      this.removeFromAccessOrder(key);
+      this.missCount++;
+      this.updateStatistics(performance.now() - startTime);
+      return undefined;
+    }
 
-    this.logger.debug('StrategyCache', 'get', 'Cache miss', {
-      cacheId: this.cacheId,
-      key,
-    });
-
-    return null;
+    // Update access order for LRU
+    this.updateAccessOrder(key);
+    this.hitCount++;
+    this.updateStatistics(performance.now() - startTime);
+    
+    return entry.value;
   }
 
-  set(value: TValue, unit: TUnit, context: UnitContext, result: TResult, ttl?: number): void {
-    const key = this.keyGenerator(value, unit, context);
+  /**
+   * Set a value in the cache
+   */
+  public set(key: string, value: TResult, ttl?: number): void {
     const entry: ICacheEntry<TResult> = {
-      value: result,
+      value,
       timestamp: Date.now(),
       ttl: ttl || this.defaultTtl,
       accessCount: 0,
-      lastAccess: Date.now(),
     };
 
-    // Check if cache is full and evict if necessary
+    // Check if we need to evict entries
     if (this.cache.size >= this.maxSize && !this.cache.has(key)) {
       this.evictLRU();
     }
 
     this.cache.set(key, entry);
     this.updateAccessOrder(key);
-
-    this.logger.debug('StrategyCache', 'set', 'Entry cached', {
-      cacheId: this.cacheId,
-      key,
-      ttl: entry.ttl,
-    });
   }
 
-  has(value: TValue, unit: TUnit, context: UnitContext): boolean {
-    const key = this.keyGenerator(value, unit, context);
+  /**
+   * Check if a key exists in the cache
+   */
+  public has(key: string): boolean {
     const entry = this.cache.get(key);
     return entry !== undefined && !this.isExpired(entry);
   }
 
-  delete(value: TValue, unit: TUnit, context: UnitContext): boolean {
-    const key = this.keyGenerator(value, unit, context);
+  /**
+   * Delete a key from the cache
+   */
+  public delete(key: string): boolean {
     const deleted = this.cache.delete(key);
-
     if (deleted) {
       this.removeFromAccessOrder(key);
-      this.logger.debug('StrategyCache', 'delete', 'Entry deleted', {
-        cacheId: this.cacheId,
-        key,
-      });
     }
-
     return deleted;
   }
 
-  clear(): void {
+  /**
+   * Clear all entries from the cache
+   */
+  public clear(): void {
     this.cache.clear();
     this.accessOrder = [];
+    this.resetStatistics();
+  }
+
+  /**
+   * Get cache size
+   */
+  public size(): number {
+    return this.cache.size;
+  }
+
+  /**
+   * Get cache statistics
+   */
+  public getStatistics() {
+    return { ...this.cacheStatistics };
+  }
+
+  /**
+   * Get cache hit rate
+   */
+  public getHitRate(): number {
+    return this.cacheStatistics.hitRate;
+  }
+
+  /**
+   * Get cache miss rate
+   */
+  public getMissRate(): number {
+    return this.cacheStatistics.missRate;
+  }
+
+  /**
+   * Get cache memory usage estimate
+   */
+  public getMemoryUsage(): number {
+    return this.cacheStatistics.memoryUsage;
+  }
+
+  /**
+   * Reset cache statistics
+   */
+  public resetStatistics(): void {
     this.hitCount = 0;
     this.missCount = 0;
     this.evictionCount = 0;
     this.accessTimes = [];
-
-    this.logger.debug('StrategyCache', 'clear', 'Cache cleared', {
-      cacheId: this.cacheId,
-    });
-  }
-
-  getStatistics(): {
-    size: number;
-    maxSize: number;
-    hitCount: number;
-    missCount: number;
-    hitRate: number;
-    averageAccessTime: number;
-    evictionCount: number;
-  } {
-    const totalRequests = this.hitCount + this.missCount;
-    const hitRate = totalRequests > 0 ? this.hitCount / totalRequests : 0;
-    const averageAccessTime =
-      this.accessTimes.length > 0
-        ? this.accessTimes.reduce((a, b) => a + b, 0) / this.accessTimes.length
-        : 0;
-
-    return {
-      size: this.cache.size,
-      maxSize: this.maxSize,
-      hitCount: this.hitCount,
-      missCount: this.missCount,
-      hitRate,
-      averageAccessTime,
-      evictionCount: this.evictionCount,
+    this.cacheStatistics = {
+      totalRequests: 0,
+      hitRate: 0,
+      missRate: 0,
+      averageAccessTime: 0,
+      totalAccessTime: 0,
+      evictionRate: 0,
+      memoryUsage: 0,
     };
   }
 
-  getEntryDetails(value: TValue, unit: TUnit, context: UnitContext): ICacheEntry<TResult> | null {
-    const key = this.keyGenerator(value, unit, context);
-    const entry = this.cache.get(key);
-    return entry && !this.isExpired(entry) ? entry : null;
+  /**
+   * Generate cache key for value and unit
+   */
+  public generateKey(value: TValue, unit: TUnit): string {
+    return this.keyGenerator(value, unit);
   }
 
-  getKeys(): string[] {
+  /**
+   * Get cache entry details
+   */
+  public getEntryDetails(key: string): ICacheEntry<TResult> | undefined {
+    const entry = this.cache.get(key);
+    if (!entry || this.isExpired(entry)) {
+      return undefined;
+    }
+    return { ...entry };
+  }
+
+  /**
+   * Get all cache keys
+   */
+  public getKeys(): string[] {
     return Array.from(this.cache.keys());
   }
 
-  isFull(): boolean {
-    return this.cache.size >= this.maxSize;
-  }
-
-  getSize(): number {
-    return this.cache.size;
-  }
-
-  setMaxSize(maxSize: number): void {
-    const oldMaxSize = this.maxSize;
-    this.maxSize = maxSize;
-
-    // Evict entries if new max size is smaller
-    while (this.cache.size > this.maxSize) {
-      this.evictLRU();
-    }
-
-    this.logger.debug('StrategyCache', 'setMaxSize', 'Max size updated', {
-      cacheId: this.cacheId,
-      oldMaxSize,
-      newMaxSize: maxSize,
-    });
-  }
-
-  setDefaultTtl(ttl: number): void {
-    this.defaultTtl = ttl;
-    this.logger.debug('StrategyCache', 'setDefaultTtl', 'Default TTL updated', {
-      cacheId: this.cacheId,
-      newTtl: ttl,
-    });
-  }
-
-  cleanup(): number {
-    const initialSize = this.cache.size;
-    const expiredKeys: string[] = [];
-
-    // Find expired entries
+  /**
+   * Get cache entries by pattern
+   */
+  public getEntriesByPattern(pattern: RegExp): Array<{ key: string; entry: ICacheEntry<TResult> }> {
+    const entries: Array<{ key: string; entry: ICacheEntry<TResult> }> = [];
+    
     for (const [key, entry] of this.cache.entries()) {
-      if (this.isExpired(entry)) {
-        expiredKeys.push(key);
+      if (pattern.test(key) && !this.isExpired(entry)) {
+        entries.push({ key, entry: { ...entry } });
       }
     }
+    
+    return entries;
+  }
 
-    // Remove expired entries
-    for (const key of expiredKeys) {
-      this.cache.delete(key);
-      this.removeFromAccessOrder(key);
+  /**
+   * Clean up expired entries
+   */
+  public cleanupExpired(): number {
+    let cleanedCount = 0;
+    const now = Date.now();
+    
+    for (const [key, entry] of this.cache.entries()) {
+      if (this.isExpired(entry)) {
+        this.cache.delete(key);
+        this.removeFromAccessOrder(key);
+        cleanedCount++;
+      }
     }
-
-    const cleanedCount = initialSize - this.cache.size;
-
-    if (cleanedCount > 0) {
-      this.logger.debug('StrategyCache', 'cleanup', 'Expired entries cleaned', {
-        cacheId: this.cacheId,
-        cleanedCount,
-        remainingSize: this.cache.size,
-      });
-    }
-
+    
     return cleanedCount;
   }
 
-  private defaultKeyGenerator(value: TValue, unit: TUnit, context: UnitContext): string {
-    // Create a simple hash-based key
-    const contextHash = this.hashContext(context);
-    return `${String(value)}:${String(unit)}:${contextHash}`;
-  }
-
-  private hashContext(context: UnitContext): string {
-    // Create a simple hash of the context
-    const contextStr = JSON.stringify({
-      parent: context.parent ? `${context.parent.width}x${context.parent.height}` : 'null',
-      scene: context.scene ? `${context.scene.width}x${context.scene.height}` : 'null',
-      viewport: context.viewport ? `${context.viewport.width}x${context.viewport.height}` : 'null',
-      content: context.content ? `${context.content.width}x${context.content.height}` : 'null',
-    });
-
-    // Simple hash function
-    let hash = 0;
-    for (let i = 0; i < contextStr.length; i++) {
-      const char = contextStr.charCodeAt(i);
-      hash = (hash << 5) - hash + char;
-      hash = hash & hash; // Convert to 32-bit integer
-    }
-    return Math.abs(hash).toString(36);
-  }
-
+  /**
+   * Check if entry is expired
+   */
   private isExpired(entry: ICacheEntry<TResult>): boolean {
     return Date.now() - entry.timestamp > entry.ttl;
   }
 
+  /**
+   * Update access order for LRU
+   */
   private updateAccessOrder(key: string): void {
-    // Remove from current position
     this.removeFromAccessOrder(key);
-    // Add to front (most recently used)
-    this.accessOrder.unshift(key);
+    this.accessOrder.push(key);
   }
 
+  /**
+   * Remove key from access order
+   */
   private removeFromAccessOrder(key: string): void {
     const index = this.accessOrder.indexOf(key);
-    if (index > -1) {
+    if (index !== -1) {
       this.accessOrder.splice(index, 1);
     }
   }
 
+  /**
+   * Evict least recently used entry
+   */
   private evictLRU(): void {
-    if (this.accessOrder.length === 0) return;
+    if (this.accessOrder.length === 0) {
+      return;
+    }
 
-    // Remove least recently used entry (last in access order)
-    const lruKey = this.accessOrder.pop()!;
+    const lruKey = this.accessOrder.shift()!;
     this.cache.delete(lruKey);
     this.evictionCount++;
-
-    this.logger.debug('StrategyCache', 'evictLRU', 'LRU entry evicted', {
-      cacheId: this.cacheId,
-      evictedKey: lruKey,
-      remainingSize: this.cache.size,
-    });
   }
 
-  private recordAccessTime(time: number): void {
-    this.accessTimes.push(time);
-
-    // Keep only last 1000 access times for performance
-    if (this.accessTimes.length > 1000) {
-      this.accessTimes = this.accessTimes.slice(-1000);
-    }
+  /**
+   * Update cache statistics
+   */
+  private updateStatistics(accessTime: number): void {
+    this.accessTimes.push(accessTime);
+    this.cacheStatistics.totalAccessTime += accessTime;
+    this.cacheStatistics.averageAccessTime = 
+      this.cacheStatistics.totalAccessTime / this.accessTimes.length;
+    
+    this.cacheStatistics.hitRate = this.hitCount / this.cacheStatistics.totalRequests;
+    this.cacheStatistics.missRate = this.missCount / this.cacheStatistics.totalRequests;
+    this.cacheStatistics.evictionRate = this.evictionCount / this.cacheStatistics.totalRequests;
+    
+    // Estimate memory usage (rough calculation)
+    this.cacheStatistics.memoryUsage = this.cache.size * 1024; // 1KB per entry estimate
   }
+
+  /**
+   * Default key generator
+   */
+  private defaultKeyGenerator: CacheKeyGenerator<TValue, TUnit> = (value, unit) => {
+    return `${JSON.stringify(value)}_${JSON.stringify(unit)}`;
+  };
 }

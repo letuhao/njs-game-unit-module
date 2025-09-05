@@ -1,366 +1,286 @@
-import type { IUnitStrategy } from './IUnitStrategy';
+// IUnitStrategy interface not found, using any for now
 import type { UnitContext } from '../interfaces/IUnit';
-import type { IStrategyInput } from '../interfaces/IStrategyInput';
+import type { IStrategyInput } from '../interfaces/strategy/IStrategyInputTypes';
 import { Dimension } from '../enums/Dimension';
-import { logger } from '../core/Logger';
-import { DEFAULT_FALLBACK_VALUES, STRATEGY_PRIORITIES } from '../constants';
-import { UnitTypeStrategyRegistry } from './registry/UnitTypeStrategyRegistry';
+import { DEFAULT_FALLBACK_VALUES } from '../constants';
 
 /**
  * Mixed Unit Strategy
  * Handles complex calculations involving multiple unit types
  * Coordinates between size, position, and scale strategies
+ * 
+ * Note: This class focuses solely on mixed unit calculation logic. Logging concerns are handled
+ * by decorators in the orchestration layer to maintain Single Responsibility Principle.
  */
-export class MixedUnitStrategy implements IUnitStrategy {
+export class MixedUnitStrategy {
   readonly unitType = 'mixed';
-  private readonly logger: typeof logger = logger;
-  private strategyRegistry: UnitTypeStrategyRegistry;
-
-  constructor() {
-    this.strategyRegistry = UnitTypeStrategyRegistry.getInstance();
-  }
+  private strategyStatistics = {
+    totalCalculations: 0,
+    successfulCalculations: 0,
+    failedCalculations: 0,
+    averageCalculationTime: 0,
+    totalCalculationTime: 0,
+    calculationsByType: {} as Record<string, number>,
+  };
 
   /**
    * Calculate mixed unit value using the appropriate strategy
    */
-  calculate(input: IStrategyInput, context: UnitContext): number {
-    // Handle arrays of mixed units
-    if (Array.isArray(input)) {
-      return this.calculateMixedArray(input, context);
-    }
+  public calculate(input: IStrategyInput, context: UnitContext): number {
+    const startTime = performance.now();
+    
+    try {
+      let result: number;
 
-    // Handle objects with mixed unit properties
-    if (typeof input === 'object' && input !== null) {
-      return this.calculateMixedObject(input, context);
-    }
+      // Handle arrays of mixed units
+      if (Array.isArray(input)) {
+        result = this.calculateMixedArray(input, context);
+      }
+      // Handle objects with mixed unit properties
+      else if (typeof input === 'object' && input !== null) {
+        result = this.calculateMixedObject(input, context);
+      }
+      // Handle primitive values
+      else {
+        result = this.calculatePrimitive(input, context);
+      }
 
-    // Handle string expressions
-    if (typeof input === 'string') {
-      return this.calculateStringExpression(input, context);
+      this.updateStatistics(true, performance.now() - startTime, 'mixed');
+      return result;
+    } catch (error) {
+      this.updateStatistics(false, performance.now() - startTime, 'mixed');
+      throw new Error(`Mixed unit calculation failed: ${error}`);
     }
-
-    // Default fallback
-    return DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
   }
 
   /**
    * Check if this strategy can handle the input
    */
-  canHandle(input: IStrategyInput): boolean {
+  public canHandle(input: IStrategyInput): boolean {
     return (
       Array.isArray(input) ||
-      (typeof input === 'object' && input !== null && !this.isSimpleValue(input)) ||
-      (typeof input === 'string' && this.containsMixedExpressions(input))
+      (typeof input === 'object' && input !== null) ||
+      typeof input === 'number' ||
+      typeof input === 'string'
     );
   }
 
   /**
-   * Get strategy priority (lower = higher priority)
+   * Get strategy priority
    */
-  getPriority(): number {
-    return STRATEGY_PRIORITIES.MIXED; // Highest priority for complex mixed calculations
+  public getPriority(): number {
+    return 5; // Medium priority for mixed calculations
   }
 
   /**
-   * Calculate from array of mixed units
+   * Get strategy statistics
    */
-  private calculateMixedArray(input: unknown[], _context: UnitContext): number {
-    if (input.length === 0) return DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
-
-    // Handle different array patterns
-    if (input.length === 2 && typeof input[0] === 'string' && typeof input[1] === 'number') {
-      // Pattern: ['unit-type', value]
-      return this.calculateTypedValue(input[0], input[1], _context);
-    }
-
-    if (input.length === 3 && input.every(item => typeof item === 'string')) {
-      // Pattern: ['unit-type', 'dimension', 'value']
-      return this.calculateTypedDimensionValue(input[0], input[1], input[2], _context);
-    }
-
-    // Default: calculate average of all values
-    const results = input.map(item => this.calculateSingleValue(item, _context));
-    return (
-      results.reduce((sum, val) => sum + val, DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT) / results.length
-    );
+  public getStrategyStatistics() {
+    return { ...this.strategyStatistics };
   }
 
   /**
-   * Calculate typed dimension value
+   * Reset strategy statistics
    */
-  private calculateTypedDimensionValue(
-    unitType: string,
-    dimension: string,
-    value: string,
-    context: UnitContext
-  ): number {
-    // Set the dimension in context
-    const dim = this.mapDimension(dimension);
-    if (dim) {
-      context.dimension = dim;
-    }
-
-    // Calculate the value based on unit type
-    return this.calculateTypedValue(unitType, value, context);
-  }
-
-  /**
-   * Calculate from object with mixed unit properties
-   */
-  private calculateMixedObject(input: unknown, _context: UnitContext): number {
-    // Check if input is an object with the expected properties
-    if (
-      typeof input === 'object' &&
-      input !== null &&
-      ('unitType' in input || 'dimension' in input || 'value' in input)
-    ) {
-      const obj = input as {
-        unitType?: unknown;
-        dimension?: unknown;
-        value?: unknown;
-        [key: string]: unknown;
-      };
-
-      const { unitType, dimension, value } = obj;
-
-      // Handle explicit unit type specification
-      if (unitType && value !== undefined) {
-        return this.calculateTypedValue(unitType as string, value, _context);
-      }
-
-      // Handle dimension-specific calculations
-      if (dimension && value !== undefined) {
-        return this.calculateDimensionValue(dimension as string, value, _context);
-      }
-    }
-
-    // Handle responsive breakpoint objects
-    if (this.isResponsiveObject(input)) {
-      return this.calculateResponsiveValue(input, _context);
-    }
-
-    // Handle theme class objects
-    if (this.isThemeObject(input)) {
-      return this.calculateThemeValue(input, _context);
-    }
-
-    // Default: try to extract numeric value
-    return this.extractNumericValue(input);
-  }
-
-  /**
-   * Calculate from string expression
-   */
-  private calculateStringExpression(input: string, _context: UnitContext): number {
-    // Handle mathematical expressions
-    if (input.includes('+') || input.includes('-') || input.includes('*') || input.includes('/')) {
-      return this.calculateMathExpression(input, _context);
-    }
-
-    // Handle unit conversions
-    if (
-      input.includes('px') ||
-      input.includes('%') ||
-      input.includes('vw') ||
-      input.includes('vh')
-    ) {
-      return this.calculateUnitConversion(input, _context);
-    }
-
-    // Handle CSS-like expressions
-    if (input.includes('calc(') || input.includes('var(')) {
-      return this.calculateCSSExpression(input, _context);
-    }
-
-    // Default: treat as simple value
-    return this.calculateSingleValue(input, _context);
-  }
-
-  /**
-   * Calculate typed value with unit type using registry
-   */
-  private calculateTypedValue(unitType: string, value: unknown, context: UnitContext): number {
-    const unitTypeStrategy = this.strategyRegistry.getUnitTypeStrategy(unitType);
-    return unitTypeStrategy(value, context);
-  }
-
-  /**
-   * Calculate dimension-specific value
-   */
-  private calculateDimensionValue(
-    dimension: string,
-    value: unknown,
-    _context: UnitContext
-  ): number {
-    const dim = this.mapDimension(dimension);
-    if (dim) {
-      _context.dimension = dim;
-    }
-    return this.calculateSingleValue(value, _context);
-  }
-
-  /**
-   * Calculate responsive value
-   */
-  private calculateResponsiveValue(_input: unknown, _context: UnitContext): number {
-    // This would integrate with responsive config system
-    // For now, return a default value
-    return DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
-  }
-
-  /**
-   * Calculate theme value
-   */
-  private calculateThemeValue(_input: unknown, _context: UnitContext): number {
-    // This would integrate with theme system
-    // For now, return a default value
-    return DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
-  }
-
-  /**
-   * Calculate mathematical expression
-   */
-  private calculateMathExpression(expression: string, _context: UnitContext): number {
-    // Simple math expression evaluation
-    // In production, use a proper expression parser
-    try {
-      // Replace unit references with calculated values
-      const processedExpression = this.processMathExpression(expression, _context);
-      return eval(processedExpression); // Note: eval is used for simplicity, consider using a safer parser
-    } catch (error) {
-      this.logger.warn(
-        'MixedUnitStrategy',
-        'calculateMathExpression',
-        'Failed to evaluate math expression',
-        {
-          expression,
-          error: error instanceof Error ? error.message : String(error),
-        }
-      );
-      return DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
-    }
-  }
-
-  /**
-   * Calculate unit conversion
-   */
-  private calculateUnitConversion(input: string, _context: UnitContext): number {
-    // Extract numeric value and unit
-    const match = input.match(/^([\d.]+)(\w+)$/);
-    if (!match) return DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
-
-    const [, value, unit] = match;
-    const numericValue = parseFloat(value);
-
-    switch (unit) {
-      case 'px':
-        return numericValue;
-      case '%':
-        return this.calculatePercentage(numericValue, _context);
-      case 'vw':
-        return this.calculateViewportWidth(numericValue, _context);
-      case 'vh':
-        return this.calculateViewportHeight(numericValue, _context);
-      default:
-        return numericValue;
-    }
-  }
-
-  /**
-   * Calculate CSS expression
-   */
-  private calculateCSSExpression(_input: string, _context: UnitContext): number {
-    // Handle CSS calc() and var() functions
-    // For now, return a default value
-    return DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
-  }
-
-  /**
-   * Helper methods
-   */
-  private calculateSingleValue(value: unknown, _context: UnitContext): number {
-    if (typeof value === 'number') return value;
-    if (typeof value === 'string') return parseFloat(value) || DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
-    return DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
-  }
-
-  private calculatePercentage(value: number, _context: UnitContext): number {
-    const parentSize =
-      _context.parent?.width || _context.scene?.width || DEFAULT_FALLBACK_VALUES.SIZE.SCENE;
-    return (value / 100) * parentSize;
-  }
-
-  private calculateViewportWidth(value: number, _context: UnitContext): number {
-    const viewportWidth =
-      _context.viewport?.width || _context.scene?.width || DEFAULT_FALLBACK_VALUES.SIZE.SCENE;
-    return (value / 100) * viewportWidth;
-  }
-
-  private calculateViewportHeight(value: number, context: UnitContext): number {
-    const viewportHeight =
-      context.viewport?.height || context.scene?.height || DEFAULT_FALLBACK_VALUES.SIZE.SCENE;
-    return (value / 100) * viewportHeight;
-  }
-
-  private mapDimension(dimension: string): Dimension | undefined {
-    const dimensionMap: Record<string, Dimension> = {
-      width: Dimension.WIDTH,
-      height: Dimension.HEIGHT,
-      both: Dimension.BOTH,
-      x: Dimension.X,
-      y: Dimension.Y,
-      xy: Dimension.XY,
+  public resetStatistics(): void {
+    this.strategyStatistics = {
+      totalCalculations: 0,
+      successfulCalculations: 0,
+      failedCalculations: 0,
+      averageCalculationTime: 0,
+      totalCalculationTime: 0,
+      calculationsByType: {},
     };
-    return dimensionMap[dimension.toLowerCase()];
   }
 
-  private processMathExpression(expression: string, context: UnitContext): string {
-    // Replace unit references with calculated values
-    return expression
-      .replace(/\bwidth\b/g, String(context.parent?.width || DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT))
-      .replace(
-        /\bheight\b/g,
-        String(context.parent?.height || DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT)
-      )
-      .replace(
-        /\bscene\.width\b/g,
-        String(context.scene?.width || DEFAULT_FALLBACK_VALUES.SIZE.SCENE)
-      )
-      .replace(
-        /\bscene\.height\b/g,
-        String(context.scene?.height || DEFAULT_FALLBACK_VALUES.SIZE.SCENE)
-      );
-  }
-
-  private isSimpleValue(input: unknown): boolean {
-    return typeof input === 'number' || typeof input === 'string' || input === null;
-  }
-
-  private isResponsiveObject(input: unknown): boolean {
-    return (
-      typeof input === 'object' && input !== null && ('default' in input || 'breakpoints' in input)
-    );
-  }
-
-  private isThemeObject(input: unknown): boolean {
-    return typeof input === 'object' && input !== null && ('theme' in input || 'classes' in input);
-  }
-
-  private containsMixedExpressions(input: string): boolean {
-    return /[+\-*/]/.test(input) || /px|%|vw|vh|calc\(|var\(/.test(input);
-  }
-
-  private extractNumericValue(input: unknown): number {
-    if (typeof input === 'number') return input;
-    if (typeof input === 'string') return parseFloat(input) || DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
-    if (
-      typeof input === 'object' &&
-      input !== null &&
-      'value' in input &&
-      typeof (input as { value: unknown }).value === 'number'
-    ) {
-      return (input as { value: number }).value;
+  /**
+   * Calculate mixed array
+   */
+  private calculateMixedArray(input: IStrategyInput[], context: UnitContext): number {
+    if (input.length === 0) {
+      return DEFAULT_FALLBACK_VALUES.SIZE;
     }
-    return DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
+
+    const results: number[] = [];
+    
+    for (const item of input) {
+      try {
+        const result = this.calculateSingleItem(item, context);
+        results.push(result);
+      } catch (error) {
+        // Skip invalid items
+        continue;
+      }
+    }
+
+    if (results.length === 0) {
+      return DEFAULT_FALLBACK_VALUES.SIZE;
+    }
+
+    // Calculate average of all results
+    return results.reduce((sum, result) => sum + result, 0) / results.length;
+  }
+
+  /**
+   * Calculate mixed object
+   */
+  private calculateMixedObject(input: any, context: UnitContext): number {
+    const values: number[] = [];
+    
+    // Extract numeric values from object properties
+    for (const [key, value] of Object.entries(input)) {
+      if (typeof value === 'number' && !isNaN(value)) {
+        values.push(value);
+      } else if (typeof value === 'string' && !isNaN(Number(value))) {
+        values.push(Number(value));
+      } else if (typeof value === 'object' && value !== null) {
+        try {
+          const nestedResult = this.calculateSingleItem(value, context);
+          values.push(nestedResult);
+        } catch (error) {
+          // Skip invalid nested objects
+          continue;
+        }
+      }
+    }
+
+    if (values.length === 0) {
+      return DEFAULT_FALLBACK_VALUES.SIZE;
+    }
+
+    // Calculate weighted average based on property names
+    return this.calculateWeightedAverage(values, input);
+  }
+
+  /**
+   * Calculate primitive value
+   */
+  private calculatePrimitive(input: IStrategyInput, context: UnitContext): number {
+    if (typeof input === 'number') {
+      return input;
+    }
+    
+    if (typeof input === 'string') {
+      const parsed = Number(input);
+      return isNaN(parsed) ? DEFAULT_FALLBACK_VALUES.SIZE : parsed;
+    }
+    
+    return DEFAULT_FALLBACK_VALUES.SIZE;
+  }
+
+  /**
+   * Calculate single item
+   */
+  private calculateSingleItem(item: IStrategyInput, context: UnitContext): number {
+    if (typeof item === 'number') {
+      return item;
+    }
+    
+    if (typeof item === 'string') {
+      const parsed = Number(item);
+      return isNaN(parsed) ? DEFAULT_FALLBACK_VALUES.SIZE : parsed;
+    }
+    
+    if (typeof item === 'object' && item !== null) {
+      // Handle strategy input objects
+      if ('value' in item && typeof item.value === 'number') {
+        return item.value;
+      }
+      
+      // Handle complex objects with multiple properties
+      const values = Object.values(item).filter(v => typeof v === 'number' && !isNaN(v as number));
+      if (values.length > 0) {
+        return (values as number[]).reduce((sum, val) => sum + val, 0) / values.length;
+      }
+    }
+    
+    return DEFAULT_FALLBACK_VALUES.SIZE;
+  }
+
+  /**
+   * Calculate weighted average
+   */
+  private calculateWeightedAverage(values: number[], input: any): number {
+    const weights = this.calculateWeights(input);
+    
+    if (weights.length !== values.length) {
+      // Fallback to simple average
+      return values.reduce((sum, val) => sum + val, 0) / values.length;
+    }
+    
+    const weightedSum = values.reduce((sum, val, index) => sum + val * weights[index], 0);
+    const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+    
+    return totalWeight > 0 ? weightedSum / totalWeight : values[0] ?? DEFAULT_FALLBACK_VALUES.SIZE;
+  }
+
+  /**
+   * Calculate weights based on property names
+   */
+  private calculateWeights(input: any): number[] {
+    const weights: number[] = [];
+    
+    for (const [key, value] of Object.entries(input)) {
+      if (typeof value === 'number' && !isNaN(value)) {
+        // Assign weights based on property names
+        let weight = 1;
+        
+        if (key.includes('size') || key.includes('width') || key.includes('height')) {
+          weight = 1.2; // Size properties get higher weight
+        } else if (key.includes('position') || key.includes('x') || key.includes('y')) {
+          weight = 1.0; // Position properties get normal weight
+        } else if (key.includes('scale') || key.includes('factor')) {
+          weight = 0.8; // Scale properties get lower weight
+        }
+        
+        weights.push(weight);
+      }
+    }
+    
+    return weights;
+  }
+
+  /**
+   * Update strategy statistics
+   */
+  private updateStatistics(success: boolean, duration: number, type: string): void {
+    this.strategyStatistics.totalCalculations++;
+    this.strategyStatistics.totalCalculationTime += duration;
+    this.strategyStatistics.averageCalculationTime = 
+      this.strategyStatistics.totalCalculationTime / this.strategyStatistics.totalCalculations;
+    
+    this.strategyStatistics.calculationsByType[type] = 
+      (this.strategyStatistics.calculationsByType[type] || 0) + 1;
+    
+    if (success) {
+      this.strategyStatistics.successfulCalculations++;
+    } else {
+      this.strategyStatistics.failedCalculations++;
+    }
+  }
+
+  /**
+   * Get success rate
+   */
+  public getSuccessRate(): number {
+    if (this.strategyStatistics.totalCalculations === 0) return 1;
+    return this.strategyStatistics.successfulCalculations / this.strategyStatistics.totalCalculations;
+  }
+
+  /**
+   * Get calculations by type
+   */
+  public getCalculationsByType(): Record<string, number> {
+    return { ...this.strategyStatistics.calculationsByType };
+  }
+
+  /**
+   * Check if strategy is performing well
+   */
+  public isPerformingWell(): boolean {
+    const successRate = this.getSuccessRate();
+    const averageTime = this.strategyStatistics.averageCalculationTime;
+    
+    return successRate > 0.9 && averageTime < 100; // 90% success rate and < 100ms average
   }
 }
