@@ -1,0 +1,13 @@
+*** unit/test/CalculateSizeCommand.test.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (11 occurrences)
+--- BEFORE ---
+  L12: command = new CalculateSizeCommand(sizeInput as any, mockContext);
+  L51: const sizeCommand = new CalculateSizeCommand(input as any, mockContext);
+  L76: const invalidCommand = new CalculateSizeCommand(invalidInput as any, mockContext);
+  L95: const numericCommand = new CalculateSizeCommand(numericInput as any, mockContext);
+  L104: const arrayCommand = new CalculateSizeCommand(arrayInput as any, mockContext);
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

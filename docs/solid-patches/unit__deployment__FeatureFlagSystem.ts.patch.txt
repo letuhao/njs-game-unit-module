@@ -1,0 +1,11 @@
+*** unit/deployment/FeatureFlagSystem.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (3 occurrences)
+--- BEFORE ---
+  L33: private flags: Map<string, FeatureFlag> = new Map();
+  L207: startDate: new Date(),
+  L236: startDate: new Date(),
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

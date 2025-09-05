@@ -1,0 +1,11972 @@
+[
+  {
+    "path": "unit/adapters/IUnitAdapter.ts",
+    "lines": 147,
+    "exports": 3,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      90
+    ],
+    "interfaces": [
+      [
+        "IUnitAdapter",
+        10,
+        6
+      ],
+      [
+        "IUnitAdapterFactory",
+        105,
+        5
+      ],
+      [
+        "IUnitAdapterRegistry",
+        129,
+        6
+      ]
+    ],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../interfaces/IUnit"
+      ],
+      [
+        2,
+        "../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../interfaces/ILegacyUnit"
+      ],
+      [
+        4,
+        "../enums/UnitType"
+      ]
+    ]
+  },
+  {
+    "path": "unit/adapters/LegacyPositionUnitAdapter.ts",
+    "lines": 208,
+    "exports": 1,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      70
+    ],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "./IUnitAdapter"
+      ],
+      [
+        2,
+        "../interfaces/ILegacyUnit"
+      ],
+      [
+        3,
+        "../enums/PositionUnit"
+      ],
+      [
+        4,
+        "../enums/Dimension"
+      ],
+      [
+        5,
+        "../interfaces/IUnit"
+      ],
+      [
+        6,
+        "../enums/UnitType"
+      ]
+    ]
+  },
+  {
+    "path": "unit/adapters/LegacySizeUnitAdapter.ts",
+    "lines": 195,
+    "exports": 1,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      72
+    ],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "./IUnitAdapter"
+      ],
+      [
+        2,
+        "../interfaces/ILegacyUnit"
+      ],
+      [
+        3,
+        "../enums/SizeUnit"
+      ],
+      [
+        4,
+        "../enums/Dimension"
+      ],
+      [
+        5,
+        "../interfaces/IUnit"
+      ],
+      [
+        6,
+        "../enums/UnitType"
+      ]
+    ]
+  },
+  {
+    "path": "unit/classes/EnhancedSizeUnitCalculator.ts",
+    "lines": 494,
+    "exports": 1,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      15
+    ],
+    "new_concrete_lines": [
+      66,
+      76,
+      77,
+      78,
+      219,
+      229,
+      331
+    ],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../interfaces/ISizeUnit"
+      ],
+      [
+        2,
+        "../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../enums/SizeUnit"
+      ],
+      [
+        4,
+        "../enums/Dimension"
+      ],
+      [
+        5,
+        "../enums/SizeValue"
+      ],
+      [
+        6,
+        "../enums/UnitType"
+      ],
+      [
+        7,
+        "../constants"
+      ],
+      [
+        8,
+        "../strategies/value/SizeValueCalculationStrategyRegistry"
+      ],
+      [
+        9,
+        "../strategies/cache/StrategyCache"
+      ],
+      [
+        15,
+        "../../core/Logger"
+      ]
+    ]
+  },
+  {
+    "path": "unit/classes/PositionUnitCalculator.ts",
+    "lines": 388,
+    "exports": 1,
+    "switches": [
+      [
+        52,
+        "this.positionUnit",
+        19
+      ]
+    ],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      169,
+      179,
+      292
+    ],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../interfaces/IPositionUnit"
+      ],
+      [
+        2,
+        "../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../enums/PositionUnit"
+      ],
+      [
+        4,
+        "../enums/Dimension"
+      ],
+      [
+        5,
+        "../enums/PositionValue"
+      ],
+      [
+        6,
+        "../enums/UnitType"
+      ],
+      [
+        7,
+        "../constants"
+      ]
+    ]
+  },
+  {
+    "path": "unit/classes/RandomValueNumber.ts",
+    "lines": 70,
+    "exports": 1,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      14,
+      30,
+      49
+    ],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../interfaces/IRandomValue"
+      ]
+    ]
+  },
+  {
+    "path": "unit/classes/RefactoredPositionUnitCalculator.ts",
+    "lines": 361,
+    "exports": 1,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      10
+    ],
+    "new_concrete_lines": [
+      44,
+      116,
+      126,
+      260
+    ],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../interfaces/IPositionUnit"
+      ],
+      [
+        2,
+        "../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../enums/PositionUnit"
+      ],
+      [
+        4,
+        "../enums/Dimension"
+      ],
+      [
+        5,
+        "../enums/PositionValue"
+      ],
+      [
+        6,
+        "../enums/UnitType"
+      ],
+      [
+        7,
+        "../enums/AxisUnit"
+      ],
+      [
+        8,
+        "../constants"
+      ],
+      [
+        9,
+        "../strategies/value/PositionValueCalculationStrategyRegistry"
+      ],
+      [
+        10,
+        "../../core/Logger"
+      ]
+    ]
+  },
+  {
+    "path": "unit/classes/RefactoredScaleUnitCalculator.ts",
+    "lines": 352,
+    "exports": 1,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      8
+    ],
+    "new_concrete_lines": [
+      43,
+      237
+    ],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../interfaces/IScaleUnit"
+      ],
+      [
+        2,
+        "../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../enums/ScaleUnit"
+      ],
+      [
+        4,
+        "../enums/ScaleValue"
+      ],
+      [
+        5,
+        "../enums/UnitType"
+      ],
+      [
+        6,
+        "../constants"
+      ],
+      [
+        7,
+        "../strategies/value/ScaleValueCalculationStrategyRegistry"
+      ],
+      [
+        8,
+        "../../core/Logger"
+      ]
+    ]
+  },
+  {
+    "path": "unit/classes/RefactoredSizeUnitCalculator.ts",
+    "lines": 356,
+    "exports": 1,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      9
+    ],
+    "new_concrete_lines": [
+      53,
+      172,
+      182,
+      270
+    ],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../interfaces/ISizeUnit"
+      ],
+      [
+        2,
+        "../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../enums/SizeUnit"
+      ],
+      [
+        4,
+        "../enums/Dimension"
+      ],
+      [
+        5,
+        "../enums/SizeValue"
+      ],
+      [
+        6,
+        "../enums/UnitType"
+      ],
+      [
+        7,
+        "../constants"
+      ],
+      [
+        8,
+        "../strategies/value/SizeValueCalculationStrategyRegistry"
+      ],
+      [
+        9,
+        "../../core/Logger"
+      ]
+    ]
+  },
+  {
+    "path": "unit/classes/ScaleUnitCalculator.ts",
+    "lines": 502,
+    "exports": 1,
+    "switches": [
+      [
+        52,
+        "this.scaleUnit",
+        12
+      ]
+    ],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      260
+    ],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../interfaces/IScaleUnit"
+      ],
+      [
+        2,
+        "../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../enums/ScaleUnit"
+      ],
+      [
+        4,
+        "../enums/ScaleValue"
+      ],
+      [
+        5,
+        "../enums/UnitType"
+      ],
+      [
+        6,
+        "../constants"
+      ]
+    ]
+  },
+  {
+    "path": "unit/classes/SizeUnitCalculator.ts",
+    "lines": 363,
+    "exports": 1,
+    "switches": [
+      [
+        55,
+        "this.sizeUnit",
+        9
+      ],
+      [
+        295,
+        "this.sizeUnit",
+        9
+      ]
+    ],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      130,
+      140,
+      206
+    ],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../interfaces/ISizeUnit"
+      ],
+      [
+        2,
+        "../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../enums/SizeUnit"
+      ],
+      [
+        4,
+        "../enums/Dimension"
+      ],
+      [
+        5,
+        "../enums/SizeValue"
+      ],
+      [
+        6,
+        "../enums/UnitType"
+      ],
+      [
+        7,
+        "../constants"
+      ]
+    ]
+  },
+  {
+    "path": "unit/classes/UnitCalculatorFactory.ts",
+    "lines": 327,
+    "exports": 1,
+    "switches": [
+      [
+        104,
+        "type",
+        4
+      ]
+    ],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      30,
+      39,
+      55,
+      78,
+      94,
+      107,
+      120,
+      132,
+      143
+    ],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../interfaces/IUnit"
+      ],
+      [
+        2,
+        "../interfaces/ISizeUnit"
+      ],
+      [
+        3,
+        "../interfaces/IPositionUnit"
+      ],
+      [
+        4,
+        "../interfaces/IScaleUnit"
+      ],
+      [
+        5,
+        "../interfaces/IUnit"
+      ],
+      [
+        6,
+        "./SizeUnitCalculator"
+      ],
+      [
+        7,
+        "./PositionUnitCalculator"
+      ],
+      [
+        8,
+        "./ScaleUnitCalculator"
+      ],
+      [
+        9,
+        "../enums/SizeUnit"
+      ],
+      [
+        10,
+        "../enums/PositionUnit"
+      ],
+      [
+        11,
+        "../enums/ScaleUnit"
+      ],
+      [
+        12,
+        "../enums/Dimension"
+      ],
+      [
+        13,
+        "../enums/SizeValue"
+      ],
+      [
+        14,
+        "../enums/PositionValue"
+      ],
+      [
+        15,
+        "../enums/ScaleValue"
+      ],
+      [
+        16,
+        "../enums/UnitType"
+      ],
+      [
+        17,
+        "../interfaces/IUnitConfig"
+      ]
+    ]
+  },
+  {
+    "path": "unit/commands/BatchCalculationCommand.ts",
+    "lines": 195,
+    "exports": 1,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      4
+    ],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        95,
+        3
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "./IUnitCommand"
+      ],
+      [
+        2,
+        "../interfaces/IUnit"
+      ],
+      [
+        3,
+        "./IUnitCommand"
+      ],
+      [
+        4,
+        "../../core/Logger"
+      ],
+      [
+        5,
+        "../constants"
+      ]
+    ]
+  },
+  {
+    "path": "unit/commands/CalculatePositionCommand.ts",
+    "lines": 76,
+    "exports": 1,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      19
+    ],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../interfaces/IUnit"
+      ],
+      [
+        2,
+        "../interfaces/IStrategyInput"
+      ],
+      [
+        3,
+        "./IUnitCommand"
+      ],
+      [
+        4,
+        "../strategies/PositionUnitStrategy"
+      ]
+    ]
+  },
+  {
+    "path": "unit/commands/CalculateSizeCommand.ts",
+    "lines": 76,
+    "exports": 1,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      19
+    ],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../interfaces/IUnit"
+      ],
+      [
+        2,
+        "../interfaces/IStrategyInput"
+      ],
+      [
+        3,
+        "./IUnitCommand"
+      ],
+      [
+        4,
+        "../strategies/SizeUnitStrategy"
+      ]
+    ]
+  },
+  {
+    "path": "unit/commands/IUnitCommand.ts",
+    "lines": 99,
+    "exports": 2,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      45
+    ],
+    "interfaces": [
+      [
+        "IUnitCommand",
+        7,
+        8
+      ],
+      [
+        "IUnitCommandExecutor",
+        81,
+        6
+      ]
+    ],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../interfaces/IUnit"
+      ]
+    ]
+  },
+  {
+    "path": "unit/composites/IUnitComposite.ts",
+    "lines": 260,
+    "exports": 1,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [
+      [
+        "IUnitComposite",
+        9,
+        17
+      ]
+    ],
+    "func_lengths": [
+      [
+        183,
+        6
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "../interfaces/IUnit"
+      ],
+      [
+        2,
+        "../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../enums/UnitType"
+      ]
+    ]
+  },
+  {
+    "path": "unit/composites/UnitGroupComposite.ts",
+    "lines": 254,
+    "exports": 1,
+    "switches": [
+      [
+        136,
+        "this.calculationStrategy",
+        6
+      ]
+    ],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      6
+    ],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        168,
+        3
+      ],
+      [
+        179,
+        3
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "./IUnitComposite"
+      ],
+      [
+        2,
+        "../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../interfaces/IUnit"
+      ],
+      [
+        4,
+        "../enums/UnitType"
+      ],
+      [
+        5,
+        "../enums/CalculationStrategy"
+      ],
+      [
+        6,
+        "../../core/Logger"
+      ]
+    ]
+  },
+  {
+    "path": "unit/constants/UnitSystemConstants.ts",
+    "lines": 428,
+    "exports": 13,
+    "switches": [
+      [
+        331,
+        "type",
+        4
+      ],
+      [
+        369,
+        "type",
+        4
+      ]
+    ],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": []
+  },
+  {
+    "path": "unit/constants/index.ts",
+    "lines": 23,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": []
+  },
+  {
+    "path": "unit/decorators/CachingDecorator.ts",
+    "lines": 250,
+    "exports": 1,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "./IUnitDecorator"
+      ],
+      [
+        2,
+        "../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../interfaces/IUnit"
+      ],
+      [
+        4,
+        "../enums/UnitType"
+      ],
+      [
+        5,
+        "../constants"
+      ]
+    ]
+  },
+  {
+    "path": "unit/decorators/IUnitDecorator.ts",
+    "lines": 198,
+    "exports": 3,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [
+      [
+        "IUnitDecorator",
+        9,
+        11
+      ],
+      [
+        "IUnitDecoratorChain",
+        150,
+        8
+      ],
+      [
+        "IUnitDecoratorRegistry",
+        180,
+        5
+      ]
+    ],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../interfaces/IUnit"
+      ],
+      [
+        2,
+        "../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../enums/UnitType"
+      ]
+    ]
+  },
+  {
+    "path": "unit/decorators/ValidationDecorator.ts",
+    "lines": 355,
+    "exports": 1,
+    "switches": [
+      [
+        265,
+        "unitType",
+        3
+      ]
+    ],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      351
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        185,
+        3
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "./IUnitDecorator"
+      ],
+      [
+        2,
+        "../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../interfaces/IUnit"
+      ],
+      [
+        4,
+        "../enums/UnitType"
+      ],
+      [
+        5,
+        "../constants"
+      ]
+    ]
+  },
+  {
+    "path": "unit/deployment/FeatureFlagSystem.ts",
+    "lines": 244,
+    "exports": 4,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      33,
+      207,
+      236
+    ],
+    "interfaces": [
+      [
+        "FeatureFlag",
+        3,
+        7
+      ],
+      [
+        "FeatureFlagContext",
+        16,
+        6
+      ],
+      [
+        "FeatureFlagResult",
+        25,
+        4
+      ]
+    ],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../constants"
+      ]
+    ]
+  },
+  {
+    "path": "unit/enums/AxisUnit.ts",
+    "lines": 20,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": []
+  },
+  {
+    "path": "unit/enums/CalculationStrategy.ts",
+    "lines": 51,
+    "exports": 3,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        19,
+        3
+      ],
+      [
+        26,
+        11
+      ],
+      [
+        41,
+        11
+      ]
+    ],
+    "imports": []
+  },
+  {
+    "path": "unit/enums/Dimension.ts",
+    "lines": 23,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": []
+  },
+  {
+    "path": "unit/enums/LogLevel.ts",
+    "lines": 45,
+    "exports": 4,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        29,
+        3
+      ],
+      [
+        36,
+        3
+      ],
+      [
+        43,
+        3
+      ]
+    ],
+    "imports": []
+  },
+  {
+    "path": "unit/enums/PositionUnit.ts",
+    "lines": 32,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": []
+  },
+  {
+    "path": "unit/enums/PositionValue.ts",
+    "lines": 31,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": []
+  },
+  {
+    "path": "unit/enums/ScaleUnit.ts",
+    "lines": 25,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": []
+  },
+  {
+    "path": "unit/enums/ScaleValue.ts",
+    "lines": 29,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": []
+  },
+  {
+    "path": "unit/enums/SizeUnit.ts",
+    "lines": 26,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": []
+  },
+  {
+    "path": "unit/enums/SizeValue.ts",
+    "lines": 22,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": []
+  },
+  {
+    "path": "unit/enums/TemplateInputType.ts",
+    "lines": 17,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": []
+  },
+  {
+    "path": "unit/enums/UnitType.ts",
+    "lines": 9,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": []
+  },
+  {
+    "path": "unit/enums/ValidationType.ts",
+    "lines": 54,
+    "exports": 3,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        20,
+        3
+      ],
+      [
+        27,
+        12
+      ],
+      [
+        43,
+        12
+      ]
+    ],
+    "imports": []
+  },
+  {
+    "path": "unit/enums/index.ts",
+    "lines": 103,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": []
+  },
+  {
+    "path": "unit/examples/ContainerIntegrationExample.ts",
+    "lines": 341,
+    "exports": 4,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      49,
+      282,
+      287
+    ],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../classes/UnitCalculatorFactory"
+      ],
+      [
+        2,
+        "../interfaces/IPhaserUnitContext"
+      ],
+      [
+        3,
+        "../interfaces/ISizeUnit"
+      ],
+      [
+        4,
+        "../interfaces/IPositionUnit"
+      ],
+      [
+        5,
+        "../interfaces/IScaleUnit"
+      ],
+      [
+        6,
+        "../enums/SizeUnit"
+      ],
+      [
+        7,
+        "../enums/Dimension"
+      ],
+      [
+        8,
+        "../enums/SizeValue"
+      ],
+      [
+        9,
+        "../enums/PositionUnit"
+      ],
+      [
+        10,
+        "../enums/ScaleUnit"
+      ],
+      [
+        11,
+        "../enums/ScaleValue"
+      ],
+      [
+        12,
+        "../../abstract/configs/IStyleProperties"
+      ]
+    ]
+  },
+  {
+    "path": "unit/examples/PhaserGameObjectExample.ts",
+    "lines": 212,
+    "exports": 5,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      123,
+      128
+    ],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "phaser"
+      ],
+      [
+        2,
+        "../classes/UnitCalculatorFactory"
+      ],
+      [
+        3,
+        "../interfaces/IPhaserUnitContext"
+      ],
+      [
+        4,
+        "../enums/SizeUnit"
+      ],
+      [
+        5,
+        "../enums/Dimension"
+      ],
+      [
+        6,
+        "../enums/PositionUnit"
+      ],
+      [
+        7,
+        "../enums/ScaleUnit"
+      ],
+      [
+        8,
+        "../interfaces/ISizeUnit"
+      ],
+      [
+        9,
+        "../interfaces/IPositionUnit"
+      ],
+      [
+        10,
+        "../interfaces/IScaleUnit"
+      ]
+    ]
+  },
+  {
+    "path": "unit/index.ts",
+    "lines": 77,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": []
+  },
+  {
+    "path": "unit/interfaces/ILegacyUnit.ts",
+    "lines": 414,
+    "exports": 19,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [
+      [
+        "IBaseLegacyUnit",
+        8,
+        7
+      ],
+      [
+        "ILegacySizeUnit",
+        34,
+        9
+      ],
+      [
+        "ILegacyPositionUnit",
+        67,
+        8
+      ],
+      [
+        "ILegacyScaleUnit",
+        97,
+        7
+      ],
+      [
+        "ILegacyMixedUnit",
+        124,
+        5
+      ],
+      [
+        "ILegacyUnknownUnit",
+        145,
+        3
+      ]
+    ],
+    "func_lengths": [
+      [
+        170,
+        11
+      ],
+      [
+        185,
+        11
+      ],
+      [
+        200,
+        6
+      ],
+      [
+        210,
+        6
+      ],
+      [
+        220,
+        6
+      ],
+      [
+        230,
+        9
+      ],
+      [
+        352,
+        63
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "../enums/UnitType"
+      ],
+      [
+        2,
+        "../enums/Dimension"
+      ]
+    ]
+  },
+  {
+    "path": "unit/interfaces/IPhaserUnitContext.ts",
+    "lines": 279,
+    "exports": 3,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      197,
+      207,
+      217,
+      234,
+      248,
+      259,
+      270
+    ],
+    "interfaces": [
+      [
+        "IPhaserUnitContext",
+        9,
+        22
+      ]
+    ],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "phaser"
+      ],
+      [
+        2,
+        "./IUnit"
+      ],
+      [
+        3,
+        "../constants"
+      ]
+    ]
+  },
+  {
+    "path": "unit/interfaces/IPositionUnit.ts",
+    "lines": 83,
+    "exports": 1,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [
+      [
+        "IPositionUnit",
+        10,
+        12
+      ]
+    ],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "./IUnit"
+      ],
+      [
+        2,
+        "../enums/PositionUnit"
+      ],
+      [
+        3,
+        "../enums/Dimension"
+      ],
+      [
+        4,
+        "../enums/PositionValue"
+      ]
+    ]
+  },
+  {
+    "path": "unit/interfaces/IRandomValue.ts",
+    "lines": 33,
+    "exports": 2,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [
+      [
+        "IRandomValue",
+        5,
+        5
+      ],
+      [
+        "IRandomValueNumber",
+        22,
+        5
+      ]
+    ],
+    "func_lengths": [],
+    "imports": []
+  },
+  {
+    "path": "unit/interfaces/IScaleUnit.ts",
+    "lines": 89,
+    "exports": 1,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [
+      [
+        "IScaleUnit",
+        9,
+        13
+      ]
+    ],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "./IUnit"
+      ],
+      [
+        2,
+        "../enums/ScaleUnit"
+      ],
+      [
+        3,
+        "../enums/ScaleValue"
+      ]
+    ]
+  },
+  {
+    "path": "unit/interfaces/ISizeUnit.ts",
+    "lines": 76,
+    "exports": 1,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [
+      [
+        "ISizeUnit",
+        10,
+        11
+      ]
+    ],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "./IUnit"
+      ],
+      [
+        2,
+        "../enums/SizeUnit"
+      ],
+      [
+        3,
+        "../enums/Dimension"
+      ],
+      [
+        4,
+        "../enums/SizeValue"
+      ]
+    ]
+  },
+  {
+    "path": "unit/interfaces/IStrategyInput.ts",
+    "lines": 477,
+    "exports": 16,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [
+      [
+        "IBaseStrategyInput",
+        14,
+        5
+      ],
+      [
+        "ISizeStrategyInput",
+        35,
+        11
+      ],
+      [
+        "IPositionStrategyInput",
+        72,
+        11
+      ],
+      [
+        "IScaleStrategyInput",
+        109,
+        10
+      ],
+      [
+        "IMixedStrategyInput",
+        143,
+        7
+      ]
+    ],
+    "func_lengths": [
+      [
+        184,
+        16
+      ],
+      [
+        204,
+        16
+      ],
+      [
+        224,
+        15
+      ],
+      [
+        243,
+        14
+      ],
+      [
+        261,
+        8
+      ],
+      [
+        367,
+        111
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "../enums/SizeValue"
+      ],
+      [
+        2,
+        "../enums/SizeUnit"
+      ],
+      [
+        3,
+        "../enums/PositionValue"
+      ],
+      [
+        4,
+        "../enums/PositionUnit"
+      ],
+      [
+        5,
+        "../enums/ScaleValue"
+      ],
+      [
+        6,
+        "../enums/ScaleUnit"
+      ],
+      [
+        7,
+        "../enums/Dimension"
+      ],
+      [
+        8,
+        "../constants"
+      ]
+    ]
+  },
+  {
+    "path": "unit/interfaces/ITemplateInput.ts",
+    "lines": 294,
+    "exports": 16,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [
+      [
+        "IBaseTemplateInput",
+        17,
+        4
+      ],
+      [
+        "ISizeTemplateInput",
+        34,
+        8
+      ],
+      [
+        "IPositionTemplateInput",
+        62,
+        7
+      ],
+      [
+        "IScaleTemplateInput",
+        87,
+        7
+      ],
+      [
+        "IMixedTemplateInput",
+        112,
+        5
+      ]
+    ],
+    "func_lengths": [
+      [
+        141,
+        3
+      ],
+      [
+        148,
+        3
+      ],
+      [
+        155,
+        3
+      ],
+      [
+        162,
+        3
+      ],
+      [
+        169,
+        6
+      ],
+      [
+        265,
+        30
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "./IUnit"
+      ],
+      [
+        2,
+        "../types/UnitValue"
+      ],
+      [
+        3,
+        "../enums/SizeUnit"
+      ],
+      [
+        4,
+        "../enums/SizeValue"
+      ],
+      [
+        5,
+        "../enums/PositionUnit"
+      ],
+      [
+        6,
+        "../enums/PositionValue"
+      ],
+      [
+        7,
+        "../enums/ScaleUnit"
+      ],
+      [
+        8,
+        "../enums/ScaleValue"
+      ],
+      [
+        9,
+        "../enums/Dimension"
+      ],
+      [
+        10,
+        "../enums/TemplateInputType"
+      ],
+      [
+        11,
+        "../constants"
+      ]
+    ]
+  },
+  {
+    "path": "unit/interfaces/IUnit.ts",
+    "lines": 113,
+    "exports": 2,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [
+      [
+        "IUnit",
+        7,
+        9
+      ],
+      [
+        "UnitContext",
+        65,
+        19
+      ]
+    ],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../enums/UnitType"
+      ]
+    ]
+  },
+  {
+    "path": "unit/interfaces/IUnitConfig.ts",
+    "lines": 193,
+    "exports": 11,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [
+      [
+        "IBaseUnitConfig",
+        15,
+        6
+      ],
+      [
+        "ISizeUnitConfig",
+        38,
+        6
+      ],
+      [
+        "IPositionUnitConfig",
+        61,
+        5
+      ],
+      [
+        "IScaleUnitConfig",
+        81,
+        5
+      ]
+    ],
+    "func_lengths": [
+      [
+        107,
+        3
+      ],
+      [
+        114,
+        3
+      ],
+      [
+        121,
+        3
+      ]
+    ],
+    "imports": []
+  },
+  {
+    "path": "unit/interfaces/IValidationInput.ts",
+    "lines": 433,
+    "exports": 25,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [
+      [
+        "IBaseValidationInput",
+        16,
+        3
+      ],
+      [
+        "IUnitValidationInput",
+        31,
+        4
+      ],
+      [
+        "IValueValidationInput",
+        49,
+        4
+      ],
+      [
+        "ISizeValidationInput",
+        67,
+        6
+      ],
+      [
+        "IPositionValidationInput",
+        91,
+        5
+      ],
+      [
+        "IScaleValidationInput",
+        112,
+        5
+      ],
+      [
+        "IMixedValidationInput",
+        133,
+        4
+      ],
+      [
+        "ILegacyValidationInput",
+        151,
+        3
+      ]
+    ],
+    "func_lengths": [
+      [
+        178,
+        3
+      ],
+      [
+        185,
+        3
+      ],
+      [
+        192,
+        3
+      ],
+      [
+        208,
+        3
+      ],
+      [
+        215,
+        3
+      ],
+      [
+        222,
+        3
+      ],
+      [
+        229,
+        13
+      ],
+      [
+        380,
+        54
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "./IUnit"
+      ],
+      [
+        2,
+        "../enums/UnitType"
+      ],
+      [
+        3,
+        "../enums/Dimension"
+      ],
+      [
+        4,
+        "../enums/SizeUnit"
+      ],
+      [
+        5,
+        "../enums/SizeValue"
+      ],
+      [
+        6,
+        "../enums/PositionUnit"
+      ],
+      [
+        7,
+        "../enums/PositionValue"
+      ],
+      [
+        8,
+        "../enums/ScaleUnit"
+      ],
+      [
+        9,
+        "../enums/ScaleValue"
+      ],
+      [
+        10,
+        "../enums/ValidationType"
+      ]
+    ]
+  },
+  {
+    "path": "unit/interfaces/strategy/IPositionStrategyInput.ts",
+    "lines": 103,
+    "exports": 3,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [
+      [
+        "IPositionStrategyInput",
+        10,
+        11
+      ],
+      [
+        "IPositionStrategyInputFactory",
+        49,
+        9
+      ],
+      [
+        "IPositionStrategyInputValidator",
+        85,
+        6
+      ]
+    ],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../../enums/PositionValue"
+      ],
+      [
+        2,
+        "../../enums/PositionUnit"
+      ],
+      [
+        3,
+        "../../enums/Dimension"
+      ]
+    ]
+  },
+  {
+    "path": "unit/interfaces/strategy/IScaleStrategyInput.ts",
+    "lines": 83,
+    "exports": 3,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [
+      [
+        "IScaleStrategyInput",
+        9,
+        9
+      ],
+      [
+        "IScaleStrategyInputFactory",
+        42,
+        8
+      ],
+      [
+        "IScaleStrategyInputValidator",
+        65,
+        6
+      ]
+    ],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../../enums/ScaleValue"
+      ],
+      [
+        2,
+        "../../enums/ScaleUnit"
+      ]
+    ]
+  },
+  {
+    "path": "unit/interfaces/strategy/ISizeStrategyInput.ts",
+    "lines": 103,
+    "exports": 3,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [
+      [
+        "ISizeStrategyInput",
+        10,
+        11
+      ],
+      [
+        "ISizeStrategyInputFactory",
+        49,
+        9
+      ],
+      [
+        "ISizeStrategyInputValidator",
+        85,
+        6
+      ]
+    ],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../../enums/SizeValue"
+      ],
+      [
+        2,
+        "../../enums/SizeUnit"
+      ],
+      [
+        3,
+        "../../enums/Dimension"
+      ]
+    ]
+  },
+  {
+    "path": "unit/interfaces/strategy/IStrategyInput.ts",
+    "lines": 105,
+    "exports": 3,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [
+      [
+        "IStrategyInput",
+        11,
+        11
+      ],
+      [
+        "IStrategyInputFactory",
+        50,
+        25
+      ],
+      [
+        "IStrategyInputValidator",
+        93,
+        4
+      ]
+    ],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "./ISizeStrategyInput"
+      ],
+      [
+        2,
+        "./IPositionStrategyInput"
+      ],
+      [
+        3,
+        "./IScaleStrategyInput"
+      ],
+      [
+        4,
+        "../../enums/UnitType"
+      ]
+    ]
+  },
+  {
+    "path": "unit/interfaces/strategy/index.ts",
+    "lines": 38,
+    "exports": 4,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": []
+  },
+  {
+    "path": "unit/managers/CommandManager.ts",
+    "lines": 275,
+    "exports": 2,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      3
+    ],
+    "new_concrete_lines": [],
+    "interfaces": [
+      [
+        "ICommandManager",
+        11,
+        13
+      ]
+    ],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../commands/IUnitCommand"
+      ],
+      [
+        2,
+        "../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../../core/Logger"
+      ],
+      [
+        4,
+        "../constants"
+      ]
+    ]
+  },
+  {
+    "path": "unit/managers/ObserverManager.ts",
+    "lines": 229,
+    "exports": 2,
+    "switches": [
+      [
+        102,
+        "eventType",
+        4
+      ]
+    ],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      3
+    ],
+    "new_concrete_lines": [
+      36,
+      55
+    ],
+    "interfaces": [
+      [
+        "IObserverManager",
+        10,
+        11
+      ]
+    ],
+    "func_lengths": [
+      [
+        209,
+        4
+      ],
+      [
+        214,
+        4
+      ],
+      [
+        219,
+        4
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "../observers/IUnitObserver"
+      ],
+      [
+        3,
+        "../../core/Logger"
+      ]
+    ]
+  },
+  {
+    "path": "unit/managers/PerformanceManager.ts",
+    "lines": 331,
+    "exports": 2,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      1
+    ],
+    "new_concrete_lines": [
+      54,
+      55
+    ],
+    "interfaces": [
+      [
+        "IPerformanceManager",
+        9,
+        24
+      ]
+    ],
+    "func_lengths": [
+      [
+        217,
+        6
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "../../core/Logger"
+      ],
+      [
+        2,
+        "../constants"
+      ]
+    ]
+  },
+  {
+    "path": "unit/managers/StrategyManager.ts",
+    "lines": 220,
+    "exports": 2,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      3
+    ],
+    "new_concrete_lines": [
+      36,
+      60
+    ],
+    "interfaces": [
+      [
+        "IStrategyManager",
+        10,
+        11
+      ]
+    ],
+    "func_lengths": [
+      [
+        200,
+        4
+      ],
+      [
+        205,
+        4
+      ],
+      [
+        210,
+        4
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "../strategies/IUnitStrategy"
+      ],
+      [
+        2,
+        "../interfaces/IStrategyInput"
+      ],
+      [
+        3,
+        "../../core/Logger"
+      ]
+    ]
+  },
+  {
+    "path": "unit/managers/UnitRegistryManager.ts",
+    "lines": 224,
+    "exports": 2,
+    "switches": [
+      [
+        182,
+        "unitType",
+        4
+      ]
+    ],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      4
+    ],
+    "new_concrete_lines": [
+      41,
+      65,
+      185,
+      198,
+      210,
+      221
+    ],
+    "interfaces": [
+      [
+        "IUnitRegistryManager",
+        18,
+        10
+      ]
+    ],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../interfaces/IUnit"
+      ],
+      [
+        2,
+        "../interfaces/IUnitConfig"
+      ],
+      [
+        4,
+        "../../core/Logger"
+      ],
+      [
+        5,
+        "../enums/UnitType"
+      ],
+      [
+        6,
+        "../classes/UnitCalculatorFactory"
+      ]
+    ]
+  },
+  {
+    "path": "unit/managers/UnitSystemManager.ts",
+    "lines": 328,
+    "exports": 2,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      17
+    ],
+    "new_concrete_lines": [
+      77,
+      78,
+      79,
+      80,
+      81,
+      82
+    ],
+    "interfaces": [
+      [
+        "IUnitSystemManager",
+        24,
+        22
+      ]
+    ],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../interfaces/IUnit"
+      ],
+      [
+        2,
+        "../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../strategies/IUnitStrategy"
+      ],
+      [
+        4,
+        "../commands/IUnitCommand"
+      ],
+      [
+        5,
+        "../observers/IUnitObserver"
+      ],
+      [
+        6,
+        "../validators/IUnitValidator"
+      ],
+      [
+        7,
+        "../interfaces/IUnitConfig"
+      ],
+      [
+        10,
+        "./UnitRegistryManager"
+      ],
+      [
+        11,
+        "./StrategyManager"
+      ],
+      [
+        12,
+        "./CommandManager"
+      ],
+      [
+        13,
+        "./ObserverManager"
+      ],
+      [
+        14,
+        "./ValidationManager"
+      ],
+      [
+        15,
+        "./PerformanceManager"
+      ],
+      [
+        17,
+        "../../core/Logger"
+      ]
+    ]
+  },
+  {
+    "path": "unit/managers/ValidationManager.ts",
+    "lines": 361,
+    "exports": 2,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      5
+    ],
+    "new_concrete_lines": [
+      72
+    ],
+    "interfaces": [
+      [
+        "IValidationManager",
+        12,
+        16
+      ]
+    ],
+    "func_lengths": [
+      [
+        351,
+        4
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "../validators/IUnitValidator"
+      ],
+      [
+        2,
+        "../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../interfaces/IUnit"
+      ],
+      [
+        4,
+        "../interfaces/IValidationInput"
+      ],
+      [
+        5,
+        "../../core/Logger"
+      ]
+    ]
+  },
+  {
+    "path": "unit/managers/index.ts",
+    "lines": 25,
+    "exports": 7,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": []
+  },
+  {
+    "path": "unit/mementos/IUnitMemento.ts",
+    "lines": 172,
+    "exports": 3,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      60
+    ],
+    "interfaces": [
+      [
+        "IUnitMemento",
+        5,
+        12
+      ],
+      [
+        "IUnitMementoCaretaker",
+        124,
+        20
+      ]
+    ],
+    "func_lengths": [],
+    "imports": []
+  },
+  {
+    "path": "unit/mementos/UnitCalculationMemento.ts",
+    "lines": 318,
+    "exports": 1,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      267,
+      302
+    ],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../interfaces/IUnit"
+      ],
+      [
+        2,
+        "../interfaces/IStrategyInput"
+      ],
+      [
+        3,
+        "./IUnitMemento"
+      ],
+      [
+        4,
+        "../constants"
+      ]
+    ]
+  },
+  {
+    "path": "unit/mementos/UnitMementoCaretaker.ts",
+    "lines": 417,
+    "exports": 1,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      3
+    ],
+    "new_concrete_lines": [
+      12,
+      15,
+      16,
+      294,
+      315,
+      323
+    ],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "./IUnitMemento"
+      ],
+      [
+        2,
+        "./IUnitMemento"
+      ],
+      [
+        3,
+        "../../core/Logger"
+      ],
+      [
+        4,
+        "../constants"
+      ]
+    ]
+  },
+  {
+    "path": "unit/mementos/UnitMementoManager.ts",
+    "lines": 496,
+    "exports": 1,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      7
+    ],
+    "new_concrete_lines": [
+      26,
+      333
+    ],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "./IUnitMemento"
+      ],
+      [
+        2,
+        "./UnitMementoCaretaker"
+      ],
+      [
+        3,
+        "./UnitCalculationMemento"
+      ],
+      [
+        4,
+        "../interfaces/IUnit"
+      ],
+      [
+        5,
+        "../templates/IUnitCalculationTemplate"
+      ],
+      [
+        6,
+        "../interfaces/IStrategyInput"
+      ],
+      [
+        7,
+        "../../core/Logger"
+      ],
+      [
+        8,
+        "../constants"
+      ]
+    ]
+  },
+  {
+    "path": "unit/mementos/index.ts",
+    "lines": 4,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": []
+  },
+  {
+    "path": "unit/monitoring/ProductionMonitoringSystem.ts",
+    "lines": 588,
+    "exports": 5,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      3
+    ],
+    "new_concrete_lines": [
+      124,
+      315,
+      334,
+      342,
+      350,
+      361,
+      402,
+      453,
+      544,
+      552,
+      567
+    ],
+    "interfaces": [
+      [
+        "PerformanceMetric",
+        5,
+        5
+      ],
+      [
+        "HealthCheck",
+        13,
+        5
+      ],
+      [
+        "Alert",
+        21,
+        10
+      ],
+      [
+        "MonitoringConfig",
+        34,
+        3
+      ]
+    ],
+    "func_lengths": [
+      [
+        74,
+        3
+      ],
+      [
+        79,
+        3
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "../interfaces/IUnit"
+      ],
+      [
+        2,
+        "../interfaces/IUnitConfig"
+      ],
+      [
+        3,
+        "../../core/Logger"
+      ]
+    ]
+  },
+  {
+    "path": "unit/observers/IUnitObserver.ts",
+    "lines": 86,
+    "exports": 3,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [
+      [
+        "IUnitObserver",
+        5,
+        6
+      ],
+      [
+        "IUnitSubject",
+        29,
+        11
+      ],
+      [
+        "IUnitEvent",
+        81,
+        4
+      ]
+    ],
+    "func_lengths": [],
+    "imports": []
+  },
+  {
+    "path": "unit/observers/LoggingObserver.ts",
+    "lines": 133,
+    "exports": 1,
+    "switches": [
+      [
+        97,
+        "level",
+        5
+      ]
+    ],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      2
+    ],
+    "new_concrete_lines": [
+      78
+    ],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "./IUnitObserver"
+      ],
+      [
+        2,
+        "../../core/Logger"
+      ],
+      [
+        3,
+        "../enums/LogLevel"
+      ]
+    ]
+  },
+  {
+    "path": "unit/observers/PerformanceObserver.ts",
+    "lines": 264,
+    "exports": 1,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      2
+    ],
+    "new_concrete_lines": [
+      56,
+      126,
+      147,
+      188
+    ],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "./IUnitObserver"
+      ],
+      [
+        2,
+        "../../core/Logger"
+      ],
+      [
+        3,
+        "../constants"
+      ]
+    ]
+  },
+  {
+    "path": "unit/strategies/IUnitStrategy.ts",
+    "lines": 67,
+    "exports": 2,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [
+      [
+        "IUnitStrategy",
+        9,
+        4
+      ],
+      [
+        "IUnitStrategyRegistry",
+        41,
+        4
+      ]
+    ],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../interfaces/IUnit"
+      ],
+      [
+        2,
+        "../interfaces/IStrategyInput"
+      ]
+    ]
+  },
+  {
+    "path": "unit/strategies/MixedUnitStrategy.ts",
+    "lines": 383,
+    "exports": 1,
+    "switches": [
+      [
+        257,
+        "unit",
+        5
+      ]
+    ],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      5
+    ],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "./IUnitStrategy"
+      ],
+      [
+        2,
+        "../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../interfaces/IStrategyInput"
+      ],
+      [
+        4,
+        "../enums/Dimension"
+      ],
+      [
+        5,
+        "../../core/Logger"
+      ],
+      [
+        6,
+        "../constants"
+      ]
+    ]
+  },
+  {
+    "path": "unit/strategies/PositionUnitStrategy.ts",
+    "lines": 363,
+    "exports": 1,
+    "switches": [
+      [
+        141,
+        "input",
+        6
+      ]
+    ],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "./IUnitStrategy"
+      ],
+      [
+        2,
+        "../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../interfaces/IStrategyInput"
+      ],
+      [
+        4,
+        "../enums/PositionValue"
+      ],
+      [
+        5,
+        "../enums/PositionUnit"
+      ],
+      [
+        6,
+        "../enums/Dimension"
+      ],
+      [
+        7,
+        "../classes/UnitCalculatorFactory"
+      ],
+      [
+        8,
+        "../interfaces/IStrategyInput"
+      ],
+      [
+        9,
+        "../constants"
+      ]
+    ]
+  },
+  {
+    "path": "unit/strategies/ScaleUnitStrategy.ts",
+    "lines": 275,
+    "exports": 1,
+    "switches": [
+      [
+        133,
+        "input",
+        7
+      ]
+    ],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        168,
+        1
+      ],
+      [
+        237,
+        1
+      ],
+      [
+        245,
+        1
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "./IUnitStrategy"
+      ],
+      [
+        2,
+        "../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../interfaces/IStrategyInput"
+      ],
+      [
+        4,
+        "../enums/ScaleValue"
+      ],
+      [
+        5,
+        "../enums/ScaleUnit"
+      ],
+      [
+        6,
+        "../classes/UnitCalculatorFactory"
+      ],
+      [
+        7,
+        "../constants"
+      ]
+    ]
+  },
+  {
+    "path": "unit/strategies/SizeUnitStrategy.ts",
+    "lines": 312,
+    "exports": 1,
+    "switches": [
+      [
+        137,
+        "input",
+        3
+      ]
+    ],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        181,
+        3
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "./IUnitStrategy"
+      ],
+      [
+        2,
+        "../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../interfaces/IStrategyInput"
+      ],
+      [
+        4,
+        "../enums/SizeValue"
+      ],
+      [
+        5,
+        "../enums/SizeUnit"
+      ],
+      [
+        6,
+        "../enums/Dimension"
+      ],
+      [
+        7,
+        "../classes/UnitCalculatorFactory"
+      ],
+      [
+        8,
+        "../interfaces/IStrategyInput"
+      ],
+      [
+        9,
+        "../constants"
+      ]
+    ]
+  },
+  {
+    "path": "unit/strategies/cache/IStrategyCache.ts",
+    "lines": 120,
+    "exports": 3,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [
+      [
+        "ICacheEntry",
+        6,
+        5
+      ],
+      [
+        "IStrategyCache",
+        32,
+        23
+      ]
+    ],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../../interfaces/IUnit"
+      ]
+    ]
+  },
+  {
+    "path": "unit/strategies/cache/StrategyCache.ts",
+    "lines": 294,
+    "exports": 1,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      3
+    ],
+    "new_concrete_lines": [
+      16
+    ],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "./IStrategyCache"
+      ],
+      [
+        2,
+        "../../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../../../core/Logger"
+      ]
+    ]
+  },
+  {
+    "path": "unit/strategies/composition/IStrategyComposer.ts",
+    "lines": 61,
+    "exports": 1,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [
+      [
+        "IStrategyComposer",
+        7,
+        15
+      ]
+    ],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../../interfaces/IUnit"
+      ]
+    ]
+  },
+  {
+    "path": "unit/strategies/composition/SizeStrategyComposers.ts",
+    "lines": 432,
+    "exports": 3,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      6
+    ],
+    "new_concrete_lines": [
+      275
+    ],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "./IStrategyComposer"
+      ],
+      [
+        2,
+        "../../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../../enums/SizeUnit"
+      ],
+      [
+        4,
+        "../../enums/SizeValue"
+      ],
+      [
+        5,
+        "../../enums/Dimension"
+      ],
+      [
+        6,
+        "../../../core/Logger"
+      ]
+    ]
+  },
+  {
+    "path": "unit/strategies/value/ISizeValueCalculationStrategy.ts",
+    "lines": 81,
+    "exports": 2,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [
+      [
+        "ISizeValueCalculationStrategy",
+        11,
+        9
+      ],
+      [
+        "ISizeValueCalculationStrategyRegistry",
+        53,
+        8
+      ]
+    ],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../../enums/SizeValue"
+      ],
+      [
+        2,
+        "../../enums/SizeUnit"
+      ],
+      [
+        3,
+        "../../interfaces/IUnit"
+      ],
+      [
+        4,
+        "../../enums/Dimension"
+      ]
+    ]
+  },
+  {
+    "path": "unit/strategies/value/PositionValueCalculationStrategies.ts",
+    "lines": 323,
+    "exports": 5,
+    "switches": [],
+    "if_chains": [
+      [
+        105,
+        115,
+        "axisUnit",
+        3
+      ]
+    ],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      7
+    ],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../value-calculation/IPositionValueCalculationStrategy"
+      ],
+      [
+        2,
+        "../../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../../enums/PositionValue"
+      ],
+      [
+        4,
+        "../../enums/PositionUnit"
+      ],
+      [
+        5,
+        "../../enums/AxisUnit"
+      ],
+      [
+        6,
+        "../../constants"
+      ],
+      [
+        7,
+        "../../../core/Logger"
+      ]
+    ]
+  },
+  {
+    "path": "unit/strategies/value/PositionValueCalculationStrategyRegistry.ts",
+    "lines": 203,
+    "exports": 1,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      6
+    ],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../value-calculation/IPositionValueCalculationStrategy"
+      ],
+      [
+        2,
+        "../value-calculation/IPositionValueCalculationStrategy"
+      ],
+      [
+        3,
+        "../../enums/PositionValue"
+      ],
+      [
+        4,
+        "../../enums/PositionUnit"
+      ],
+      [
+        5,
+        "../../enums/AxisUnit"
+      ],
+      [
+        6,
+        "../../../core/Logger"
+      ]
+    ]
+  },
+  {
+    "path": "unit/strategies/value/ScaleValueCalculationStrategies.ts",
+    "lines": 241,
+    "exports": 5,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      6
+    ],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../value-calculation/IScaleValueCalculationStrategy"
+      ],
+      [
+        2,
+        "../../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../../enums/ScaleValue"
+      ],
+      [
+        4,
+        "../../enums/ScaleUnit"
+      ],
+      [
+        5,
+        "../../constants"
+      ],
+      [
+        6,
+        "../../../core/Logger"
+      ]
+    ]
+  },
+  {
+    "path": "unit/strategies/value/ScaleValueCalculationStrategyRegistry.ts",
+    "lines": 185,
+    "exports": 1,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      5
+    ],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../value-calculation/IScaleValueCalculationStrategy"
+      ],
+      [
+        2,
+        "../value-calculation/IScaleValueCalculationStrategy"
+      ],
+      [
+        3,
+        "../../enums/ScaleValue"
+      ],
+      [
+        4,
+        "../../enums/ScaleUnit"
+      ],
+      [
+        5,
+        "../../../core/Logger"
+      ]
+    ]
+  },
+  {
+    "path": "unit/strategies/value/SizeValueCalculationStrategies.ts",
+    "lines": 322,
+    "exports": 5,
+    "switches": [],
+    "if_chains": [
+      [
+        108,
+        131,
+        "dimension",
+        7
+      ],
+      [
+        110,
+        131,
+        "dimension",
+        6
+      ],
+      [
+        112,
+        131,
+        "dimension",
+        5
+      ],
+      [
+        118,
+        131,
+        "dimension",
+        5
+      ],
+      [
+        120,
+        131,
+        "dimension",
+        4
+      ],
+      [
+        122,
+        131,
+        "dimension",
+        3
+      ],
+      [
+        128,
+        131,
+        "dimension",
+        3
+      ],
+      [
+        186,
+        189,
+        "dimension",
+        3
+      ]
+    ],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      7
+    ],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "./ISizeValueCalculationStrategy"
+      ],
+      [
+        2,
+        "../../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../../enums/SizeValue"
+      ],
+      [
+        4,
+        "../../enums/SizeUnit"
+      ],
+      [
+        5,
+        "../../enums/Dimension"
+      ],
+      [
+        6,
+        "../../constants"
+      ],
+      [
+        7,
+        "../../../core/Logger"
+      ]
+    ]
+  },
+  {
+    "path": "unit/strategies/value/SizeValueCalculationStrategyRegistry.ts",
+    "lines": 317,
+    "exports": 1,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      6
+    ],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "./ISizeValueCalculationStrategy"
+      ],
+      [
+        2,
+        "./ISizeValueCalculationStrategy"
+      ],
+      [
+        3,
+        "../../enums/SizeValue"
+      ],
+      [
+        4,
+        "../../enums/SizeUnit"
+      ],
+      [
+        5,
+        "../../enums/Dimension"
+      ],
+      [
+        6,
+        "../../../core/Logger"
+      ]
+    ]
+  },
+  {
+    "path": "unit/strategies/value/index.ts",
+    "lines": 45,
+    "exports": 3,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": []
+  },
+  {
+    "path": "unit/strategies/value-calculation/IPositionValueCalculationStrategy.ts",
+    "lines": 128,
+    "exports": 2,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [
+      [
+        "IPositionValueCalculationStrategy",
+        10,
+        9
+      ],
+      [
+        "IPositionValueCalculationStrategyRegistry",
+        50,
+        17
+      ]
+    ],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../../interfaces/IUnit"
+      ],
+      [
+        2,
+        "../../enums/PositionValue"
+      ],
+      [
+        3,
+        "../../enums/PositionUnit"
+      ],
+      [
+        4,
+        "../../enums/AxisUnit"
+      ]
+    ]
+  },
+  {
+    "path": "unit/strategies/value-calculation/IScaleValueCalculationStrategy.ts",
+    "lines": 110,
+    "exports": 2,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [
+      [
+        "IScaleValueCalculationStrategy",
+        9,
+        8
+      ],
+      [
+        "IScaleValueCalculationStrategyRegistry",
+        43,
+        15
+      ]
+    ],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../../interfaces/IUnit"
+      ],
+      [
+        2,
+        "../../enums/ScaleValue"
+      ],
+      [
+        3,
+        "../../enums/ScaleUnit"
+      ]
+    ]
+  },
+  {
+    "path": "unit/templates/IUnitCalculationTemplate.ts",
+    "lines": 191,
+    "exports": 1,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      54,
+      80
+    ],
+    "interfaces": [
+      [
+        "IUnitCalculationTemplate",
+        9,
+        11
+      ]
+    ],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../interfaces/IUnit"
+      ],
+      [
+        2,
+        "../validators/IUnitValidator"
+      ],
+      [
+        3,
+        "../interfaces/ITemplateInput"
+      ]
+    ]
+  },
+  {
+    "path": "unit/templates/PositionCalculationTemplate.ts",
+    "lines": 291,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      9
+    ],
+    "new_concrete_lines": [
+      25,
+      37,
+      48,
+      71,
+      72
+    ],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "./IUnitCalculationTemplate"
+      ],
+      [
+        2,
+        "../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../interfaces/ITemplateInput"
+      ],
+      [
+        4,
+        "../strategies/PositionUnitStrategy"
+      ],
+      [
+        5,
+        "../validators/RangeValidator"
+      ],
+      [
+        6,
+        "../validators/TypeValidator"
+      ],
+      [
+        7,
+        "../enums/UnitType"
+      ],
+      [
+        8,
+        "../enums/Dimension"
+      ],
+      [
+        9,
+        "../../core/Logger"
+      ],
+      [
+        10,
+        "../constants"
+      ]
+    ]
+  },
+  {
+    "path": "unit/templates/ScaleCalculationTemplate.ts",
+    "lines": 286,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      9
+    ],
+    "new_concrete_lines": [
+      25,
+      37,
+      48,
+      71,
+      72
+    ],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "./IUnitCalculationTemplate"
+      ],
+      [
+        2,
+        "../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../interfaces/ITemplateInput"
+      ],
+      [
+        4,
+        "../strategies/ScaleUnitStrategy"
+      ],
+      [
+        5,
+        "../validators/RangeValidator"
+      ],
+      [
+        6,
+        "../validators/TypeValidator"
+      ],
+      [
+        7,
+        "../enums/UnitType"
+      ],
+      [
+        8,
+        "../enums/Dimension"
+      ],
+      [
+        9,
+        "../../core/Logger"
+      ],
+      [
+        10,
+        "../constants"
+      ]
+    ]
+  },
+  {
+    "path": "unit/templates/SizeCalculationTemplate.ts",
+    "lines": 290,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      9
+    ],
+    "new_concrete_lines": [
+      24,
+      36,
+      47,
+      70,
+      71
+    ],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "./IUnitCalculationTemplate"
+      ],
+      [
+        2,
+        "../interfaces/IUnit"
+      ],
+      [
+        3,
+        "../interfaces/ITemplateInput"
+      ],
+      [
+        4,
+        "../strategies/SizeUnitStrategy"
+      ],
+      [
+        5,
+        "../validators/RangeValidator"
+      ],
+      [
+        6,
+        "../validators/TypeValidator"
+      ],
+      [
+        7,
+        "../enums/UnitType"
+      ],
+      [
+        8,
+        "../enums/Dimension"
+      ],
+      [
+        9,
+        "../../core/Logger"
+      ],
+      [
+        10,
+        "../constants"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/AdvancedFeatures.test.ts",
+    "lines": 365,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      28,
+      31,
+      32,
+      33,
+      34,
+      35,
+      41,
+      42,
+      43,
+      127,
+      128,
+      141,
+      142,
+      155,
+      156,
+      182,
+      200,
+      201,
+      220,
+      221,
+      265,
+      266,
+      309,
+      323,
+      324,
+      356
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        18,
+        348
+      ],
+      [
+        26,
+        26
+      ],
+      [
+        53,
+        67
+      ],
+      [
+        54,
+        13
+      ],
+      [
+        68,
+        9
+      ],
+      [
+        78,
+        16
+      ],
+      [
+        95,
+        11
+      ],
+      [
+        107,
+        12
+      ],
+      [
+        113,
+        5
+      ],
+      [
+        121,
+        72
+      ],
+      [
+        122,
+        13
+      ],
+      [
+        136,
+        13
+      ],
+      [
+        150,
+        13
+      ],
+      [
+        164,
+        4
+      ],
+      [
+        169,
+        8
+      ],
+      [
+        178,
+        14
+      ],
+      [
+        194,
+        40
+      ],
+      [
+        195,
+        19
+      ],
+      [
+        215,
+        18
+      ],
+      [
+        235,
+        50
+      ],
+      [
+        236,
+        23
+      ],
+      [
+        260,
+        24
+      ],
+      [
+        286,
+        30
+      ],
+      [
+        287,
+        8
+      ],
+      [
+        296,
+        8
+      ],
+      [
+        305,
+        10
+      ],
+      [
+        317,
+        48
+      ],
+      [
+        318,
+        18
+      ],
+      [
+        337,
+        13
+      ],
+      [
+        351,
+        13
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "../strategies/cache/StrategyCache"
+      ],
+      [
+        7,
+        "../strategies/value/SizeValueCalculationStrategyRegistry"
+      ],
+      [
+        15,
+        "../enums/SizeValue"
+      ],
+      [
+        16,
+        "../enums/SizeUnit"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/BatchCalculationCommand.test.ts",
+    "lines": 296,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      21,
+      22,
+      25,
+      47,
+      56,
+      74,
+      85,
+      88,
+      102,
+      107,
+      112,
+      123,
+      128,
+      133,
+      150,
+      155,
+      166,
+      167,
+      168,
+      171,
+      182,
+      187,
+      193,
+      195,
+      198,
+      221,
+      281
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        7,
+        290
+      ],
+      [
+        13,
+        14
+      ],
+      [
+        28,
+        3
+      ],
+      [
+        32,
+        12
+      ],
+      [
+        33,
+        4
+      ],
+      [
+        38,
+        5
+      ],
+      [
+        45,
+        18
+      ],
+      [
+        46,
+        8
+      ],
+      [
+        55,
+        7
+      ],
+      [
+        64,
+        31
+      ],
+      [
+        65,
+        7
+      ],
+      [
+        73,
+        7
+      ],
+      [
+        81,
+        13
+      ],
+      [
+        96,
+        66
+      ],
+      [
+        97,
+        21
+      ],
+      [
+        101,
+        3
+      ],
+      [
+        106,
+        1
+      ],
+      [
+        119,
+        23
+      ],
+      [
+        122,
+        3
+      ],
+      [
+        127,
+        1
+      ],
+      [
+        143,
+        18
+      ],
+      [
+        149,
+        1
+      ],
+      [
+        163,
+        42
+      ],
+      [
+        164,
+        13
+      ],
+      [
+        178,
+        26
+      ],
+      [
+        181,
+        3
+      ],
+      [
+        186,
+        1
+      ],
+      [
+        206,
+        21
+      ],
+      [
+        207,
+        11
+      ],
+      [
+        219,
+        7
+      ],
+      [
+        228,
+        24
+      ],
+      [
+        229,
+        9
+      ],
+      [
+        239,
+        12
+      ],
+      [
+        253,
+        23
+      ],
+      [
+        254,
+        13
+      ],
+      [
+        268,
+        7
+      ],
+      [
+        277,
+        19
+      ],
+      [
+        278,
+        6
+      ],
+      [
+        285,
+        5
+      ],
+      [
+        291,
+        4
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "@jest/globals"
+      ],
+      [
+        2,
+        "../commands/BatchCalculationCommand"
+      ],
+      [
+        3,
+        "../commands/CalculateSizeCommand"
+      ],
+      [
+        4,
+        "../commands/CalculatePositionCommand"
+      ],
+      [
+        5,
+        "../../test/setup"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/CachingDecorator.test.ts",
+    "lines": 293,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      40,
+      54,
+      55,
+      75,
+      111,
+      112,
+      116,
+      153,
+      191,
+      202,
+      212,
+      283,
+      284,
+      287
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        48,
+        246
+      ],
+      [
+        53,
+        8
+      ],
+      [
+        62,
+        3
+      ],
+      [
+        66,
+        21
+      ],
+      [
+        67,
+        6
+      ],
+      [
+        74,
+        12
+      ],
+      [
+        88,
+        34
+      ],
+      [
+        89,
+        8
+      ],
+      [
+        98,
+        11
+      ],
+      [
+        110,
+        11
+      ],
+      [
+        115,
+        3
+      ],
+      [
+        123,
+        23
+      ],
+      [
+        124,
+        3
+      ],
+      [
+        128,
+        3
+      ],
+      [
+        132,
+        5
+      ],
+      [
+        138,
+        7
+      ],
+      [
+        147,
+        40
+      ],
+      [
+        148,
+        16
+      ],
+      [
+        165,
+        9
+      ],
+      [
+        175,
+        5
+      ],
+      [
+        181,
+        5
+      ],
+      [
+        188,
+        21
+      ],
+      [
+        189,
+        19
+      ],
+      [
+        210,
+        23
+      ],
+      [
+        211,
+        21
+      ],
+      [
+        234,
+        40
+      ],
+      [
+        235,
+        17
+      ],
+      [
+        253,
+        20
+      ],
+      [
+        275,
+        18
+      ],
+      [
+        276,
+        5
+      ],
+      [
+        282,
+        10
+      ],
+      [
+        286,
+        3
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "@jest/globals"
+      ],
+      [
+        2,
+        "../decorators/CachingDecorator"
+      ],
+      [
+        3,
+        "../interfaces/IUnit"
+      ],
+      [
+        4,
+        "../interfaces/IUnit"
+      ],
+      [
+        5,
+        "../enums/UnitType"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/CalculatePositionCommand.test.ts",
+    "lines": 275,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      12,
+      50,
+      73,
+      90,
+      98,
+      106,
+      114,
+      136,
+      210,
+      219,
+      227,
+      235
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        5,
+        271
+      ],
+      [
+        9,
+        5
+      ],
+      [
+        15,
+        3
+      ],
+      [
+        19,
+        12
+      ],
+      [
+        20,
+        4
+      ],
+      [
+        25,
+        5
+      ],
+      [
+        32,
+        37
+      ],
+      [
+        33,
+        6
+      ],
+      [
+        40,
+        15
+      ],
+      [
+        56,
+        12
+      ],
+      [
+        70,
+        16
+      ],
+      [
+        71,
+        7
+      ],
+      [
+        79,
+        6
+      ],
+      [
+        87,
+        33
+      ],
+      [
+        88,
+        7
+      ],
+      [
+        96,
+        7
+      ],
+      [
+        104,
+        7
+      ],
+      [
+        112,
+        7
+      ],
+      [
+        121,
+        21
+      ],
+      [
+        122,
+        11
+      ],
+      [
+        134,
+        7
+      ],
+      [
+        143,
+        23
+      ],
+      [
+        144,
+        9
+      ],
+      [
+        154,
+        11
+      ],
+      [
+        167,
+        39
+      ],
+      [
+        168,
+        12
+      ],
+      [
+        181,
+        12
+      ],
+      [
+        194,
+        11
+      ],
+      [
+        207,
+        34
+      ],
+      [
+        208,
+        8
+      ],
+      [
+        217,
+        7
+      ],
+      [
+        225,
+        7
+      ],
+      [
+        233,
+        7
+      ],
+      [
+        242,
+        33
+      ],
+      [
+        243,
+        3
+      ],
+      [
+        247,
+        5
+      ],
+      [
+        253,
+        4
+      ],
+      [
+        258,
+        5
+      ],
+      [
+        264,
+        5
+      ],
+      [
+        270,
+        4
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "@jest/globals"
+      ],
+      [
+        2,
+        "../commands/CalculatePositionCommand"
+      ],
+      [
+        3,
+        "../../test/setup"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/CalculateSizeCommand.test.ts",
+    "lines": 281,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      12,
+      51,
+      76,
+      95,
+      104,
+      113,
+      122,
+      145,
+      223,
+      232,
+      240
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        5,
+        277
+      ],
+      [
+        9,
+        5
+      ],
+      [
+        15,
+        3
+      ],
+      [
+        19,
+        12
+      ],
+      [
+        20,
+        4
+      ],
+      [
+        25,
+        5
+      ],
+      [
+        32,
+        40
+      ],
+      [
+        33,
+        7
+      ],
+      [
+        41,
+        16
+      ],
+      [
+        58,
+        13
+      ],
+      [
+        73,
+        18
+      ],
+      [
+        74,
+        8
+      ],
+      [
+        83,
+        7
+      ],
+      [
+        92,
+        37
+      ],
+      [
+        93,
+        8
+      ],
+      [
+        102,
+        8
+      ],
+      [
+        111,
+        8
+      ],
+      [
+        120,
+        8
+      ],
+      [
+        130,
+        21
+      ],
+      [
+        131,
+        11
+      ],
+      [
+        143,
+        7
+      ],
+      [
+        152,
+        24
+      ],
+      [
+        153,
+        9
+      ],
+      [
+        163,
+        12
+      ],
+      [
+        177,
+        42
+      ],
+      [
+        178,
+        13
+      ],
+      [
+        192,
+        13
+      ],
+      [
+        206,
+        12
+      ],
+      [
+        220,
+        27
+      ],
+      [
+        221,
+        8
+      ],
+      [
+        230,
+        7
+      ],
+      [
+        238,
+        8
+      ],
+      [
+        248,
+        33
+      ],
+      [
+        249,
+        3
+      ],
+      [
+        253,
+        5
+      ],
+      [
+        259,
+        4
+      ],
+      [
+        264,
+        5
+      ],
+      [
+        270,
+        5
+      ],
+      [
+        276,
+        4
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "@jest/globals"
+      ],
+      [
+        2,
+        "../commands/CalculateSizeCommand"
+      ],
+      [
+        3,
+        "../../test/setup"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/CalculatorRefactoringComparison.test.ts",
+    "lines": 486,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [
+      35,
+      39
+    ],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      22,
+      25,
+      26,
+      27,
+      28,
+      29,
+      51,
+      59,
+      76,
+      84,
+      101,
+      109,
+      126,
+      134,
+      151,
+      159,
+      178,
+      186,
+      262,
+      264,
+      282,
+      283,
+      313,
+      343,
+      376,
+      384,
+      417,
+      418,
+      432,
+      433,
+      459
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        15,
+        472
+      ],
+      [
+        21,
+        27
+      ],
+      [
+        49,
+        126
+      ],
+      [
+        50,
+        24
+      ],
+      [
+        75,
+        24
+      ],
+      [
+        100,
+        24
+      ],
+      [
+        125,
+        24
+      ],
+      [
+        150,
+        24
+      ],
+      [
+        176,
+        43
+      ],
+      [
+        177,
+        41
+      ],
+      [
+        220,
+        87
+      ],
+      [
+        221,
+        58
+      ],
+      [
+        280,
+        26
+      ],
+      [
+        308,
+        65
+      ],
+      [
+        309,
+        26
+      ],
+      [
+        336,
+        36
+      ],
+      [
+        374,
+        36
+      ],
+      [
+        375,
+        34
+      ],
+      [
+        411,
+        35
+      ],
+      [
+        412,
+        33
+      ],
+      [
+        447,
+        39
+      ],
+      [
+        448,
+        37
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "../classes/SizeUnitCalculator"
+      ],
+      [
+        2,
+        "../classes/RefactoredSizeUnitCalculator"
+      ],
+      [
+        3,
+        "../strategies/value/SizeValueCalculationStrategyRegistry"
+      ],
+      [
+        11,
+        "../enums/SizeValue"
+      ],
+      [
+        12,
+        "../enums/SizeUnit"
+      ],
+      [
+        13,
+        "../enums/Dimension"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/CompleteCalculatorRefactoring.test.ts",
+    "lines": 595,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      44,
+      45,
+      46,
+      49,
+      50,
+      51,
+      52,
+      53,
+      56,
+      57,
+      58,
+      59,
+      60,
+      63,
+      64,
+      65,
+      66,
+      67,
+      81,
+      98,
+      123,
+      141,
+      158,
+      172,
+      207,
+      230,
+      269,
+      279,
+      288,
+      309,
+      319,
+      328,
+      352,
+      379,
+      404,
+      419,
+      435,
+      452,
+      462,
+      471,
+      486,
+      544,
+      546,
+      563,
+      581
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        36,
+        560
+      ],
+      [
+        42,
+        34
+      ],
+      [
+        77,
+        59
+      ],
+      [
+        80,
+        11
+      ],
+      [
+        92,
+        4
+      ],
+      [
+        97,
+        14
+      ],
+      [
+        112,
+        6
+      ],
+      [
+        119,
+        16
+      ],
+      [
+        137,
+        65
+      ],
+      [
+        140,
+        10
+      ],
+      [
+        151,
+        5
+      ],
+      [
+        157,
+        13
+      ],
+      [
+        171,
+        14
+      ],
+      [
+        186,
+        10
+      ],
+      [
+        197,
+        4
+      ],
+      [
+        203,
+        63
+      ],
+      [
+        206,
+        10
+      ],
+      [
+        217,
+        5
+      ],
+      [
+        223,
+        5
+      ],
+      [
+        229,
+        13
+      ],
+      [
+        243,
+        5
+      ],
+      [
+        249,
+        11
+      ],
+      [
+        261,
+        4
+      ],
+      [
+        267,
+        76
+      ],
+      [
+        268,
+        38
+      ],
+      [
+        307,
+        35
+      ],
+      [
+        344,
+        57
+      ],
+      [
+        345,
+        32
+      ],
+      [
+        378,
+        22
+      ],
+      [
+        402,
+        47
+      ],
+      [
+        403,
+        14
+      ],
+      [
+        418,
+        15
+      ],
+      [
+        434,
+        14
+      ],
+      [
+        450,
+        54
+      ],
+      [
+        451,
+        33
+      ],
+      [
+        485,
+        18
+      ],
+      [
+        505,
+        90
+      ],
+      [
+        506,
+        53
+      ],
+      [
+        560,
+        17
+      ],
+      [
+        578,
+        16
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "../classes/RefactoredSizeUnitCalculator"
+      ],
+      [
+        2,
+        "../classes/RefactoredPositionUnitCalculator"
+      ],
+      [
+        3,
+        "../classes/RefactoredScaleUnitCalculator"
+      ],
+      [
+        4,
+        "../strategies/value/SizeValueCalculationStrategyRegistry"
+      ],
+      [
+        5,
+        "../strategies/value/PositionValueCalculationStrategyRegistry"
+      ],
+      [
+        6,
+        "../strategies/value/ScaleValueCalculationStrategyRegistry"
+      ],
+      [
+        28,
+        "../enums/SizeValue"
+      ],
+      [
+        29,
+        "../enums/SizeUnit"
+      ],
+      [
+        30,
+        "../enums/PositionValue"
+      ],
+      [
+        31,
+        "../enums/PositionUnit"
+      ],
+      [
+        32,
+        "../enums/ScaleValue"
+      ],
+      [
+        33,
+        "../enums/ScaleUnit"
+      ],
+      [
+        34,
+        "../enums/Dimension"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/CompleteStrategyPatternImplementation.test.ts",
+    "lines": 460,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      45,
+      46,
+      47,
+      57,
+      58,
+      59,
+      60,
+      61,
+      63,
+      64,
+      65,
+      66,
+      67,
+      69,
+      70,
+      71,
+      72,
+      73,
+      107,
+      118,
+      129,
+      173,
+      184,
+      195,
+      229,
+      235,
+      241,
+      248,
+      294,
+      306,
+      307,
+      308,
+      318,
+      319,
+      320,
+      374,
+      375,
+      385,
+      386,
+      396,
+      397,
+      447
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        38,
+        423
+      ],
+      [
+        44,
+        31
+      ],
+      [
+        76,
+        63
+      ],
+      [
+        77,
+        8
+      ],
+      [
+        86,
+        9
+      ],
+      [
+        96,
+        9
+      ],
+      [
+        106,
+        10
+      ],
+      [
+        117,
+        10
+      ],
+      [
+        128,
+        10
+      ],
+      [
+        140,
+        65
+      ],
+      [
+        141,
+        8
+      ],
+      [
+        150,
+        11
+      ],
+      [
+        162,
+        9
+      ],
+      [
+        172,
+        10
+      ],
+      [
+        183,
+        10
+      ],
+      [
+        194,
+        10
+      ],
+      [
+        206,
+        48
+      ],
+      [
+        207,
+        8
+      ],
+      [
+        216,
+        5
+      ],
+      [
+        222,
+        5
+      ],
+      [
+        228,
+        5
+      ],
+      [
+        234,
+        5
+      ],
+      [
+        240,
+        6
+      ],
+      [
+        247,
+        6
+      ],
+      [
+        255,
+        91
+      ],
+      [
+        256,
+        48
+      ],
+      [
+        305,
+        10
+      ],
+      [
+        316,
+        10
+      ],
+      [
+        327,
+        18
+      ],
+      [
+        347,
+        24
+      ],
+      [
+        348,
+        7
+      ],
+      [
+        356,
+        7
+      ],
+      [
+        364,
+        6
+      ],
+      [
+        372,
+        34
+      ],
+      [
+        373,
+        10
+      ],
+      [
+        384,
+        10
+      ],
+      [
+        395,
+        10
+      ],
+      [
+        407,
+        53
+      ],
+      [
+        408,
+        51
+      ]
+    ],
+    "imports": [
+      [
+        27,
+        "../strategies/value"
+      ],
+      [
+        29,
+        "../enums/SizeValue"
+      ],
+      [
+        30,
+        "../enums/SizeUnit"
+      ],
+      [
+        31,
+        "../enums/PositionValue"
+      ],
+      [
+        32,
+        "../enums/PositionUnit"
+      ],
+      [
+        33,
+        "../enums/ScaleValue"
+      ],
+      [
+        34,
+        "../enums/ScaleUnit"
+      ],
+      [
+        35,
+        "../enums/Dimension"
+      ],
+      [
+        36,
+        "../enums/AxisUnit"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/LegacyPositionUnitAdapter.test.ts",
+    "lines": 315,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      24,
+      28,
+      62,
+      77,
+      93,
+      109,
+      122,
+      133,
+      144,
+      240,
+      246,
+      259,
+      264,
+      288,
+      300
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        9,
+        307
+      ],
+      [
+        14,
+        17
+      ],
+      [
+        32,
+        3
+      ],
+      [
+        36,
+        12
+      ],
+      [
+        37,
+        6
+      ],
+      [
+        44,
+        3
+      ],
+      [
+        49,
+        54
+      ],
+      [
+        50,
+        4
+      ],
+      [
+        55,
+        16
+      ],
+      [
+        72,
+        15
+      ],
+      [
+        88,
+        14
+      ],
+      [
+        104,
+        49
+      ],
+      [
+        105,
+        12
+      ],
+      [
+        118,
+        12
+      ],
+      [
+        131,
+        10
+      ],
+      [
+        142,
+        10
+      ],
+      [
+        154,
+        21
+      ],
+      [
+        155,
+        4
+      ],
+      [
+        160,
+        4
+      ],
+      [
+        165,
+        4
+      ],
+      [
+        170,
+        4
+      ],
+      [
+        176,
+        5
+      ],
+      [
+        177,
+        3
+      ],
+      [
+        182,
+        5
+      ],
+      [
+        183,
+        3
+      ],
+      [
+        188,
+        5
+      ],
+      [
+        189,
+        3
+      ],
+      [
+        194,
+        13
+      ],
+      [
+        195,
+        3
+      ],
+      [
+        199,
+        3
+      ],
+      [
+        203,
+        3
+      ],
+      [
+        208,
+        7
+      ],
+      [
+        209,
+        5
+      ],
+      [
+        216,
+        15
+      ],
+      [
+        217,
+        7
+      ],
+      [
+        225,
+        5
+      ],
+      [
+        232,
+        47
+      ],
+      [
+        233,
+        24
+      ],
+      [
+        258,
+        20
+      ],
+      [
+        280,
+        35
+      ],
+      [
+        281,
+        16
+      ],
+      [
+        298,
+        11
+      ],
+      [
+        310,
+        4
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "@jest/globals"
+      ],
+      [
+        2,
+        "../adapters/LegacyPositionUnitAdapter"
+      ],
+      [
+        3,
+        "../interfaces/ILegacyUnit"
+      ],
+      [
+        4,
+        "../enums/PositionUnit"
+      ],
+      [
+        5,
+        "../enums/Dimension"
+      ],
+      [
+        6,
+        "../enums/UnitType"
+      ],
+      [
+        7,
+        "../../test/setup"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/LegacySizeUnitAdapter.test.ts",
+    "lines": 303,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      24,
+      28,
+      62,
+      77,
+      93,
+      107,
+      118,
+      125,
+      136,
+      228,
+      234,
+      247,
+      252,
+      276,
+      288
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        9,
+        295
+      ],
+      [
+        14,
+        17
+      ],
+      [
+        32,
+        3
+      ],
+      [
+        36,
+        12
+      ],
+      [
+        37,
+        6
+      ],
+      [
+        44,
+        3
+      ],
+      [
+        49,
+        54
+      ],
+      [
+        50,
+        4
+      ],
+      [
+        55,
+        16
+      ],
+      [
+        72,
+        15
+      ],
+      [
+        88,
+        14
+      ],
+      [
+        104,
+        37
+      ],
+      [
+        105,
+        10
+      ],
+      [
+        116,
+        6
+      ],
+      [
+        123,
+        10
+      ],
+      [
+        134,
+        6
+      ],
+      [
+        142,
+        21
+      ],
+      [
+        143,
+        4
+      ],
+      [
+        148,
+        4
+      ],
+      [
+        153,
+        4
+      ],
+      [
+        158,
+        4
+      ],
+      [
+        164,
+        5
+      ],
+      [
+        165,
+        3
+      ],
+      [
+        170,
+        5
+      ],
+      [
+        171,
+        3
+      ],
+      [
+        176,
+        5
+      ],
+      [
+        177,
+        3
+      ],
+      [
+        182,
+        13
+      ],
+      [
+        183,
+        3
+      ],
+      [
+        187,
+        3
+      ],
+      [
+        191,
+        3
+      ],
+      [
+        196,
+        7
+      ],
+      [
+        197,
+        5
+      ],
+      [
+        204,
+        15
+      ],
+      [
+        205,
+        7
+      ],
+      [
+        213,
+        5
+      ],
+      [
+        220,
+        47
+      ],
+      [
+        221,
+        24
+      ],
+      [
+        246,
+        20
+      ],
+      [
+        268,
+        35
+      ],
+      [
+        269,
+        16
+      ],
+      [
+        286,
+        11
+      ],
+      [
+        298,
+        4
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "@jest/globals"
+      ],
+      [
+        2,
+        "../adapters/LegacySizeUnitAdapter"
+      ],
+      [
+        3,
+        "../interfaces/ILegacyUnit"
+      ],
+      [
+        4,
+        "../enums/SizeUnit"
+      ],
+      [
+        5,
+        "../enums/Dimension"
+      ],
+      [
+        6,
+        "../enums/UnitType"
+      ],
+      [
+        7,
+        "../../test/setup"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/LoggerPerformanceComparison.test.ts",
+    "lines": 349,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [
+      82,
+      106,
+      154,
+      184,
+      212,
+      250,
+      276,
+      338
+    ],
+    "logger_import_lines": [
+      1,
+      2
+    ],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        15,
+        335
+      ],
+      [
+        23,
+        11
+      ],
+      [
+        35,
+        4
+      ],
+      [
+        43,
+        17
+      ],
+      [
+        61,
+        52
+      ],
+      [
+        62,
+        26
+      ],
+      [
+        66,
+        3
+      ],
+      [
+        71,
+        3
+      ],
+      [
+        89,
+        23
+      ],
+      [
+        93,
+        3
+      ],
+      [
+        98,
+        3
+      ],
+      [
+        114,
+        47
+      ],
+      [
+        115,
+        45
+      ],
+      [
+        141,
+        3
+      ],
+      [
+        146,
+        3
+      ],
+      [
+        162,
+        29
+      ],
+      [
+        163,
+        27
+      ],
+      [
+        167,
+        5
+      ],
+      [
+        174,
+        5
+      ],
+      [
+        192,
+        27
+      ],
+      [
+        193,
+        25
+      ],
+      [
+        220,
+        37
+      ],
+      [
+        221,
+        35
+      ],
+      [
+        258,
+        25
+      ],
+      [
+        259,
+        23
+      ],
+      [
+        263,
+        3
+      ],
+      [
+        268,
+        3
+      ],
+      [
+        284,
+        65
+      ],
+      [
+        285,
+        63
+      ],
+      [
+        297,
+        5
+      ],
+      [
+        304,
+        5
+      ],
+      [
+        341,
+        6
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "../../core/Logger"
+      ],
+      [
+        2,
+        "../../core/LoggerPerformanceOptimizer"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/LoggingObserver.test.ts",
+    "lines": 430,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      4
+    ],
+    "new_concrete_lines": [
+      30,
+      39,
+      44,
+      45,
+      46,
+      164,
+      187,
+      243,
+      260,
+      261,
+      263,
+      268,
+      275,
+      295,
+      302,
+      309,
+      316,
+      323,
+      330,
+      331,
+      340,
+      371,
+      385,
+      388,
+      404,
+      416,
+      420
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        9,
+        422
+      ],
+      [
+        13,
+        19
+      ],
+      [
+        33,
+        3
+      ],
+      [
+        37,
+        16
+      ],
+      [
+        38,
+        4
+      ],
+      [
+        43,
+        9
+      ],
+      [
+        54,
+        49
+      ],
+      [
+        55,
+        15
+      ],
+      [
+        71,
+        15
+      ],
+      [
+        87,
+        15
+      ],
+      [
+        104,
+        42
+      ],
+      [
+        105,
+        13
+      ],
+      [
+        119,
+        26
+      ],
+      [
+        147,
+        14
+      ],
+      [
+        148,
+        12
+      ],
+      [
+        162,
+        31
+      ],
+      [
+        163,
+        22
+      ],
+      [
+        186,
+        6
+      ],
+      [
+        194,
+        46
+      ],
+      [
+        195,
+        14
+      ],
+      [
+        210,
+        14
+      ],
+      [
+        225,
+        14
+      ],
+      [
+        241,
+        51
+      ],
+      [
+        242,
+        16
+      ],
+      [
+        259,
+        14
+      ],
+      [
+        274,
+        17
+      ],
+      [
+        293,
+        44
+      ],
+      [
+        294,
+        6
+      ],
+      [
+        301,
+        6
+      ],
+      [
+        308,
+        6
+      ],
+      [
+        315,
+        6
+      ],
+      [
+        322,
+        6
+      ],
+      [
+        329,
+        7
+      ],
+      [
+        338,
+        28
+      ],
+      [
+        339,
+        12
+      ],
+      [
+        352,
+        13
+      ],
+      [
+        367,
+        34
+      ],
+      [
+        368,
+        13
+      ],
+      [
+        370,
+        3
+      ],
+      [
+        375,
+        3
+      ],
+      [
+        382,
+        18
+      ],
+      [
+        384,
+        3
+      ],
+      [
+        387,
+        3
+      ],
+      [
+        392,
+        3
+      ],
+      [
+        402,
+        28
+      ],
+      [
+        403,
+        11
+      ],
+      [
+        415,
+        14
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "@jest/globals"
+      ],
+      [
+        2,
+        "../observers/LoggingObserver"
+      ],
+      [
+        3,
+        "../enums/LogLevel"
+      ],
+      [
+        4,
+        "../../core/Logger"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/MixedUnitStrategy.test.ts",
+    "lines": 164,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      11
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        6,
+        159
+      ],
+      [
+        10,
+        4
+      ],
+      [
+        15,
+        3
+      ],
+      [
+        19,
+        10
+      ],
+      [
+        20,
+        3
+      ],
+      [
+        24,
+        4
+      ],
+      [
+        30,
+        20
+      ],
+      [
+        31,
+        4
+      ],
+      [
+        36,
+        8
+      ],
+      [
+        45,
+        4
+      ],
+      [
+        51,
+        25
+      ],
+      [
+        52,
+        5
+      ],
+      [
+        58,
+        5
+      ],
+      [
+        64,
+        5
+      ],
+      [
+        70,
+        5
+      ],
+      [
+        77,
+        35
+      ],
+      [
+        78,
+        9
+      ],
+      [
+        88,
+        7
+      ],
+      [
+        96,
+        7
+      ],
+      [
+        104,
+        7
+      ],
+      [
+        113,
+        17
+      ],
+      [
+        114,
+        4
+      ],
+      [
+        119,
+        4
+      ],
+      [
+        124,
+        5
+      ],
+      [
+        131,
+        11
+      ],
+      [
+        132,
+        4
+      ],
+      [
+        137,
+        4
+      ],
+      [
+        143,
+        21
+      ],
+      [
+        144,
+        12
+      ],
+      [
+        157,
+        6
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "@jest/globals"
+      ],
+      [
+        2,
+        "../strategies/MixedUnitStrategy"
+      ],
+      [
+        3,
+        "../../test/setup"
+      ],
+      [
+        4,
+        "../constants"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/PerformanceComparisonSystem.test.ts",
+    "lines": 354,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [
+      164,
+      165,
+      166,
+      167,
+      170,
+      218,
+      219,
+      263,
+      264,
+      265,
+      302,
+      303,
+      304,
+      346,
+      347,
+      348,
+      351
+    ],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      19
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        15,
+        340
+      ],
+      [
+        18,
+        3
+      ],
+      [
+        22,
+        285
+      ],
+      [
+        23,
+        150
+      ],
+      [
+        136,
+        36
+      ],
+      [
+        174,
+        47
+      ],
+      [
+        222,
+        46
+      ],
+      [
+        269,
+        37
+      ],
+      [
+        308,
+        46
+      ],
+      [
+        309,
+        44
+      ]
+    ],
+    "imports": [
+      [
+        5,
+        "../interfaces/IUnit"
+      ],
+      [
+        6,
+        "../interfaces/IUnitConfig"
+      ],
+      [
+        7,
+        "../enums/SizeValue"
+      ],
+      [
+        8,
+        "../enums/PositionValue"
+      ],
+      [
+        9,
+        "../enums/ScaleValue"
+      ],
+      [
+        10,
+        "../enums/SizeUnit"
+      ],
+      [
+        11,
+        "../enums/PositionUnit"
+      ],
+      [
+        12,
+        "../enums/ScaleUnit"
+      ],
+      [
+        13,
+        "../enums/Dimension"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/PerformanceObserver.test.ts",
+    "lines": 486,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      3
+    ],
+    "new_concrete_lines": [
+      29,
+      221,
+      229,
+      245,
+      342,
+      426,
+      474,
+      475
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        8,
+        479
+      ],
+      [
+        12,
+        19
+      ],
+      [
+        32,
+        3
+      ],
+      [
+        36,
+        5
+      ],
+      [
+        37,
+        3
+      ],
+      [
+        42,
+        49
+      ],
+      [
+        43,
+        9
+      ],
+      [
+        53,
+        15
+      ],
+      [
+        69,
+        5
+      ],
+      [
+        75,
+        15
+      ],
+      [
+        92,
+        36
+      ],
+      [
+        93,
+        12
+      ],
+      [
+        106,
+        7
+      ],
+      [
+        114,
+        13
+      ],
+      [
+        129,
+        11
+      ],
+      [
+        130,
+        9
+      ],
+      [
+        141,
+        18
+      ],
+      [
+        142,
+        8
+      ],
+      [
+        151,
+        7
+      ],
+      [
+        160,
+        55
+      ],
+      [
+        161,
+        11
+      ],
+      [
+        173,
+        10
+      ],
+      [
+        184,
+        14
+      ],
+      [
+        199,
+        5
+      ],
+      [
+        205,
+        9
+      ],
+      [
+        216,
+        45
+      ],
+      [
+        217,
+        10
+      ],
+      [
+        228,
+        15
+      ],
+      [
+        244,
+        16
+      ],
+      [
+        262,
+        53
+      ],
+      [
+        263,
+        14
+      ],
+      [
+        278,
+        12
+      ],
+      [
+        291,
+        23
+      ],
+      [
+        316,
+        19
+      ],
+      [
+        317,
+        4
+      ],
+      [
+        322,
+        12
+      ],
+      [
+        336,
+        24
+      ],
+      [
+        337,
+        22
+      ],
+      [
+        361,
+        22
+      ],
+      [
+        362,
+        11
+      ],
+      [
+        374,
+        8
+      ],
+      [
+        384,
+        57
+      ],
+      [
+        385,
+        8
+      ],
+      [
+        394,
+        7
+      ],
+      [
+        402,
+        8
+      ],
+      [
+        411,
+        8
+      ],
+      [
+        420,
+        13
+      ],
+      [
+        434,
+        6
+      ],
+      [
+        442,
+        44
+      ],
+      [
+        443,
+        24
+      ],
+      [
+        468,
+        17
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "@jest/globals"
+      ],
+      [
+        2,
+        "../observers/PerformanceObserver"
+      ],
+      [
+        3,
+        "../../core/Logger"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/PositionCalculationTemplate.test.ts",
+    "lines": 282,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      33,
+      94,
+      107
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        27,
+        256
+      ],
+      [
+        31,
+        4
+      ],
+      [
+        36,
+        3
+      ],
+      [
+        40,
+        20
+      ],
+      [
+        41,
+        4
+      ],
+      [
+        46,
+        13
+      ],
+      [
+        61,
+        43
+      ],
+      [
+        62,
+        7
+      ],
+      [
+        70,
+        7
+      ],
+      [
+        78,
+        9
+      ],
+      [
+        88,
+        15
+      ],
+      [
+        93,
+        3
+      ],
+      [
+        105,
+        33
+      ],
+      [
+        106,
+        12
+      ],
+      [
+        119,
+        11
+      ],
+      [
+        131,
+        6
+      ],
+      [
+        139,
+        15
+      ],
+      [
+        140,
+        4
+      ],
+      [
+        145,
+        8
+      ],
+      [
+        155,
+        39
+      ],
+      [
+        156,
+        10
+      ],
+      [
+        167,
+        10
+      ],
+      [
+        178,
+        9
+      ],
+      [
+        188,
+        5
+      ],
+      [
+        195,
+        31
+      ],
+      [
+        196,
+        4
+      ],
+      [
+        201,
+        6
+      ],
+      [
+        208,
+        7
+      ],
+      [
+        216,
+        9
+      ],
+      [
+        227,
+        9
+      ],
+      [
+        228,
+        7
+      ],
+      [
+        237,
+        21
+      ],
+      [
+        238,
+        5
+      ],
+      [
+        244,
+        13
+      ],
+      [
+        259,
+        23
+      ],
+      [
+        260,
+        8
+      ],
+      [
+        269,
+        12
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "@jest/globals"
+      ],
+      [
+        2,
+        "../templates/PositionCalculationTemplate"
+      ],
+      [
+        3,
+        "../../test/setup"
+      ],
+      [
+        4,
+        "../enums/TemplateInputType"
+      ],
+      [
+        5,
+        "../enums/PositionUnit"
+      ],
+      [
+        6,
+        "../enums/PositionValue"
+      ],
+      [
+        7,
+        "../enums/Dimension"
+      ],
+      [
+        8,
+        "../interfaces/ITemplateInput"
+      ],
+      [
+        9,
+        "../validators/RangeValidator"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/PositionUnitCalculator.test.ts",
+    "lines": 195,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      17,
+      36,
+      49,
+      62,
+      77,
+      90,
+      103,
+      116,
+      131,
+      144,
+      160,
+      172,
+      184
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        7,
+        189
+      ],
+      [
+        11,
+        3
+      ],
+      [
+        15,
+        18
+      ],
+      [
+        16,
+        16
+      ],
+      [
+        34,
+        40
+      ],
+      [
+        35,
+        12
+      ],
+      [
+        48,
+        12
+      ],
+      [
+        61,
+        12
+      ],
+      [
+        75,
+        53
+      ],
+      [
+        76,
+        12
+      ],
+      [
+        89,
+        12
+      ],
+      [
+        102,
+        12
+      ],
+      [
+        115,
+        12
+      ],
+      [
+        129,
+        28
+      ],
+      [
+        130,
+        12
+      ],
+      [
+        143,
+        13
+      ],
+      [
+        158,
+        37
+      ],
+      [
+        159,
+        11
+      ],
+      [
+        171,
+        11
+      ],
+      [
+        183,
+        11
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "../classes/PositionUnitCalculator"
+      ],
+      [
+        2,
+        "../enums/PositionUnit"
+      ],
+      [
+        3,
+        "../enums/PositionValue"
+      ],
+      [
+        4,
+        "../enums/Dimension"
+      ],
+      [
+        5,
+        "../../test/setup"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/ProductionMonitoringSystem.test.ts",
+    "lines": 547,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      10
+    ],
+    "new_concrete_lines": [
+      42,
+      60,
+      123,
+      192,
+      205,
+      207,
+      477
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        12,
+        536
+      ],
+      [
+        17,
+        27
+      ],
+      [
+        45,
+        4
+      ],
+      [
+        50,
+        21
+      ],
+      [
+        51,
+        3
+      ],
+      [
+        55,
+        15
+      ],
+      [
+        72,
+        35
+      ],
+      [
+        73,
+        9
+      ],
+      [
+        83,
+        10
+      ],
+      [
+        94,
+        6
+      ],
+      [
+        101,
+        5
+      ],
+      [
+        108,
+        80
+      ],
+      [
+        109,
+        8
+      ],
+      [
+        118,
+        12
+      ],
+      [
+        131,
+        11
+      ],
+      [
+        143,
+        26
+      ],
+      [
+        170,
+        8
+      ],
+      [
+        179,
+        8
+      ],
+      [
+        189,
+        37
+      ],
+      [
+        190,
+        9
+      ],
+      [
+        200,
+        15
+      ],
+      [
+        216,
+        9
+      ],
+      [
+        227,
+        35
+      ],
+      [
+        228,
+        9
+      ],
+      [
+        232,
+        4
+      ],
+      [
+        238,
+        11
+      ],
+      [
+        250,
+        11
+      ],
+      [
+        263,
+        59
+      ],
+      [
+        264,
+        13
+      ],
+      [
+        278,
+        19
+      ],
+      [
+        298,
+        6
+      ],
+      [
+        305,
+        16
+      ],
+      [
+        323,
+        22
+      ],
+      [
+        324,
+        9
+      ],
+      [
+        334,
+        10
+      ],
+      [
+        346,
+        69
+      ],
+      [
+        347,
+        11
+      ],
+      [
+        359,
+        22
+      ],
+      [
+        382,
+        14
+      ],
+      [
+        397,
+        17
+      ],
+      [
+        416,
+        35
+      ],
+      [
+        417,
+        6
+      ],
+      [
+        424,
+        8
+      ],
+      [
+        433,
+        8
+      ],
+      [
+        442,
+        8
+      ],
+      [
+        452,
+        95
+      ],
+      [
+        453,
+        39
+      ],
+      [
+        493,
+        21
+      ],
+      [
+        515,
+        31
+      ]
+    ],
+    "imports": [
+      [
+        5,
+        "../interfaces/IUnit"
+      ],
+      [
+        6,
+        "../interfaces/IUnitConfig"
+      ],
+      [
+        7,
+        "../enums/SizeUnit"
+      ],
+      [
+        8,
+        "../enums/Dimension"
+      ],
+      [
+        9,
+        "../enums/SizeValue"
+      ],
+      [
+        10,
+        "../../core/Logger"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/RangeValidator.test.ts",
+    "lines": 478,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      26,
+      37,
+      48,
+      60,
+      130,
+      158,
+      184,
+      256,
+      330,
+      409,
+      417,
+      425,
+      435,
+      447
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        12,
+        467
+      ],
+      [
+        16,
+        3
+      ],
+      [
+        20,
+        3
+      ],
+      [
+        24,
+        33
+      ],
+      [
+        25,
+        10
+      ],
+      [
+        36,
+        10
+      ],
+      [
+        47,
+        9
+      ],
+      [
+        58,
+        69
+      ],
+      [
+        59,
+        3
+      ],
+      [
+        63,
+        6
+      ],
+      [
+        70,
+        4
+      ],
+      [
+        75,
+        8
+      ],
+      [
+        84,
+        8
+      ],
+      [
+        93,
+        7
+      ],
+      [
+        101,
+        6
+      ],
+      [
+        108,
+        6
+      ],
+      [
+        115,
+        4
+      ],
+      [
+        120,
+        6
+      ],
+      [
+        128,
+        27
+      ],
+      [
+        129,
+        3
+      ],
+      [
+        133,
+        6
+      ],
+      [
+        140,
+        4
+      ],
+      [
+        145,
+        4
+      ],
+      [
+        150,
+        4
+      ],
+      [
+        156,
+        25
+      ],
+      [
+        157,
+        3
+      ],
+      [
+        161,
+        6
+      ],
+      [
+        168,
+        7
+      ],
+      [
+        176,
+        4
+      ],
+      [
+        182,
+        71
+      ],
+      [
+        183,
+        3
+      ],
+      [
+        187,
+        7
+      ],
+      [
+        195,
+        15
+      ],
+      [
+        211,
+        15
+      ],
+      [
+        227,
+        13
+      ],
+      [
+        241,
+        11
+      ],
+      [
+        254,
+        73
+      ],
+      [
+        255,
+        3
+      ],
+      [
+        259,
+        3
+      ],
+      [
+        263,
+        8
+      ],
+      [
+        272,
+        9
+      ],
+      [
+        282,
+        8
+      ],
+      [
+        291,
+        9
+      ],
+      [
+        301,
+        7
+      ],
+      [
+        309,
+        8
+      ],
+      [
+        318,
+        8
+      ],
+      [
+        328,
+        78
+      ],
+      [
+        329,
+        3
+      ],
+      [
+        333,
+        8
+      ],
+      [
+        342,
+        13
+      ],
+      [
+        356,
+        13
+      ],
+      [
+        370,
+        14
+      ],
+      [
+        385,
+        20
+      ],
+      [
+        407,
+        37
+      ],
+      [
+        408,
+        7
+      ],
+      [
+        416,
+        7
+      ],
+      [
+        424,
+        9
+      ],
+      [
+        434,
+        9
+      ],
+      [
+        445,
+        33
+      ],
+      [
+        446,
+        3
+      ],
+      [
+        450,
+        9
+      ],
+      [
+        460,
+        7
+      ],
+      [
+        468,
+        9
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "@jest/globals"
+      ],
+      [
+        2,
+        "../validators/RangeValidator"
+      ],
+      [
+        3,
+        "../../test/setup"
+      ],
+      [
+        4,
+        "../enums/Dimension"
+      ],
+      [
+        5,
+        "../enums/SizeUnit"
+      ],
+      [
+        6,
+        "../enums/SizeValue"
+      ],
+      [
+        7,
+        "../enums/PositionUnit"
+      ],
+      [
+        8,
+        "../enums/PositionValue"
+      ],
+      [
+        9,
+        "../enums/ScaleUnit"
+      ],
+      [
+        10,
+        "../enums/ScaleValue"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/RefactoredSizeUnitCalculator.test.ts",
+    "lines": 560,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      21,
+      24,
+      25,
+      26,
+      27,
+      28,
+      40,
+      61,
+      76,
+      108,
+      126,
+      141,
+      156,
+      171,
+      186,
+      203,
+      222,
+      237,
+      255,
+      267,
+      282,
+      310,
+      331,
+      373,
+      409,
+      424,
+      442,
+      467,
+      529,
+      531
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        15,
+        546
+      ],
+      [
+        20,
+        17
+      ],
+      [
+        38,
+        35
+      ],
+      [
+        39,
+        20
+      ],
+      [
+        60,
+        12
+      ],
+      [
+        74,
+        49
+      ],
+      [
+        75,
+        11
+      ],
+      [
+        87,
+        4
+      ],
+      [
+        92,
+        9
+      ],
+      [
+        102,
+        4
+      ],
+      [
+        107,
+        15
+      ],
+      [
+        124,
+        76
+      ],
+      [
+        125,
+        14
+      ],
+      [
+        140,
+        14
+      ],
+      [
+        155,
+        14
+      ],
+      [
+        170,
+        14
+      ],
+      [
+        185,
+        14
+      ],
+      [
+        201,
+        50
+      ],
+      [
+        202,
+        18
+      ],
+      [
+        221,
+        14
+      ],
+      [
+        236,
+        14
+      ],
+      [
+        252,
+        27
+      ],
+      [
+        253,
+        25
+      ],
+      [
+        280,
+        48
+      ],
+      [
+        281,
+        11
+      ],
+      [
+        293,
+        15
+      ],
+      [
+        309,
+        18
+      ],
+      [
+        329,
+        41
+      ],
+      [
+        330,
+        12
+      ],
+      [
+        343,
+        12
+      ],
+      [
+        356,
+        13
+      ],
+      [
+        371,
+        35
+      ],
+      [
+        372,
+        11
+      ],
+      [
+        384,
+        4
+      ],
+      [
+        389,
+        8
+      ],
+      [
+        398,
+        7
+      ],
+      [
+        407,
+        32
+      ],
+      [
+        408,
+        14
+      ],
+      [
+        423,
+        15
+      ],
+      [
+        440,
+        49
+      ],
+      [
+        441,
+        24
+      ],
+      [
+        466,
+        22
+      ],
+      [
+        490,
+        70
+      ],
+      [
+        491,
+        53
+      ],
+      [
+        545,
+        7
+      ],
+      [
+        553,
+        6
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "../classes/RefactoredSizeUnitCalculator"
+      ],
+      [
+        2,
+        "../strategies/value/SizeValueCalculationStrategyRegistry"
+      ],
+      [
+        10,
+        "../enums/SizeValue"
+      ],
+      [
+        11,
+        "../enums/SizeUnit"
+      ],
+      [
+        12,
+        "../enums/Dimension"
+      ],
+      [
+        13,
+        "../enums/UnitType"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/RefactoredUnitSystemManager.test.ts",
+    "lines": 447,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      28,
+      210,
+      231,
+      401,
+      406
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        23,
+        425
+      ],
+      [
+        27,
+        8
+      ],
+      [
+        36,
+        5
+      ],
+      [
+        42,
+        30
+      ],
+      [
+        43,
+        10
+      ],
+      [
+        54,
+        7
+      ],
+      [
+        62,
+        9
+      ],
+      [
+        73,
+        42
+      ],
+      [
+        74,
+        3
+      ],
+      [
+        78,
+        5
+      ],
+      [
+        84,
+        5
+      ],
+      [
+        90,
+        5
+      ],
+      [
+        96,
+        5
+      ],
+      [
+        102,
+        5
+      ],
+      [
+        108,
+        6
+      ],
+      [
+        116,
+        60
+      ],
+      [
+        117,
+        3
+      ],
+      [
+        121,
+        19
+      ],
+      [
+        141,
+        16
+      ],
+      [
+        158,
+        17
+      ],
+      [
+        177,
+        20
+      ],
+      [
+        178,
+        3
+      ],
+      [
+        182,
+        14
+      ],
+      [
+        198,
+        49
+      ],
+      [
+        199,
+        3
+      ],
+      [
+        203,
+        20
+      ],
+      [
+        224,
+        22
+      ],
+      [
+        248,
+        48
+      ],
+      [
+        249,
+        3
+      ],
+      [
+        253,
+        16
+      ],
+      [
+        270,
+        25
+      ],
+      [
+        297,
+        21
+      ],
+      [
+        298,
+        3
+      ],
+      [
+        302,
+        15
+      ],
+      [
+        319,
+        28
+      ],
+      [
+        320,
+        3
+      ],
+      [
+        324,
+        13
+      ],
+      [
+        338,
+        8
+      ],
+      [
+        348,
+        28
+      ],
+      [
+        349,
+        3
+      ],
+      [
+        353,
+        14
+      ],
+      [
+        368,
+        7
+      ],
+      [
+        377,
+        40
+      ],
+      [
+        378,
+        3
+      ],
+      [
+        382,
+        14
+      ],
+      [
+        392,
+        3
+      ],
+      [
+        397,
+        19
+      ],
+      [
+        400,
+        3
+      ],
+      [
+        418,
+        29
+      ],
+      [
+        419,
+        17
+      ],
+      [
+        437,
+        9
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "../managers/UnitSystemManager"
+      ],
+      [
+        2,
+        "../managers/UnitRegistryManager"
+      ],
+      [
+        3,
+        "../managers/StrategyManager"
+      ],
+      [
+        4,
+        "../managers/CommandManager"
+      ],
+      [
+        5,
+        "../managers/ObserverManager"
+      ],
+      [
+        6,
+        "../managers/ValidationManager"
+      ],
+      [
+        7,
+        "../managers/PerformanceManager"
+      ],
+      [
+        8,
+        "../classes/SizeUnitCalculator"
+      ],
+      [
+        9,
+        "../enums/SizeUnit"
+      ],
+      [
+        10,
+        "../enums/Dimension"
+      ],
+      [
+        11,
+        "../enums/UnitType"
+      ],
+      [
+        12,
+        "../interfaces/IUnitConfig"
+      ],
+      [
+        13,
+        "../strategies/IUnitStrategy"
+      ],
+      [
+        14,
+        "../commands/IUnitCommand"
+      ],
+      [
+        15,
+        "../observers/IUnitObserver"
+      ],
+      [
+        16,
+        "../validators/IUnitValidator"
+      ],
+      [
+        17,
+        "../interfaces/IUnit"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/ScaleCalculationTemplate.test.ts",
+    "lines": 275,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      32,
+      93,
+      106
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        26,
+        250
+      ],
+      [
+        30,
+        4
+      ],
+      [
+        35,
+        3
+      ],
+      [
+        39,
+        20
+      ],
+      [
+        40,
+        4
+      ],
+      [
+        45,
+        13
+      ],
+      [
+        60,
+        43
+      ],
+      [
+        61,
+        7
+      ],
+      [
+        69,
+        7
+      ],
+      [
+        77,
+        9
+      ],
+      [
+        87,
+        15
+      ],
+      [
+        92,
+        3
+      ],
+      [
+        104,
+        33
+      ],
+      [
+        105,
+        12
+      ],
+      [
+        118,
+        11
+      ],
+      [
+        130,
+        6
+      ],
+      [
+        138,
+        15
+      ],
+      [
+        139,
+        4
+      ],
+      [
+        144,
+        8
+      ],
+      [
+        154,
+        39
+      ],
+      [
+        155,
+        10
+      ],
+      [
+        166,
+        10
+      ],
+      [
+        177,
+        9
+      ],
+      [
+        187,
+        5
+      ],
+      [
+        194,
+        25
+      ],
+      [
+        195,
+        4
+      ],
+      [
+        200,
+        8
+      ],
+      [
+        209,
+        9
+      ],
+      [
+        220,
+        9
+      ],
+      [
+        221,
+        7
+      ],
+      [
+        230,
+        21
+      ],
+      [
+        231,
+        5
+      ],
+      [
+        237,
+        13
+      ],
+      [
+        252,
+        23
+      ],
+      [
+        253,
+        8
+      ],
+      [
+        262,
+        12
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "@jest/globals"
+      ],
+      [
+        2,
+        "../templates/ScaleCalculationTemplate"
+      ],
+      [
+        3,
+        "../../test/setup"
+      ],
+      [
+        4,
+        "../enums/TemplateInputType"
+      ],
+      [
+        5,
+        "../enums/ScaleUnit"
+      ],
+      [
+        6,
+        "../enums/ScaleValue"
+      ],
+      [
+        7,
+        "../interfaces/ITemplateInput"
+      ],
+      [
+        8,
+        "../validators/RangeValidator"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/ScaleUnitCalculator.test.ts",
+    "lines": 317,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      16,
+      29,
+      42,
+      57,
+      70,
+      83,
+      98,
+      111,
+      126,
+      139,
+      154,
+      167,
+      182,
+      195,
+      210,
+      226,
+      241,
+      255,
+      262,
+      277,
+      290,
+      304
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        6,
+        312
+      ],
+      [
+        10,
+        3
+      ],
+      [
+        14,
+        12
+      ],
+      [
+        15,
+        10
+      ],
+      [
+        27,
+        27
+      ],
+      [
+        28,
+        12
+      ],
+      [
+        41,
+        12
+      ],
+      [
+        55,
+        40
+      ],
+      [
+        56,
+        12
+      ],
+      [
+        69,
+        12
+      ],
+      [
+        82,
+        12
+      ],
+      [
+        96,
+        27
+      ],
+      [
+        97,
+        12
+      ],
+      [
+        110,
+        12
+      ],
+      [
+        124,
+        27
+      ],
+      [
+        125,
+        12
+      ],
+      [
+        138,
+        12
+      ],
+      [
+        152,
+        27
+      ],
+      [
+        153,
+        12
+      ],
+      [
+        166,
+        12
+      ],
+      [
+        180,
+        27
+      ],
+      [
+        181,
+        12
+      ],
+      [
+        194,
+        12
+      ],
+      [
+        208,
+        15
+      ],
+      [
+        209,
+        13
+      ],
+      [
+        224,
+        28
+      ],
+      [
+        225,
+        14
+      ],
+      [
+        240,
+        11
+      ],
+      [
+        253,
+        21
+      ],
+      [
+        254,
+        6
+      ],
+      [
+        261,
+        12
+      ],
+      [
+        275,
+        42
+      ],
+      [
+        276,
+        12
+      ],
+      [
+        289,
+        13
+      ],
+      [
+        303,
+        13
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "../classes/ScaleUnitCalculator"
+      ],
+      [
+        2,
+        "../enums/ScaleUnit"
+      ],
+      [
+        3,
+        "../enums/ScaleValue"
+      ],
+      [
+        4,
+        "../../test/setup"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/SizeCalculationTemplate.test.ts",
+    "lines": 283,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      33,
+      94,
+      107
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        27,
+        257
+      ],
+      [
+        31,
+        4
+      ],
+      [
+        36,
+        3
+      ],
+      [
+        40,
+        20
+      ],
+      [
+        41,
+        4
+      ],
+      [
+        46,
+        13
+      ],
+      [
+        61,
+        43
+      ],
+      [
+        62,
+        7
+      ],
+      [
+        70,
+        7
+      ],
+      [
+        78,
+        9
+      ],
+      [
+        88,
+        15
+      ],
+      [
+        93,
+        3
+      ],
+      [
+        105,
+        33
+      ],
+      [
+        106,
+        12
+      ],
+      [
+        119,
+        11
+      ],
+      [
+        131,
+        6
+      ],
+      [
+        139,
+        15
+      ],
+      [
+        140,
+        4
+      ],
+      [
+        145,
+        8
+      ],
+      [
+        155,
+        39
+      ],
+      [
+        156,
+        10
+      ],
+      [
+        167,
+        10
+      ],
+      [
+        178,
+        9
+      ],
+      [
+        188,
+        5
+      ],
+      [
+        195,
+        32
+      ],
+      [
+        196,
+        4
+      ],
+      [
+        201,
+        6
+      ],
+      [
+        208,
+        8
+      ],
+      [
+        217,
+        9
+      ],
+      [
+        228,
+        9
+      ],
+      [
+        229,
+        7
+      ],
+      [
+        238,
+        21
+      ],
+      [
+        239,
+        5
+      ],
+      [
+        245,
+        13
+      ],
+      [
+        260,
+        23
+      ],
+      [
+        261,
+        8
+      ],
+      [
+        270,
+        12
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "@jest/globals"
+      ],
+      [
+        2,
+        "../templates/SizeCalculationTemplate"
+      ],
+      [
+        3,
+        "../../test/setup"
+      ],
+      [
+        4,
+        "../enums/TemplateInputType"
+      ],
+      [
+        5,
+        "../enums/SizeUnit"
+      ],
+      [
+        6,
+        "../enums/SizeValue"
+      ],
+      [
+        7,
+        "../enums/Dimension"
+      ],
+      [
+        8,
+        "../interfaces/ITemplateInput"
+      ],
+      [
+        9,
+        "../validators/RangeValidator"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/SizeUnitCalculator.test.ts",
+    "lines": 441,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      17,
+      38,
+      52,
+      66,
+      80,
+      95,
+      112,
+      126,
+      140,
+      154,
+      170,
+      184,
+      200,
+      214,
+      230,
+      244,
+      260,
+      274,
+      290,
+      307,
+      322,
+      336,
+      352,
+      367,
+      382,
+      398,
+      412,
+      427
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        7,
+        435
+      ],
+      [
+        11,
+        3
+      ],
+      [
+        15,
+        20
+      ],
+      [
+        16,
+        18
+      ],
+      [
+        36,
+        73
+      ],
+      [
+        37,
+        13
+      ],
+      [
+        51,
+        13
+      ],
+      [
+        65,
+        13
+      ],
+      [
+        79,
+        14
+      ],
+      [
+        94,
+        14
+      ],
+      [
+        110,
+        57
+      ],
+      [
+        111,
+        13
+      ],
+      [
+        125,
+        13
+      ],
+      [
+        139,
+        13
+      ],
+      [
+        153,
+        13
+      ],
+      [
+        168,
+        29
+      ],
+      [
+        169,
+        13
+      ],
+      [
+        183,
+        13
+      ],
+      [
+        198,
+        29
+      ],
+      [
+        199,
+        13
+      ],
+      [
+        213,
+        13
+      ],
+      [
+        228,
+        29
+      ],
+      [
+        229,
+        13
+      ],
+      [
+        243,
+        13
+      ],
+      [
+        258,
+        29
+      ],
+      [
+        259,
+        13
+      ],
+      [
+        273,
+        13
+      ],
+      [
+        288,
+        16
+      ],
+      [
+        289,
+        14
+      ],
+      [
+        305,
+        59
+      ],
+      [
+        306,
+        14
+      ],
+      [
+        321,
+        13
+      ],
+      [
+        335,
+        15
+      ],
+      [
+        351,
+        12
+      ],
+      [
+        365,
+        30
+      ],
+      [
+        366,
+        14
+      ],
+      [
+        381,
+        13
+      ],
+      [
+        396,
+        45
+      ],
+      [
+        397,
+        13
+      ],
+      [
+        411,
+        14
+      ],
+      [
+        426,
+        14
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "../classes/SizeUnitCalculator"
+      ],
+      [
+        2,
+        "../enums/SizeUnit"
+      ],
+      [
+        3,
+        "../enums/SizeValue"
+      ],
+      [
+        4,
+        "../enums/Dimension"
+      ],
+      [
+        5,
+        "../../test/setup"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/SizeUnitStrategy.test.ts",
+    "lines": 237,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      11
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        6,
+        232
+      ],
+      [
+        10,
+        4
+      ],
+      [
+        15,
+        27
+      ],
+      [
+        16,
+        4
+      ],
+      [
+        21,
+        20
+      ],
+      [
+        43,
+        91
+      ],
+      [
+        44,
+        7
+      ],
+      [
+        52,
+        7
+      ],
+      [
+        60,
+        7
+      ],
+      [
+        68,
+        7
+      ],
+      [
+        76,
+        12
+      ],
+      [
+        89,
+        12
+      ],
+      [
+        102,
+        7
+      ],
+      [
+        110,
+        7
+      ],
+      [
+        118,
+        7
+      ],
+      [
+        126,
+        7
+      ],
+      [
+        135,
+        19
+      ],
+      [
+        136,
+        5
+      ],
+      [
+        142,
+        5
+      ],
+      [
+        148,
+        5
+      ],
+      [
+        155,
+        25
+      ],
+      [
+        156,
+        5
+      ],
+      [
+        162,
+        5
+      ],
+      [
+        168,
+        5
+      ],
+      [
+        174,
+        5
+      ],
+      [
+        181,
+        20
+      ],
+      [
+        182,
+        5
+      ],
+      [
+        188,
+        5
+      ],
+      [
+        194,
+        6
+      ],
+      [
+        202,
+        35
+      ],
+      [
+        203,
+        3
+      ],
+      [
+        207,
+        17
+      ],
+      [
+        225,
+        11
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "../strategies/SizeUnitStrategy"
+      ],
+      [
+        2,
+        "../enums/SizeValue"
+      ],
+      [
+        3,
+        "../enums/SizeUnit"
+      ],
+      [
+        4,
+        "../../test/setup"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/StrategyPatternImplementation.test.ts",
+    "lines": 477,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      19,
+      30,
+      39,
+      40,
+      49,
+      59,
+      60,
+      68,
+      69,
+      81,
+      82,
+      92,
+      93,
+      100,
+      101,
+      114,
+      115,
+      116,
+      117,
+      118,
+      158,
+      204,
+      275,
+      333,
+      371,
+      446,
+      458,
+      459,
+      468
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        14,
+        464
+      ],
+      [
+        18,
+        9
+      ],
+      [
+        28,
+        83
+      ],
+      [
+        29,
+        8
+      ],
+      [
+        38,
+        9
+      ],
+      [
+        48,
+        9
+      ],
+      [
+        58,
+        8
+      ],
+      [
+        67,
+        12
+      ],
+      [
+        80,
+        10
+      ],
+      [
+        91,
+        7
+      ],
+      [
+        99,
+        11
+      ],
+      [
+        112,
+        41
+      ],
+      [
+        113,
+        7
+      ],
+      [
+        121,
+        10
+      ],
+      [
+        132,
+        10
+      ],
+      [
+        143,
+        9
+      ],
+      [
+        154,
+        45
+      ],
+      [
+        157,
+        3
+      ],
+      [
+        161,
+        4
+      ],
+      [
+        166,
+        9
+      ],
+      [
+        176,
+        9
+      ],
+      [
+        186,
+        4
+      ],
+      [
+        191,
+        3
+      ],
+      [
+        195,
+        3
+      ],
+      [
+        200,
+        70
+      ],
+      [
+        203,
+        3
+      ],
+      [
+        207,
+        6
+      ],
+      [
+        214,
+        9
+      ],
+      [
+        224,
+        10
+      ],
+      [
+        235,
+        9
+      ],
+      [
+        245,
+        9
+      ],
+      [
+        255,
+        4
+      ],
+      [
+        260,
+        3
+      ],
+      [
+        264,
+        5
+      ],
+      [
+        271,
+        57
+      ],
+      [
+        274,
+        3
+      ],
+      [
+        278,
+        4
+      ],
+      [
+        283,
+        9
+      ],
+      [
+        293,
+        9
+      ],
+      [
+        303,
+        9
+      ],
+      [
+        313,
+        4
+      ],
+      [
+        318,
+        3
+      ],
+      [
+        322,
+        5
+      ],
+      [
+        329,
+        37
+      ],
+      [
+        332,
+        3
+      ],
+      [
+        336,
+        6
+      ],
+      [
+        343,
+        9
+      ],
+      [
+        353,
+        4
+      ],
+      [
+        358,
+        3
+      ],
+      [
+        362,
+        3
+      ],
+      [
+        367,
+        39
+      ],
+      [
+        370,
+        3
+      ],
+      [
+        374,
+        8
+      ],
+      [
+        383,
+        9
+      ],
+      [
+        393,
+        4
+      ],
+      [
+        398,
+        3
+      ],
+      [
+        402,
+        3
+      ],
+      [
+        407,
+        70
+      ],
+      [
+        408,
+        48
+      ],
+      [
+        457,
+        8
+      ],
+      [
+        466,
+        10
+      ]
+    ],
+    "imports": [
+      [
+        9,
+        "../strategies/value/ISizeValueCalculationStrategy"
+      ],
+      [
+        10,
+        "../enums/SizeValue"
+      ],
+      [
+        11,
+        "../enums/SizeUnit"
+      ],
+      [
+        12,
+        "../enums/Dimension"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/TypeValidator.test.ts",
+    "lines": 625,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      21,
+      35,
+      47,
+      58,
+      70,
+      90,
+      128,
+      175,
+      213,
+      298,
+      379,
+      424,
+      469,
+      530,
+      575,
+      584,
+      593,
+      608
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        7,
+        619
+      ],
+      [
+        11,
+        3
+      ],
+      [
+        15,
+        3
+      ],
+      [
+        19,
+        48
+      ],
+      [
+        20,
+        10
+      ],
+      [
+        31,
+        13
+      ],
+      [
+        45,
+        10
+      ],
+      [
+        56,
+        10
+      ],
+      [
+        68,
+        19
+      ],
+      [
+        69,
+        3
+      ],
+      [
+        73,
+        8
+      ],
+      [
+        82,
+        4
+      ],
+      [
+        88,
+        37
+      ],
+      [
+        89,
+        3
+      ],
+      [
+        93,
+        8
+      ],
+      [
+        102,
+        8
+      ],
+      [
+        111,
+        6
+      ],
+      [
+        118,
+        6
+      ],
+      [
+        126,
+        46
+      ],
+      [
+        127,
+        6
+      ],
+      [
+        134,
+        8
+      ],
+      [
+        143,
+        14
+      ],
+      [
+        158,
+        6
+      ],
+      [
+        165,
+        6
+      ],
+      [
+        173,
+        37
+      ],
+      [
+        174,
+        8
+      ],
+      [
+        183,
+        8
+      ],
+      [
+        192,
+        6
+      ],
+      [
+        199,
+        5
+      ],
+      [
+        205,
+        4
+      ],
+      [
+        206,
+        1
+      ],
+      [
+        211,
+        84
+      ],
+      [
+        212,
+        8
+      ],
+      [
+        221,
+        4
+      ],
+      [
+        226,
+        4
+      ],
+      [
+        231,
+        6
+      ],
+      [
+        238,
+        4
+      ],
+      [
+        243,
+        11
+      ],
+      [
+        255,
+        11
+      ],
+      [
+        267,
+        7
+      ],
+      [
+        275,
+        11
+      ],
+      [
+        287,
+        7
+      ],
+      [
+        288,
+        1
+      ],
+      [
+        296,
+        80
+      ],
+      [
+        297,
+        3
+      ],
+      [
+        301,
+        8
+      ],
+      [
+        310,
+        14
+      ],
+      [
+        325,
+        14
+      ],
+      [
+        340,
+        13
+      ],
+      [
+        354,
+        21
+      ],
+      [
+        377,
+        44
+      ],
+      [
+        378,
+        8
+      ],
+      [
+        387,
+        10
+      ],
+      [
+        398,
+        6
+      ],
+      [
+        405,
+        8
+      ],
+      [
+        414,
+        6
+      ],
+      [
+        422,
+        44
+      ],
+      [
+        423,
+        8
+      ],
+      [
+        432,
+        10
+      ],
+      [
+        443,
+        6
+      ],
+      [
+        450,
+        8
+      ],
+      [
+        459,
+        6
+      ],
+      [
+        467,
+        60
+      ],
+      [
+        468,
+        8
+      ],
+      [
+        477,
+        10
+      ],
+      [
+        488,
+        12
+      ],
+      [
+        501,
+        12
+      ],
+      [
+        514,
+        12
+      ],
+      [
+        528,
+        44
+      ],
+      [
+        529,
+        3
+      ],
+      [
+        533,
+        9
+      ],
+      [
+        543,
+        6
+      ],
+      [
+        550,
+        6
+      ],
+      [
+        557,
+        6
+      ],
+      [
+        564,
+        7
+      ],
+      [
+        573,
+        52
+      ],
+      [
+        574,
+        8
+      ],
+      [
+        583,
+        8
+      ],
+      [
+        592,
+        14
+      ],
+      [
+        607,
+        17
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "@jest/globals"
+      ],
+      [
+        2,
+        "../validators/TypeValidator"
+      ],
+      [
+        3,
+        "../../test/setup"
+      ],
+      [
+        4,
+        "../enums/UnitType"
+      ],
+      [
+        5,
+        "../enums/Dimension"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/UnitCalculationMemento.test.ts",
+    "lines": 782,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      29,
+      54,
+      73,
+      97,
+      115,
+      133,
+      149,
+      169,
+      189,
+      215,
+      237,
+      254,
+      274,
+      292,
+      311,
+      329,
+      348,
+      366,
+      384,
+      409,
+      433,
+      445,
+      469,
+      495,
+      507,
+      551,
+      570,
+      588,
+      600,
+      622,
+      652,
+      728
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        7,
+        776
+      ],
+      [
+        13,
+        9
+      ],
+      [
+        23,
+        3
+      ],
+      [
+        27,
+        67
+      ],
+      [
+        28,
+        24
+      ],
+      [
+        53,
+        18
+      ],
+      [
+        72,
+        21
+      ],
+      [
+        95,
+        17
+      ],
+      [
+        96,
+        15
+      ],
+      [
+        113,
+        17
+      ],
+      [
+        114,
+        15
+      ],
+      [
+        131,
+        35
+      ],
+      [
+        132,
+        15
+      ],
+      [
+        148,
+        17
+      ],
+      [
+        167,
+        19
+      ],
+      [
+        168,
+        17
+      ],
+      [
+        187,
+        47
+      ],
+      [
+        188,
+        25
+      ],
+      [
+        214,
+        19
+      ],
+      [
+        235,
+        36
+      ],
+      [
+        236,
+        16
+      ],
+      [
+        253,
+        17
+      ],
+      [
+        272,
+        36
+      ],
+      [
+        273,
+        17
+      ],
+      [
+        291,
+        16
+      ],
+      [
+        309,
+        17
+      ],
+      [
+        310,
+        15
+      ],
+      [
+        327,
+        17
+      ],
+      [
+        328,
+        15
+      ],
+      [
+        345,
+        36
+      ],
+      [
+        346,
+        18
+      ],
+      [
+        365,
+        15
+      ],
+      [
+        382,
+        46
+      ],
+      [
+        383,
+        24
+      ],
+      [
+        408,
+        19
+      ],
+      [
+        429,
+        61
+      ],
+      [
+        432,
+        25
+      ],
+      [
+        458,
+        9
+      ],
+      [
+        468,
+        21
+      ],
+      [
+        491,
+        57
+      ],
+      [
+        494,
+        25
+      ],
+      [
+        520,
+        6
+      ],
+      [
+        527,
+        6
+      ],
+      [
+        534,
+        6
+      ],
+      [
+        541,
+        6
+      ],
+      [
+        549,
+        70
+      ],
+      [
+        550,
+        17
+      ],
+      [
+        568,
+        17
+      ],
+      [
+        586,
+        32
+      ],
+      [
+        620,
+        53
+      ],
+      [
+        621,
+        29
+      ],
+      [
+        651,
+        21
+      ],
+      [
+        674,
+        51
+      ],
+      [
+        675,
+        23
+      ],
+      [
+        676,
+        21
+      ],
+      [
+        699,
+        25
+      ],
+      [
+        700,
+        23
+      ],
+      [
+        726,
+        56
+      ],
+      [
+        727,
+        17
+      ],
+      [
+        745,
+        5
+      ],
+      [
+        751,
+        5
+      ],
+      [
+        757,
+        3
+      ],
+      [
+        761,
+        3
+      ],
+      [
+        765,
+        7
+      ],
+      [
+        773,
+        3
+      ],
+      [
+        777,
+        4
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "@jest/globals"
+      ],
+      [
+        2,
+        "../mementos/UnitCalculationMemento"
+      ],
+      [
+        3,
+        "../../test/setup"
+      ],
+      [
+        4,
+        "../enums/UnitType"
+      ],
+      [
+        5,
+        "../enums/SizeUnit"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/UnitCalculatorFactory.test.ts",
+    "lines": 365,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        15,
+        351
+      ],
+      [
+        18,
+        3
+      ],
+      [
+        22,
+        3
+      ],
+      [
+        26,
+        7
+      ],
+      [
+        27,
+        5
+      ],
+      [
+        34,
+        54
+      ],
+      [
+        35,
+        15
+      ],
+      [
+        51,
+        19
+      ],
+      [
+        71,
+        16
+      ],
+      [
+        89,
+        30
+      ],
+      [
+        90,
+        14
+      ],
+      [
+        105,
+        13
+      ],
+      [
+        120,
+        29
+      ],
+      [
+        121,
+        13
+      ],
+      [
+        135,
+        13
+      ],
+      [
+        150,
+        54
+      ],
+      [
+        151,
+        14
+      ],
+      [
+        166,
+        13
+      ],
+      [
+        180,
+        13
+      ],
+      [
+        194,
+        9
+      ],
+      [
+        195,
+        7
+      ],
+      [
+        205,
+        43
+      ],
+      [
+        206,
+        12
+      ],
+      [
+        219,
+        4
+      ],
+      [
+        224,
+        14
+      ],
+      [
+        239,
+        8
+      ],
+      [
+        249,
+        68
+      ],
+      [
+        250,
+        22
+      ],
+      [
+        273,
+        21
+      ],
+      [
+        295,
+        21
+      ],
+      [
+        318,
+        47
+      ],
+      [
+        319,
+        23
+      ],
+      [
+        343,
+        21
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "@jest/globals"
+      ],
+      [
+        2,
+        "../classes/UnitCalculatorFactory"
+      ],
+      [
+        3,
+        "../classes/SizeUnitCalculator"
+      ],
+      [
+        4,
+        "../classes/PositionUnitCalculator"
+      ],
+      [
+        5,
+        "../classes/ScaleUnitCalculator"
+      ],
+      [
+        6,
+        "../enums/UnitType"
+      ],
+      [
+        7,
+        "../enums/SizeUnit"
+      ],
+      [
+        8,
+        "../enums/PositionUnit"
+      ],
+      [
+        9,
+        "../enums/ScaleUnit"
+      ],
+      [
+        10,
+        "../enums/Dimension"
+      ],
+      [
+        11,
+        "../enums/SizeValue"
+      ],
+      [
+        12,
+        "../enums/PositionValue"
+      ],
+      [
+        13,
+        "../enums/ScaleValue"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/UnitGroupComposite.test.ts",
+    "lines": 394,
+    "exports": 0,
+    "switches": [
+      [
+        24,
+        "this.unitType",
+        4
+      ]
+    ],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [
+      7
+    ],
+    "new_concrete_lines": [
+      49,
+      71,
+      92,
+      107,
+      108,
+      128,
+      129,
+      140,
+      141,
+      155,
+      156,
+      157,
+      212,
+      219,
+      220,
+      221,
+      255,
+      256,
+      257,
+      291,
+      299,
+      309,
+      314,
+      329,
+      342,
+      343,
+      344,
+      345,
+      376,
+      382,
+      383
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        53,
+        342
+      ],
+      [
+        58,
+        19
+      ],
+      [
+        78,
+        3
+      ],
+      [
+        82,
+        22
+      ],
+      [
+        83,
+        7
+      ],
+      [
+        91,
+        12
+      ],
+      [
+        105,
+        47
+      ],
+      [
+        106,
+        20
+      ],
+      [
+        127,
+        11
+      ],
+      [
+        139,
+        12
+      ],
+      [
+        153,
+        63
+      ],
+      [
+        154,
+        9
+      ],
+      [
+        164,
+        10
+      ],
+      [
+        175,
+        7
+      ],
+      [
+        183,
+        7
+      ],
+      [
+        191,
+        7
+      ],
+      [
+        199,
+        11
+      ],
+      [
+        200,
+        3
+      ],
+      [
+        211,
+        4
+      ],
+      [
+        217,
+        35
+      ],
+      [
+        218,
+        9
+      ],
+      [
+        228,
+        13
+      ],
+      [
+        242,
+        4
+      ],
+      [
+        247,
+        4
+      ],
+      [
+        253,
+        33
+      ],
+      [
+        254,
+        9
+      ],
+      [
+        264,
+        10
+      ],
+      [
+        275,
+        10
+      ],
+      [
+        287,
+        19
+      ],
+      [
+        288,
+        8
+      ],
+      [
+        297,
+        8
+      ],
+      [
+        307,
+        31
+      ],
+      [
+        308,
+        19
+      ],
+      [
+        313,
+        3
+      ],
+      [
+        328,
+        9
+      ],
+      [
+        339,
+        55
+      ],
+      [
+        340,
+        34
+      ],
+      [
+        375,
+        18
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "@jest/globals"
+      ],
+      [
+        2,
+        "../composites/UnitGroupComposite"
+      ],
+      [
+        3,
+        "../enums/CalculationStrategy"
+      ],
+      [
+        4,
+        "../interfaces/IUnit"
+      ],
+      [
+        5,
+        "../interfaces/IUnit"
+      ],
+      [
+        6,
+        "../enums/UnitType"
+      ],
+      [
+        7,
+        "../../core/Logger"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/UnitMementoManager.test.ts",
+    "lines": 630,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      23,
+      24,
+      210,
+      578
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        15,
+        616
+      ],
+      [
+        22,
+        11
+      ],
+      [
+        34,
+        3
+      ],
+      [
+        38,
+        5
+      ],
+      [
+        39,
+        3
+      ],
+      [
+        44,
+        12
+      ],
+      [
+        45,
+        5
+      ],
+      [
+        51,
+        4
+      ],
+      [
+        57,
+        11
+      ],
+      [
+        58,
+        4
+      ],
+      [
+        63,
+        4
+      ],
+      [
+        69,
+        13
+      ],
+      [
+        70,
+        5
+      ],
+      [
+        76,
+        5
+      ],
+      [
+        83,
+        41
+      ],
+      [
+        84,
+        19
+      ],
+      [
+        104,
+        19
+      ],
+      [
+        125,
+        62
+      ],
+      [
+        126,
+        16
+      ],
+      [
+        143,
+        15
+      ],
+      [
+        159,
+        27
+      ],
+      [
+        188,
+        39
+      ],
+      [
+        189,
+        17
+      ],
+      [
+        207,
+        19
+      ],
+      [
+        228,
+        71
+      ],
+      [
+        229,
+        57
+      ],
+      [
+        287,
+        5
+      ],
+      [
+        293,
+        5
+      ],
+      [
+        300,
+        42
+      ],
+      [
+        301,
+        34
+      ],
+      [
+        336,
+        5
+      ],
+      [
+        343,
+        31
+      ],
+      [
+        344,
+        24
+      ],
+      [
+        369,
+        4
+      ],
+      [
+        375,
+        34
+      ],
+      [
+        376,
+        27
+      ],
+      [
+        404,
+        4
+      ],
+      [
+        410,
+        56
+      ],
+      [
+        411,
+        41
+      ],
+      [
+        453,
+        12
+      ],
+      [
+        467,
+        33
+      ],
+      [
+        468,
+        23
+      ],
+      [
+        492,
+        7
+      ],
+      [
+        501,
+        40
+      ],
+      [
+        502,
+        28
+      ],
+      [
+        531,
+        9
+      ],
+      [
+        542,
+        33
+      ],
+      [
+        543,
+        31
+      ],
+      [
+        576,
+        54
+      ],
+      [
+        577,
+        35
+      ],
+      [
+        613,
+        16
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "@jest/globals"
+      ],
+      [
+        2,
+        "../mementos/UnitMementoManager"
+      ],
+      [
+        3,
+        "../mementos/UnitCalculationMemento"
+      ],
+      [
+        4,
+        "../../test/setup"
+      ],
+      [
+        5,
+        "../enums/SizeUnit"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/UnitSystemManager.test.ts",
+    "lines": 166,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      24
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        20,
+        147
+      ],
+      [
+        23,
+        4
+      ],
+      [
+        28,
+        3
+      ],
+      [
+        32,
+        52
+      ],
+      [
+        33,
+        14
+      ],
+      [
+        48,
+        17
+      ],
+      [
+        66,
+        17
+      ],
+      [
+        85,
+        34
+      ],
+      [
+        86,
+        8
+      ],
+      [
+        95,
+        12
+      ],
+      [
+        108,
+        10
+      ],
+      [
+        120,
+        23
+      ],
+      [
+        121,
+        9
+      ],
+      [
+        131,
+        11
+      ],
+      [
+        144,
+        22
+      ],
+      [
+        145,
+        8
+      ],
+      [
+        154,
+        11
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "../managers/UnitSystemManager"
+      ],
+      [
+        2,
+        "../enums/SizeUnit"
+      ],
+      [
+        3,
+        "../enums/Dimension"
+      ],
+      [
+        4,
+        "../enums/SizeValue"
+      ],
+      [
+        5,
+        "../enums/PositionUnit"
+      ],
+      [
+        6,
+        "../enums/PositionValue"
+      ],
+      [
+        7,
+        "../enums/ScaleUnit"
+      ],
+      [
+        8,
+        "../enums/ScaleValue"
+      ]
+    ]
+  },
+  {
+    "path": "unit/test/ValidationDecorator.test.ts",
+    "lines": 669,
+    "exports": 0,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [
+      559,
+      560,
+      561,
+      566
+    ],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      39,
+      51,
+      52,
+      53,
+      61,
+      68,
+      238,
+      259,
+      282,
+      304,
+      327,
+      351,
+      373,
+      396,
+      409,
+      482,
+      505,
+      530,
+      544,
+      575,
+      591,
+      621,
+      642
+    ],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        43,
+        627
+      ],
+      [
+        50,
+        26
+      ],
+      [
+        77,
+        40
+      ],
+      [
+        78,
+        6
+      ],
+      [
+        85,
+        10
+      ],
+      [
+        96,
+        7
+      ],
+      [
+        104,
+        5
+      ],
+      [
+        110,
+        6
+      ],
+      [
+        118,
+        47
+      ],
+      [
+        119,
+        15
+      ],
+      [
+        135,
+        24
+      ],
+      [
+        160,
+        4
+      ],
+      [
+        166,
+        56
+      ],
+      [
+        167,
+        7
+      ],
+      [
+        175,
+        8
+      ],
+      [
+        184,
+        7
+      ],
+      [
+        192,
+        9
+      ],
+      [
+        202,
+        9
+      ],
+      [
+        212,
+        9
+      ],
+      [
+        223,
+        113
+      ],
+      [
+        224,
+        21
+      ],
+      [
+        246,
+        22
+      ],
+      [
+        269,
+        21
+      ],
+      [
+        291,
+        22
+      ],
+      [
+        314,
+        21
+      ],
+      [
+        337,
+        68
+      ],
+      [
+        338,
+        21
+      ],
+      [
+        360,
+        22
+      ],
+      [
+        383,
+        21
+      ],
+      [
+        406,
+        38
+      ],
+      [
+        407,
+        18
+      ],
+      [
+        408,
+        3
+      ],
+      [
+        426,
+        17
+      ],
+      [
+        427,
+        3
+      ],
+      [
+        445,
+        45
+      ],
+      [
+        446,
+        14
+      ],
+      [
+        461,
+        7
+      ],
+      [
+        469,
+        20
+      ],
+      [
+        491,
+        50
+      ],
+      [
+        492,
+        24
+      ],
+      [
+        517,
+        23
+      ],
+      [
+        542,
+        64
+      ],
+      [
+        543,
+        30
+      ],
+      [
+        574,
+        15
+      ],
+      [
+        590,
+        15
+      ],
+      [
+        607,
+        62
+      ],
+      [
+        608,
+        20
+      ],
+      [
+        629,
+        20
+      ],
+      [
+        650,
+        7
+      ],
+      [
+        658,
+        10
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "../decorators/ValidationDecorator"
+      ],
+      [
+        2,
+        "../classes/SizeUnitCalculator"
+      ],
+      [
+        3,
+        "../classes/PositionUnitCalculator"
+      ],
+      [
+        4,
+        "../classes/ScaleUnitCalculator"
+      ],
+      [
+        5,
+        "../enums/UnitType"
+      ],
+      [
+        6,
+        "../constants"
+      ],
+      [
+        7,
+        "../enums/SizeUnit"
+      ],
+      [
+        8,
+        "../enums/Dimension"
+      ],
+      [
+        9,
+        "../enums/SizeValue"
+      ],
+      [
+        10,
+        "../enums/PositionUnit"
+      ],
+      [
+        11,
+        "../enums/ScaleUnit"
+      ],
+      [
+        12,
+        "../interfaces/IUnit"
+      ],
+      [
+        13,
+        "../interfaces/IUnit"
+      ]
+    ]
+  },
+  {
+    "path": "unit/testing/performance/PerformanceComparisonSystem.ts",
+    "lines": 360,
+    "exports": 4,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [
+      109
+    ],
+    "logger_import_lines": [],
+    "new_concrete_lines": [
+      60,
+      67,
+      74,
+      81,
+      88,
+      94
+    ],
+    "interfaces": [
+      [
+        "PerformanceMetrics",
+        17,
+        5
+      ],
+      [
+        "ComparisonResult",
+        25,
+        7
+      ],
+      [
+        "TestScenario",
+        41,
+        7
+      ]
+    ],
+    "func_lengths": [
+      [
+        337,
+        20
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "../../interfaces/IUnit"
+      ],
+      [
+        2,
+        "../../interfaces/IUnitConfig"
+      ],
+      [
+        3,
+        "../../classes/SizeUnitCalculator"
+      ],
+      [
+        4,
+        "../../classes/RefactoredSizeUnitCalculator"
+      ],
+      [
+        5,
+        "../../classes/PositionUnitCalculator"
+      ],
+      [
+        6,
+        "../../classes/RefactoredPositionUnitCalculator"
+      ],
+      [
+        7,
+        "../../classes/ScaleUnitCalculator"
+      ],
+      [
+        8,
+        "../../classes/RefactoredScaleUnitCalculator"
+      ],
+      [
+        9,
+        "../../enums/SizeValue"
+      ],
+      [
+        10,
+        "../../enums/PositionValue"
+      ],
+      [
+        11,
+        "../../enums/ScaleValue"
+      ],
+      [
+        12,
+        "../../enums/SizeUnit"
+      ],
+      [
+        13,
+        "../../enums/PositionUnit"
+      ],
+      [
+        14,
+        "../../enums/ScaleUnit"
+      ],
+      [
+        15,
+        "../../enums/Dimension"
+      ]
+    ]
+  },
+  {
+    "path": "unit/types/UnitValue.ts",
+    "lines": 54,
+    "exports": 4,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../interfaces/IUnit"
+      ],
+      [
+        2,
+        "../enums/SizeUnit"
+      ],
+      [
+        3,
+        "../enums/PositionUnit"
+      ],
+      [
+        4,
+        "../enums/ScaleUnit"
+      ],
+      [
+        5,
+        "../enums/Dimension"
+      ],
+      [
+        6,
+        "../enums/SizeValue"
+      ],
+      [
+        7,
+        "../enums/PositionValue"
+      ],
+      [
+        8,
+        "../enums/ScaleValue"
+      ]
+    ]
+  },
+  {
+    "path": "unit/validators/IUnitValidator.ts",
+    "lines": 109,
+    "exports": 3,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [
+      [
+        "IUnitValidator",
+        8,
+        6
+      ],
+      [
+        "IUnitValidationChain",
+        76,
+        7
+      ],
+      [
+        "IUnitValidationResult",
+        103,
+        5
+      ]
+    ],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../interfaces/IUnit"
+      ],
+      [
+        2,
+        "../interfaces/IValidationInput"
+      ]
+    ]
+  },
+  {
+    "path": "unit/validators/RangeValidator.ts",
+    "lines": 211,
+    "exports": 1,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [],
+    "imports": [
+      [
+        1,
+        "../interfaces/IUnit"
+      ],
+      [
+        2,
+        "../interfaces/IValidationInput"
+      ],
+      [
+        3,
+        "./IUnitValidator"
+      ],
+      [
+        11,
+        "../constants"
+      ]
+    ]
+  },
+  {
+    "path": "unit/validators/TypeValidator.ts",
+    "lines": 253,
+    "exports": 1,
+    "switches": [],
+    "if_chains": [],
+    "not_impl_lines": [],
+    "console_lines": [],
+    "logger_import_lines": [],
+    "new_concrete_lines": [],
+    "interfaces": [],
+    "func_lengths": [
+      [
+        159,
+        3
+      ]
+    ],
+    "imports": [
+      [
+        1,
+        "../interfaces/IUnit"
+      ],
+      [
+        2,
+        "../interfaces/IValidationInput"
+      ],
+      [
+        3,
+        "./IUnitValidator"
+      ],
+      [
+        4,
+        "../enums/UnitType"
+      ],
+      [
+        5,
+        "../enums/Dimension"
+      ]
+    ]
+  }
+]

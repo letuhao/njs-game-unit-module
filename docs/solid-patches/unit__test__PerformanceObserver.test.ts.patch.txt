@@ -1,0 +1,17 @@
+*** unit/test/PerformanceObserver.test.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (8 occurrences)
+--- BEFORE ---
+  L29: observer = new PerformanceObserver();
+  L221: const error = new Error('Calculation failed');
+  L229: const error = new Error('Calculation failed');
+  L245: const error = new Error('No stack');
+  L342: observer.onUnitCalculationFailed('test-unit-1', new Error('Test'));
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+
+
+@@ SRP-Logging L3
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

@@ -1,0 +1,17 @@
+*** unit/mementos/UnitMementoCaretaker.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (6 occurrences)
+--- BEFORE ---
+  L12: private mementos: Map<string, IUnitMemento[]> = new Map();
+  L15: private undoStack: Map<string, IUnitMemento[]> = new Map();
+  L16: private redoStack: Map<string, IUnitMemento[]> = new Map();
+  L294: exportDate: new Date().toISOString(),
+  L315: throw new Error('Invalid export data format');
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+
+
+@@ SRP-Logging L3
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

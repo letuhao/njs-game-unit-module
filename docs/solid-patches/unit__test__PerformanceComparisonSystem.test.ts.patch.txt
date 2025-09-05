@@ -1,0 +1,13 @@
+*** unit/test/PerformanceComparisonSystem.test.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (1 occurrences)
+--- BEFORE ---
+  L19: performanceSystem = new PerformanceComparisonSystem();
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+
+
+@@ SRP-Logging L164
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

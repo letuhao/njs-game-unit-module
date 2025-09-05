@@ -1,0 +1,14 @@
+*** unit/classes/RefactoredScaleUnitCalculator.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (2 occurrences)
+--- BEFORE ---
+  L43: this.strategyRegistry = strategyRegistry || new ScaleValueCalculationStrategyRegistry();
+  L237: const cloned = new RefactoredScaleUnitCalculator(
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+
+
+@@ SRP-Logging L8
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

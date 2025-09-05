@@ -1,0 +1,11 @@
+*** unit/examples/ContainerIntegrationExample.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (3 occurrences)
+--- BEFORE ---
+  L49: return new ResponsiveContainer(this.scene, this.id, this.x, this.y, this.parent);
+  L282: const mainContainer = new ResponsiveContainer(this, 'main', 400, 300);
+  L287: const childContainer = new ResponsiveContainer(this, 'child', 0, 0, mainContainer);
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

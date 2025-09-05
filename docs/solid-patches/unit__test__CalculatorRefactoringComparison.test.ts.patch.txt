@@ -1,0 +1,17 @@
+*** unit/test/CalculatorRefactoringComparison.test.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (31 occurrences)
+--- BEFORE ---
+  L22: strategyRegistry = new SizeValueCalculationStrategyRegistry();
+  L25: strategyRegistry.registerStrategy(new PixelSizeValueCalculationStrategy());
+  L26: strategyRegistry.registerStrategy(new FillSizeValueCalculationStrategy());
+  L27: strategyRegistry.registerStrategy(new AutoSizeValueCalculationStrategy());
+  L28: strategyRegistry.registerStrategy(new ParentWidthSizeValueCalculationStrategy());
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+
+
+@@ SRP-Logging L35
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

@@ -1,0 +1,60 @@
+*** unit/classes/ScaleUnitCalculator.ts — SOLID refactor template patches ***
+
+@@ OCP-Strategy-Registry switch@52-94 (12 branches on `this.scaleUnit`)
+--- BEFORE ---
+      switch (this.scaleUnit) {
+        case ScaleUnit.FACTOR:
+          baseScale =
+            typeof this.baseValue === 'number'
+              ? this.baseValue
+              : DEFAULT_FALLBACK_VALUES.SCALE.DEFAULT;
+          break;
+        case ScaleUnit.PERCENTAGE:
+          baseScale =
+            typeof this.baseValue === 'number'
+              ? this.baseValue / 100
+              : DEFAULT_FALLBACK_VALUES.SCALE.DEFAULT;
+          break;
+        case ScaleUnit.PARENT_SCALE:
+          baseScale = 1.0; // Default scale factor
+          break;
+        case ScaleUnit.PARENT_WIDTH_SCALE:
+          baseScale = (context.parent?.width ?? 1) / (context.scene?.width ?? 1);
+          break;
+        case ScaleUnit.PARENT_HEIGHT_SCALE:
+          baseScale = (context.parent?.height ?? 1) / (context.scene?.height ?? 1);
+          break;
+        case ScaleUnit.SCENE_SCALE:
+          baseScale = 1.0; // Default scale factor
+          break;
+        case ScaleUnit.SCENE_WIDTH_SCALE:
+          baseScale = (context.scene?.width ?? 1) / (context.viewport?.width ?? 1);
+          break;
+        case ScaleUnit.SCENE_HEIGHT_SCALE:
+          baseScale = (context.scene?.height ?? 1) / (context.viewport?.height ?? 1);
+          break;
+        case ScaleUnit.VIEWPORT_SCALE:
+          baseScale = 1.0; // Default scale factor
+          break;
+        case ScaleUnit.VIEWPORT_WIDTH_SCALE:
+          baseScale = (context.viewport?.width ?? 1) / (context.scene?.width ?? 1);
+          break;
+        case ScaleUnit.VIEWPORT_HEIGHT_SCALE:
+          baseScale = (context.viewport?.height ?? 1) / (context.scene?.height ?? 1);
+          break;
+        default:
+          baseScale = DEFAULT_FALLBACK_VALUES.SCALE.DEFAULT;
+      }
+--- AFTER (template) ---
+  // Replace conditional with Strategy Registry
+  // const strategy = sizeStrategyRegistry.resolve(this.scaleUnit);
+  // return strategy(ctx, input);
+
+
+@@ DIP-Construction (1 occurrences)
+--- BEFORE ---
+  L260: const cloned = new ScaleUnitCalculator(
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

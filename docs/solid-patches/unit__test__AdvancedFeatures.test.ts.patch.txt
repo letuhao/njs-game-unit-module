@@ -1,0 +1,13 @@
+*** unit/test/AdvancedFeatures.test.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (26 occurrences)
+--- BEFORE ---
+  L28: strategyRegistry = new SizeValueCalculationStrategyRegistry();
+  L31: strategyRegistry.registerStrategy(new PixelSizeValueCalculationStrategy());
+  L32: strategyRegistry.registerStrategy(new FillSizeValueCalculationStrategy());
+  L33: strategyRegistry.registerStrategy(new AutoSizeValueCalculationStrategy());
+  L34: strategyRegistry.registerStrategy(new ParentWidthSizeValueCalculationStrategy());
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

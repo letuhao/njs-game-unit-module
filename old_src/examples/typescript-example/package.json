@@ -1,0 +1,23 @@
+{
+  "name": "phaser-unit-system-typescript-example",
+  "version": "1.0.0",
+  "description": "TypeScript example demonstrating the Phaser Unit System",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "webpack --mode production",
+    "dev": "webpack serve --mode development",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@phaser-game/unit-system": "^1.0.0",
+    "phaser": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-loader": "^9.4.0",
+    "typescript": "^5.0.0",
+    "webpack": "^5.80.0",
+    "webpack-cli": "^5.0.0",
+    "webpack-dev-server": "^4.13.0"
+  }
+}

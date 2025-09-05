@@ -1,0 +1,37 @@
+*** unit/observers/LoggingObserver.ts — SOLID refactor template patches ***
+
+@@ OCP-Strategy-Registry switch@97-112 (5 branches on `level`)
+--- BEFORE ---
+        switch (level) {
+          case LogLevel.DEBUG:
+            this.logger.debug(objectName, 'LoggingObserver', message, data);
+            break;
+          case LogLevel.INFO:
+            this.logger.info(objectName, 'LoggingObserver', message, data);
+            break;
+          case LogLevel.WARN:
+            this.logger.warn(objectName, 'LoggingObserver', message, data);
+            break;
+          case LogLevel.ERROR:
+            this.logger.error(objectName, 'LoggingObserver', message, data);
+            break;
+          default:
+            this.logger.info(objectName, 'LoggingObserver', message, data);
+        }
+--- AFTER (template) ---
+  // Replace conditional with Strategy Registry
+  // const strategy = sizeStrategyRegistry.resolve(level);
+  // return strategy(ctx, input);
+
+
+@@ DIP-Construction (1 occurrences)
+--- BEFORE ---
+  L78: timestamp: new Date().toISOString(),
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+
+
+@@ SRP-Logging L2
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

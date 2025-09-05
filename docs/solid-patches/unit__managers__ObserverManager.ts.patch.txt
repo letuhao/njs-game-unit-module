@@ -1,0 +1,14 @@
+*** unit/managers/ObserverManager.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (2 occurrences)
+--- BEFORE ---
+  L36: private observers: Set<IUnitObserver> = new Set();
+  L55: throw new Error('Invalid observer provided');
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+
+
+@@ SRP-Logging L3
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

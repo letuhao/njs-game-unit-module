@@ -1,0 +1,17 @@
+*** unit/monitoring/ProductionMonitoringSystem.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (11 occurrences)
+--- BEFORE ---
+  L124: timestamp: new Date(),
+  L315: timestamp: new Date(),
+  L334: timestamp: new Date(),
+  L342: timestamp: new Date(),
+  L350: timestamp: new Date(),
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+
+
+@@ SRP-Logging L3
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

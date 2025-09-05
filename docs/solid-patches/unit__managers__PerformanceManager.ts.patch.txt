@@ -1,0 +1,14 @@
+*** unit/managers/PerformanceManager.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (2 occurrences)
+--- BEFORE ---
+  L54: private operationHistory: Map<string, number[]> = new Map();
+  L55: private activeMeasurements: Map<string, number> = new Map();
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+
+
+@@ SRP-Logging L1
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

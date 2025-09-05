@@ -1,0 +1,17 @@
+*** unit/test/LoggingObserver.test.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (27 occurrences)
+--- BEFORE ---
+  L30: observer = new LoggingObserver(LogLevel.INFO);
+  L39: const defaultObserver = new LoggingObserver();
+  L44: const debugObserver = new LoggingObserver(LogLevel.DEBUG);
+  L45: const warnObserver = new LoggingObserver(LogLevel.WARN);
+  L46: const errorObserver = new LoggingObserver(LogLevel.ERROR);
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+
+
+@@ SRP-Logging L4
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

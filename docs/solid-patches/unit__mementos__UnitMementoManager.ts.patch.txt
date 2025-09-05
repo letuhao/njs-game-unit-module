@@ -1,0 +1,14 @@
+*** unit/mementos/UnitMementoManager.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (2 occurrences)
+--- BEFORE ---
+  L26: this.caretaker = new UnitMementoCaretaker();
+  L333: exportDate: new Date().toISOString(),
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+
+
+@@ SRP-Logging L7
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

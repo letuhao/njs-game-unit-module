@@ -1,0 +1,17 @@
+*** unit/test/ValidationDecorator.test.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (23 occurrences)
+--- BEFORE ---
+  L39: return new MockUnit();
+  L51: mockUnit = new MockUnit();
+  L52: validationDecorator = new ValidationDecorator('test-validation', 'TestValidation', mockUnit);
+  L53: sizeCalculator = new SizeUnitCalculator(
+  L61: positionCalculator = new PositionUnitCalculator(
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+
+
+@@ SRP-Logging L559
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

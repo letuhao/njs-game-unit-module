@@ -1,0 +1,13 @@
+*** unit/test/UnitCalculationMemento.test.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (32 occurrences)
+--- BEFORE ---
+  L29: memento = new UnitCalculationMemento(
+  L54: memento = new UnitCalculationMemento(
+  L73: memento = new UnitCalculationMemento(
+  L97: memento = new UnitCalculationMemento(
+  L115: memento = new UnitCalculationMemento(
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

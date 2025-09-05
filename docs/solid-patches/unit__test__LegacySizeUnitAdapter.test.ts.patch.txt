@@ -1,0 +1,13 @@
+*** unit/test/LegacySizeUnitAdapter.test.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (15 occurrences)
+--- BEFORE ---
+  L24: convertedAt: new Date().toISOString(),
+  L28: adapter = new LegacySizeUnitAdapter('adapter-1', 'Legacy Size Adapter', mockLegacyUnit);
+  L62: const largeAdapter = new LegacySizeUnitAdapter(
+  L77: const percentAdapter = new LegacySizeUnitAdapter(
+  L93: const heightAdapter = new LegacySizeUnitAdapter(
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

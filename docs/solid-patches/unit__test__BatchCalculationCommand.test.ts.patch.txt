@@ -1,0 +1,13 @@
+*** unit/test/BatchCalculationCommand.test.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (27 occurrences)
+--- BEFORE ---
+  L21: sizeCommand = new CalculateSizeCommand(sizeInput as any, mockContext);
+  L22: positionCommand = new CalculatePositionCommand(positionInput as any, mockContext);
+  L25: command = new BatchCalculationCommand([sizeCommand, positionCommand], mockContext);
+  L47: const singleCommand = new BatchCalculationCommand([sizeCommand], mockContext);
+  L56: const singleCommand = new BatchCalculationCommand([positionCommand], mockContext);
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

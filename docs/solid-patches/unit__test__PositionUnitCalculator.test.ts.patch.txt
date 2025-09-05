@@ -1,0 +1,13 @@
+*** unit/test/PositionUnitCalculator.test.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (13 occurrences)
+--- BEFORE ---
+  L17: calculator = new PositionUnitCalculator(
+  L36: calculator = new PositionUnitCalculator(
+  L49: calculator = new PositionUnitCalculator(
+  L62: calculator = new PositionUnitCalculator(
+  L77: calculator = new PositionUnitCalculator(
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

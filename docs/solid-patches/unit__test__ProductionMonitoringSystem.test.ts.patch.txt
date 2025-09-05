@@ -1,0 +1,17 @@
+*** unit/test/ProductionMonitoringSystem.test.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (7 occurrences)
+--- BEFORE ---
+  L42: monitoringSystem = new ProductionMonitoringSystem(config);
+  L60: const disabledSystem = new ProductionMonitoringSystem(disabledConfig);
+  L123: const disabledSystem = new ProductionMonitoringSystem(disabledConfig);
+  L192: const error = new Error('Test error');
+  L205: const noAlertSystem = new ProductionMonitoringSystem(noAlertConfig);
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+
+
+@@ SRP-Logging L10
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

@@ -1,0 +1,25 @@
+*** unit/strategies/MixedUnitStrategy.ts — SOLID refactor template patches ***
+
+@@ OCP-Strategy-Registry switch@257-268 (5 branches on `unit`)
+--- BEFORE ---
+      switch (unit) {
+        case 'px':
+          return numericValue;
+        case '%':
+          return this.calculatePercentage(numericValue, _context);
+        case 'vw':
+          return this.calculateViewportWidth(numericValue, _context);
+        case 'vh':
+          return this.calculateViewportHeight(numericValue, _context);
+        default:
+          return numericValue;
+      }
+--- AFTER (template) ---
+  // Replace conditional with Strategy Registry
+  // const strategy = sizeStrategyRegistry.resolve(unit);
+  // return strategy(ctx, input);
+
+
+@@ SRP-Logging L5
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

@@ -1,0 +1,17 @@
+*** unit/templates/PositionCalculationTemplate.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (5 occurrences)
+--- BEFORE ---
+  L25: this.strategy = new PositionUnitStrategy();
+  L37: throw new Error('Pre-calculation validation failed');
+  L48: throw new Error('Post-calculation validation failed');
+  L71: new RangeValidator('PositionRangeValidator', -10000, 10000, true),
+  L72: new TypeValidator(
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+
+
+@@ SRP-Logging L9
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

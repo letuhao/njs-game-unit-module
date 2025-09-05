@@ -1,0 +1,5 @@
+*** unit/strategies/value/SizeValueCalculationStrategyRegistry.ts — SOLID refactor template patches ***
+
+@@ SRP-Logging L6
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

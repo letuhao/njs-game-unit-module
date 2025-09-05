@@ -1,0 +1,25 @@
+*** unit/strategies/ScaleUnitStrategy.ts — SOLID refactor template patches ***
+
+@@ OCP-Strategy-Registry switch@133-148 (7 branches on `input`)
+--- BEFORE ---
+      switch (input) {
+        case ScaleValue.FACTOR:
+          return this.SCALE_VALUE_MAP[ScaleValue.FACTOR];
+        case ScaleValue.FIT:
+          return this.calculateFitScale(context);
+        case ScaleValue.STRETCH:
+          return this.SCALE_VALUE_MAP[ScaleValue.STRETCH];
+        case ScaleValue.FILL:
+          return this.calculateFillScale(context);
+        case ScaleValue.MAINTAIN_ASPECT:
+          return this.SCALE_VALUE_MAP[ScaleValue.MAINTAIN_ASPECT];
+        case ScaleValue.IGNORE_ASPECT:
+          return this.SCALE_VALUE_MAP[ScaleValue.IGNORE_ASPECT];
+        default:
+          return this.calculateWithCalculator(input, context);
+      }
+--- AFTER (template) ---
+  // Replace conditional with Strategy Registry
+  // const strategy = sizeStrategyRegistry.resolve(input);
+  // return strategy(ctx, input);
+

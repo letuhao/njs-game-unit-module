@@ -1,0 +1,13 @@
+*** unit/test/RefactoredUnitSystemManager.test.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (5 occurrences)
+--- BEFORE ---
+  L28: unitSystemManager = new UnitSystemManager();
+  L210: getTimestamp: jest.fn().mockReturnValue(new Date()),
+  L231: getTimestamp: jest.fn().mockReturnValue(new Date()),
+  L401: throw new Error('Command execution failed');
+  L406: getTimestamp: jest.fn().mockReturnValue(new Date()),
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

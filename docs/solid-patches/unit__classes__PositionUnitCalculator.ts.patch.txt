@@ -1,0 +1,82 @@
+*** unit/classes/PositionUnitCalculator.ts — SOLID refactor template patches ***
+
+@@ OCP-Strategy-Registry switch@52-114 (19 branches on `this.positionUnit`)
+--- BEFORE ---
+      switch (this.positionUnit) {
+        case PositionUnit.PIXEL:
+          referencePoint = typeof this.baseValue === 'number' ? this.baseValue : 0;
+          break;
+        case PositionUnit.PERCENTAGE:
+          referencePoint = typeof this.baseValue === 'number' ? this.baseValue : 0;
+          break;
+        case PositionUnit.PARENT_LEFT:
+          referencePoint = context.parent?.x ?? 0;
+          break;
+        case PositionUnit.PARENT_RIGHT:
+          referencePoint = (context.parent?.x ?? 0) + (context.parent?.width ?? 0);
+          break;
+        case PositionUnit.PARENT_TOP:
+          referencePoint = context.parent?.y ?? 0;
+          break;
+        case PositionUnit.PARENT_BOTTOM:
+          referencePoint = (context.parent?.y ?? 0) + (context.parent?.height ?? 0);
+          break;
+        case PositionUnit.PARENT_CENTER_X:
+          if (context.parent) {
+            referencePoint = context.parent.x + context.parent.width / 2;
+          } else {
+            // Fallback to scene center when no parent
+            referencePoint = (context.scene?.width ?? 0) / 2;
+          }
+          break;
+        case PositionUnit.PARENT_CENTER_Y:
+          referencePoint = (context.parent?.y ?? 0) + (context.parent?.height ?? 0) / 2;
+          break;
+        case PositionUnit.SCENE_LEFT:
+          referencePoint = 0;
+          break;
+        case PositionUnit.SCENE_RIGHT:
+          referencePoint = context.scene?.width ?? 0;
+          break;
+        case PositionUnit.SCENE_TOP:
+          referencePoint = 0;
+          break;
+        case PositionUnit.SCENE_BOTTOM:
+          referencePoint = context.scene?.height ?? 0;
+          break;
+        case PositionUnit.SCENE_CENTER_X:
+          referencePoint = (context.scene?.width ?? 0) / 2;
+          break;
+        case PositionUnit.SCENE_CENTER_Y:
+          referencePoint = (context.scene?.height ?? 0) / 2;
+          break;
+        case PositionUnit.VIEWPORT_LEFT:
+          referencePoint = 0;
+          break;
+        case PositionUnit.VIEWPORT_RIGHT:
+          referencePoint = context.viewport?.width ?? 0;
+          break;
+        case PositionUnit.VIEWPORT_TOP:
+          referencePoint = 0;
+          break;
+        case PositionUnit.VIEWPORT_BOTTOM:
+          referencePoint = context.viewport?.height ?? 0;
+          break;
+        default:
+          referencePoint = 0;
+      }
+--- AFTER (template) ---
+  // Replace conditional with Strategy Registry
+  // const strategy = sizeStrategyRegistry.resolve(this.positionUnit);
+  // return strategy(ctx, input);
+
+
+@@ DIP-Construction (3 occurrences)
+--- BEFORE ---
+  L169: throw new Error('Cannot calculate X position for Y-only axis');
+  L179: throw new Error('Cannot calculate Y position for X-only axis');
+  L292: const cloned = new PositionUnitCalculator(
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

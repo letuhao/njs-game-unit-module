@@ -1,0 +1,13 @@
+*** unit/test/StrategyPatternImplementation.test.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (29 occurrences)
+--- BEFORE ---
+  L19: registry = new SizeValueCalculationStrategyRegistry();
+  L30: const strategy = new PixelSizeValueCalculationStrategy();
+  L39: const strategy1 = new PixelSizeValueCalculationStrategy();
+  L40: const strategy2 = new PixelSizeValueCalculationStrategy();
+  L49: const strategy = new PixelSizeValueCalculationStrategy();
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

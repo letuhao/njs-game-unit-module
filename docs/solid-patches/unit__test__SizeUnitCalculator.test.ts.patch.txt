@@ -1,0 +1,13 @@
+*** unit/test/SizeUnitCalculator.test.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (28 occurrences)
+--- BEFORE ---
+  L17: calculator = new SizeUnitCalculator(
+  L38: calculator = new SizeUnitCalculator(
+  L52: calculator = new SizeUnitCalculator(
+  L66: calculator = new SizeUnitCalculator(
+  L80: calculator = new SizeUnitCalculator(
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

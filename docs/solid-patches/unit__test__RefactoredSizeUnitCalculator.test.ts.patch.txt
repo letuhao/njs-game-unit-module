@@ -1,0 +1,13 @@
+*** unit/test/RefactoredSizeUnitCalculator.test.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (30 occurrences)
+--- BEFORE ---
+  L21: strategyRegistry = new SizeValueCalculationStrategyRegistry();
+  L24: strategyRegistry.registerStrategy(new PixelSizeValueCalculationStrategy());
+  L25: strategyRegistry.registerStrategy(new FillSizeValueCalculationStrategy());
+  L26: strategyRegistry.registerStrategy(new AutoSizeValueCalculationStrategy());
+  L27: strategyRegistry.registerStrategy(new ParentWidthSizeValueCalculationStrategy());
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

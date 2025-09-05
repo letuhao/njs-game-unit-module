@@ -1,0 +1,11 @@
+*** unit/test/SizeCalculationTemplate.test.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (3 occurrences)
+--- BEFORE ---
+  L33: template = new TestSizeCalculationTemplate(mockContext);
+  L94: throw new Error('Strategy calculation failed');
+  L107: const customValidator = new RangeValidator('CustomValidator', 0, 500, true);
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

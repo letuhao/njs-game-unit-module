@@ -1,0 +1,5 @@
+*** unit/test/LoggerPerformanceComparison.test.ts — SOLID refactor template patches ***
+
+@@ SRP-Logging L1
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

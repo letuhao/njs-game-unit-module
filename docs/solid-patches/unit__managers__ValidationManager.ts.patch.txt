@@ -1,0 +1,13 @@
+*** unit/managers/ValidationManager.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (1 occurrences)
+--- BEFORE ---
+  L72: throw new Error('Invalid validator provided');
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+
+
+@@ SRP-Logging L5
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

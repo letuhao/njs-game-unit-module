@@ -1,0 +1,16 @@
+*** unit/classes/RefactoredSizeUnitCalculator.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (4 occurrences)
+--- BEFORE ---
+  L53: this.strategyRegistry = strategyRegistry || new SizeValueCalculationStrategyRegistry();
+  L172: throw new Error('Cannot calculate width for height-only dimension');
+  L182: throw new Error('Cannot calculate height for width-only dimension');
+  L270: const cloned = new RefactoredSizeUnitCalculator(
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+
+
+@@ SRP-Logging L9
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

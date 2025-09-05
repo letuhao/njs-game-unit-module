@@ -1,0 +1,9 @@
+*** unit/test/MixedUnitStrategy.test.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (1 occurrences)
+--- BEFORE ---
+  L11: strategy = new MixedUnitStrategy();
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

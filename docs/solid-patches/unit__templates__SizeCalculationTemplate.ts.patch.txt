@@ -1,0 +1,17 @@
+*** unit/templates/SizeCalculationTemplate.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (5 occurrences)
+--- BEFORE ---
+  L24: this.strategy = new SizeUnitStrategy();
+  L36: throw new Error('Pre-calculation validation failed');
+  L47: throw new Error('Post-calculation validation failed');
+  L70: new RangeValidator('SizeRangeValidator', 0, 10000, true),
+  L71: new TypeValidator(
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+
+
+@@ SRP-Logging L9
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

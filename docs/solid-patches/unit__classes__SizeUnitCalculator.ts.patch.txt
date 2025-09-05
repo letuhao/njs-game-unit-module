@@ -1,0 +1,86 @@
+*** unit/classes/SizeUnitCalculator.ts — SOLID refactor template patches ***
+
+@@ OCP-Strategy-Registry switch@55-88 (9 branches on `this.sizeUnit`)
+--- BEFORE ---
+      switch (this.sizeUnit) {
+        case SizeUnit.PIXEL:
+          measuredSize =
+            typeof this.baseValue === 'number'
+              ? this.baseValue
+              : DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
+          break;
+        case SizeUnit.PERCENTAGE:
+          measuredSize =
+            typeof this.baseValue === 'number'
+              ? this.baseValue
+              : DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
+          break;
+        case SizeUnit.PARENT_WIDTH:
+          measuredSize = this.calculateParentWidthSize(context);
+          break;
+        case SizeUnit.PARENT_HEIGHT:
+          measuredSize = this.calculateParentHeightSize(context);
+          break;
+        case SizeUnit.SCENE_WIDTH:
+          measuredSize = this.calculateSceneWidthSize(context);
+          break;
+        case SizeUnit.SCENE_HEIGHT:
+          measuredSize = this.calculateSceneHeightSize(context);
+          break;
+        case SizeUnit.VIEWPORT_WIDTH:
+          measuredSize = this.calculateViewportWidthSize(context);
+          break;
+        case SizeUnit.VIEWPORT_HEIGHT:
+          measuredSize = this.calculateViewportHeightSize(context);
+          break;
+        default:
+          measuredSize = DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
+      }
+--- AFTER (template) ---
+  // Replace conditional with Strategy Registry
+  // const strategy = sizeStrategyRegistry.resolve(this.sizeUnit);
+  // return strategy(ctx, input);
+
+
+@@ OCP-Strategy-Registry switch@295-319 (9 branches on `this.sizeUnit`)
+--- BEFORE ---
+      switch (this.sizeUnit) {
+        case SizeUnit.PARENT_WIDTH:
+          return context.parent?.width ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
+        case SizeUnit.PARENT_HEIGHT:
+          return context.parent?.height ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
+        case SizeUnit.SCENE_WIDTH:
+          return context.scene?.width ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
+        case SizeUnit.SCENE_HEIGHT:
+          return context.scene?.height ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
+        case SizeUnit.VIEWPORT_WIDTH:
+          return context.viewport?.width ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
+        case SizeUnit.VIEWPORT_HEIGHT:
+          return context.viewport?.height ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
+        case SizeUnit.PIXEL:
+        case SizeUnit.PERCENTAGE:
+        default:
+          // For PIXEL and PERCENTAGE, FILL should use the measured size
+          return this.dimension === Dimension.WIDTH
+            ? (context.scene?.width ??
+                context.viewport?.width ??
+                DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT)
+            : (context.scene?.height ??
+                context.viewport?.height ??
+                DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT);
+      }
+--- AFTER (template) ---
+  // Replace conditional with Strategy Registry
+  // const strategy = sizeStrategyRegistry.resolve(this.sizeUnit);
+  // return strategy(ctx, input);
+
+
+@@ DIP-Construction (3 occurrences)
+--- BEFORE ---
+  L130: throw new Error('Cannot calculate width for height-only dimension');
+  L140: throw new Error('Cannot calculate height for width-only dimension');
+  L206: const cloned = new SizeUnitCalculator(
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

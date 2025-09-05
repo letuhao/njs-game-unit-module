@@ -1,0 +1,23 @@
+*** unit/strategies/PositionUnitStrategy.ts — SOLID refactor template patches ***
+
+@@ OCP-Strategy-Registry switch@141-154 (6 branches on `input`)
+--- BEFORE ---
+      switch (input) {
+        case PositionValue.CENTER:
+          return this.calculateCenterPosition(context);
+        case PositionValue.LEFT:
+          return this.calculateLeftPosition(context);
+        case PositionValue.RIGHT:
+          return this.calculateRightPosition(context);
+        case PositionValue.TOP:
+          return this.calculateTopPosition(context);
+        case PositionValue.BOTTOM:
+          return this.calculateBottomPosition(context);
+        default:
+          return this.calculateWithCalculator(input, context);
+      }
+--- AFTER (template) ---
+  // Replace conditional with Strategy Registry
+  // const strategy = sizeStrategyRegistry.resolve(input);
+  // return strategy(ctx, input);
+

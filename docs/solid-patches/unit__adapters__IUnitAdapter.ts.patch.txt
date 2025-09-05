@@ -1,0 +1,9 @@
+*** unit/adapters/IUnitAdapter.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (1 occurrences)
+--- BEFORE ---
+  L90: throw new Error('This adapter does not support bidirectional conversion');
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

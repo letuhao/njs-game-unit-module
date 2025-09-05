@@ -1,0 +1,13 @@
+*** unit/strategies/composition/SizeStrategyComposers.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (1 occurrences)
+--- BEFORE ---
+  L275: > = new Map();
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+
+
+@@ SRP-Logging L6
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

@@ -1,0 +1,5 @@
+*** unit/commands/BatchCalculationCommand.ts — SOLID refactor template patches ***
+
+@@ SRP-Logging L4
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

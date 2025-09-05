@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phaser Unit System - Basic Usage Example</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .demo-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .demo-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .result {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+        .controls {
+            margin: 10px 0;
+        }
+        .controls label {
+            display: inline-block;
+            width: 120px;
+            font-weight: bold;
+        }
+        .controls input, .controls select {
+            margin: 5px;
+            padding: 5px;
+        }
+        #game-container {
+            width: 100%;
+            height: 400px;
+            border: 2px solid #333;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Phaser Unit System - Basic Usage Example</h1>
+        
+        <div class="demo-section">
+            <h3>Size Calculator Demo</h3>
+            <div class="controls">
+                <label>Value:</label>
+                <input type="number" id="sizeValue" value="100" min="0" max="1000">
+                
+                <label>Unit:</label>
+                <select id="sizeUnit">
+                    <option value="PIXEL">Pixel</option>
+                    <option value="PERCENT">Percent</option>
+                    <option value="VIEWPORT_WIDTH">Viewport Width %</option>
+                    <option value="VIEWPORT_HEIGHT">Viewport Height %</option>
+                </select>
+                
+                <button onclick="calculateSize()">Calculate Size</button>
+            </div>
+            <div class="result" id="sizeResult">Result will appear here</div>
+        </div>
+
+        <div class="demo-section">
+            <h3>Position Calculator Demo</h3>
+            <div class="controls">
+                <label>Value:</label>
+                <input type="number" id="positionValue" value="50" min="0" max="100">
+                
+                <label>Unit:</label>
+                <select id="positionUnit">
+                    <option value="PIXEL">Pixel</option>
+                    <option value="PERCENT">Percent</option>
+                    <option value="CENTER">Center</option>
+                    <option value="START">Start</option>
+                    <option value="END">End</option>
+                </select>
+                
+                <button onclick="calculatePosition()">Calculate Position</button>
+            </div>
+            <div class="result" id="positionResult">Result will appear here</div>
+        </div>
+
+        <div class="demo-section">
+            <h3>Scale Calculator Demo</h3>
+            <div class="controls">
+                <label>Value:</label>
+                <input type="number" id="scaleValue" value="1.0" min="0.1" max="5.0" step="0.1">
+                
+                <label>Unit:</label>
+                <select id="scaleUnit">
+                    <option value="MULTIPLIER">Multiplier</option>
+                    <option value="PERCENT">Percent</option>
+                    <option value="AUTO">Auto</option>
+                </select>
+                
+                <button onclick="calculateScale()">Calculate Scale</button>
+            </div>
+            <div class="result" id="scaleResult">Result will appear here</div>
+        </div>
+
+        <div class="demo-section">
+            <h3>Phaser Integration Demo</h3>
+            <p>This demonstrates how the unit system integrates with Phaser.js game objects.</p>
+            <div id="game-container"></div>
+            <div class="controls">
+                <button onclick="createGameObject()">Create Game Object</button>
+                <button onclick="updateGameObject()">Update with Unit System</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Phaser -->
+    <script src="https://cdn.jsdelivr.net/npm/phaser@4.0.0/dist/phaser.min.js"></script>
+    
+    <!-- Include the unit system (in a real project, this would be from npm) -->
+    <script src="../../dist/index.js"></script>
+    
+    <script>
+        // This would be the actual unit system code in a real implementation
+        // For this example, we'll simulate the API
+        
+        let game;
+        let gameObject;
+        
+        // Simulate unit system API
+        const UnitSystem = {
+            SizeUnit: {
+                PIXEL: 'PIXEL',
+                PERCENT: 'PERCENT',
+                VIEWPORT_WIDTH: 'VIEWPORT_WIDTH',
+                VIEWPORT_HEIGHT: 'VIEWPORT_HEIGHT'
+            },
+            PositionUnit: {
+                PIXEL: 'PIXEL',
+                PERCENT: 'PERCENT',
+                CENTER: 'CENTER',
+                START: 'START',
+                END: 'END'
+            },
+            ScaleUnit: {
+                MULTIPLIER: 'MULTIPLIER',
+                PERCENT: 'PERCENT',
+                AUTO: 'AUTO'
+            },
+            SizeUnitCalculator: class {
+                calculate({ value, unit, context }) {
+                    const { viewportWidth, viewportHeight, parentWidth, parentHeight } = context;
+                    
+                    switch (unit) {
+                        case 'PIXEL':
+                            return value;
+                        case 'PERCENT':
+                            return (value / 100) * parentWidth;
+                        case 'VIEWPORT_WIDTH':
+                            return (value / 100) * viewportWidth;
+                        case 'VIEWPORT_HEIGHT':
+                            return (value / 100) * viewportHeight;
+                        default:
+                            return value;
+                    }
+                }
+            },
+            PositionUnitCalculator: class {
+                calculate({ value, unit, context }) {
+                    const { viewportWidth, viewportHeight, parentWidth, parentHeight } = context;
+                    
+                    switch (unit) {
+                        case 'PIXEL':
+                            return value;
+                        case 'PERCENT':
+                            return (value / 100) * parentWidth;
+                        case 'CENTER':
+                            return parentWidth / 2;
+                        case 'START':
+                            return 0;
+                        case 'END':
+                            return parentWidth;
+                        default:
+                            return value;
+                    }
+                }
+            },
+            ScaleUnitCalculator: class {
+                calculate({ value, unit, context }) {
+                    switch (unit) {
+                        case 'MULTIPLIER':
+                            return value;
+                        case 'PERCENT':
+                            return value / 100;
+                        case 'AUTO':
+                            return 1.0;
+                        default:
+                            return value;
+                    }
+                }
+            }
+        };
+        
+        // Initialize Phaser game
+        function initGame() {
+            const config = {
+                type: Phaser.AUTO,
+                width: 800,
+                height: 400,
+                parent: 'game-container',
+                backgroundColor: '#2c3e50',
+                scene: {
+                    create: createScene
+                }
+            };
+            
+            game = new Phaser.Game(config);
+        }
+        
+        function createScene() {
+            // Create a simple rectangle
+            gameObject = this.add.rectangle(400, 200, 100, 50, 0x3498db);
+            this.add.text(400, 200, 'Game Object', { 
+                fontSize: '16px', 
+                color: '#ffffff',
+                align: 'center'
+            }).setOrigin(0.5);
+        }
+        
+        function createGameObject() {
+            if (game) {
+                game.destroy(true);
+            }
+            initGame();
+        }
+        
+        function updateGameObject() {
+            if (!gameObject) return;
+            
+            // Get current viewport dimensions
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            const parentWidth = 800; // Game canvas width
+            const parentHeight = 400; // Game canvas height
+            
+            const context = {
+                viewportWidth,
+                viewportHeight,
+                parentWidth,
+                parentHeight
+            };
+            
+            // Calculate new size using unit system
+            const sizeCalculator = new UnitSystem.SizeUnitCalculator();
+            const newWidth = sizeCalculator.calculate({
+                value: 150,
+                unit: UnitSystem.SizeUnit.PERCENT,
+                context
+            });
+            
+            const newHeight = sizeCalculator.calculate({
+                value: 80,
+                unit: UnitSystem.SizeUnit.PERCENT,
+                context
+            });
+            
+            // Calculate new position using unit system
+            const positionCalculator = new UnitSystem.PositionUnitCalculator();
+            const newX = positionCalculator.calculate({
+                value: 50,
+                unit: UnitSystem.PositionUnit.PERCENT,
+                context
+            });
+            
+            const newY = positionCalculator.calculate({
+                value: 50,
+                unit: UnitSystem.PositionUnit.PERCENT,
+                context
+            });
+            
+            // Update game object
+            gameObject.setSize(newWidth, newHeight);
+            gameObject.setPosition(newX, newY);
+            
+            console.log('Updated game object:', {
+                width: newWidth,
+                height: newHeight,
+                x: newX,
+                y: newY
+            });
+        }
+        
+        // Calculator functions
+        function calculateSize() {
+            const value = parseFloat(document.getElementById('sizeValue').value);
+            const unit = document.getElementById('sizeUnit').value;
+            
+            const context = {
+                viewportWidth: window.innerWidth,
+                viewportHeight: window.innerHeight,
+                parentWidth: 800,
+                parentHeight: 600
+            };
+            
+            const calculator = new UnitSystem.SizeUnitCalculator();
+            const result = calculator.calculate({ value, unit, context });
+            
+            document.getElementById('sizeResult').textContent = 
+                `Input: ${value} ${unit} → Output: ${result.toFixed(2)} pixels`;
+        }
+        
+        function calculatePosition() {
+            const value = parseFloat(document.getElementById('positionValue').value);
+            const unit = document.getElementById('positionUnit').value;
+            
+            const context = {
+                viewportWidth: window.innerWidth,
+                viewportHeight: window.innerHeight,
+                parentWidth: 800,
+                parentHeight: 600
+            };
+            
+            const calculator = new UnitSystem.PositionUnitCalculator();
+            const result = calculator.calculate({ value, unit, context });
+            
+            document.getElementById('positionResult').textContent = 
+                `Input: ${value} ${unit} → Output: ${result.toFixed(2)} pixels`;
+        }
+        
+        function calculateScale() {
+            const value = parseFloat(document.getElementById('scaleValue').value);
+            const unit = document.getElementById('scaleUnit').value;
+            
+            const context = {
+                viewportWidth: window.innerWidth,
+                viewportHeight: window.innerHeight,
+                parentWidth: 800,
+                parentHeight: 600
+            };
+            
+            const calculator = new UnitSystem.ScaleUnitCalculator();
+            const result = calculator.calculate({ value, unit, context });
+            
+            document.getElementById('scaleResult').textContent = 
+                `Input: ${value} ${unit} → Output: ${result.toFixed(2)} scale factor`;
+        }
+        
+        // Initialize the demo
+        document.addEventListener('DOMContentLoaded', function() {
+            initGame();
+        });
+    </script>
+</body>
+</html>

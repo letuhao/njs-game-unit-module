@@ -1,0 +1,13 @@
+*** unit/test/CachingDecorator.test.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (14 occurrences)
+--- BEFORE ---
+  L40: return new MockUnit(this.id, this.name, this.unitType);
+  L54: mockUnit = new MockUnit('test-unit', 'Test Unit');
+  L55: decorator = new CachingDecorator('cache-decorator', 'Cache Decorator', mockUnit);
+  L75: const customDecorator = new CachingDecorator(
+  L111: const errorUnit = new MockUnit('error-unit', 'Error Unit');
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

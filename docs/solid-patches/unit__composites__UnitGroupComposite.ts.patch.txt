@@ -1,0 +1,36 @@
+*** unit/composites/UnitGroupComposite.ts — SOLID refactor template patches ***
+
+@@ OCP-Strategy-Registry switch@136-158 (6 branches on `this.calculationStrategy`)
+--- BEFORE ---
+      switch (this.calculationStrategy) {
+        case CalculationStrategy.SUM:
+          return results.reduce((sum, result) => sum + result, 0);
+  
+        case CalculationStrategy.AVERAGE:
+          return results.reduce((sum, result) => sum + result, 0) / results.length;
+  
+        case CalculationStrategy.MIN:
+          return Math.min(...results);
+  
+        case CalculationStrategy.MAX:
+          return Math.max(...results);
+  
+        case CalculationStrategy.CUSTOM:
+          if (this.customCalculator) {
+            return this.customCalculator(results);
+          }
+          // Fallback to sum if no custom calculator is set
+          return results.reduce((sum, result) => sum + result, 0);
+  
+        default:
+          return results.reduce((sum, result) => sum + result, 0);
+      }
+--- AFTER (template) ---
+  // Replace conditional with Strategy Registry
+  // const strategy = sizeStrategyRegistry.resolve(this.calculationStrategy);
+  // return strategy(ctx, input);
+
+
+@@ SRP-Logging L6
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

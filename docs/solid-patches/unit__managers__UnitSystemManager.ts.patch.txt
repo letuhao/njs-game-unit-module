@@ -1,0 +1,17 @@
+*** unit/managers/UnitSystemManager.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (6 occurrences)
+--- BEFORE ---
+  L77: this.unitRegistryManager = new UnitRegistryManager();
+  L78: this.strategyManager = new StrategyManager();
+  L79: this.commandManager = new CommandManager();
+  L80: this.observerManager = new ObserverManager();
+  L81: this.validationManager = new ValidationManager();
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+
+
+@@ SRP-Logging L17
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

@@ -1,0 +1,16 @@
+*** unit/classes/RefactoredPositionUnitCalculator.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (4 occurrences)
+--- BEFORE ---
+  L44: this.strategyRegistry = strategyRegistry || new PositionValueCalculationStrategyRegistry();
+  L116: throw new Error('Cannot calculate X position for Y-only axis');
+  L126: throw new Error('Cannot calculate Y position for X-only axis');
+  L260: const cloned = new RefactoredPositionUnitCalculator(
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+
+
+@@ SRP-Logging L10
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

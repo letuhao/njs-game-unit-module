@@ -1,0 +1,17 @@
+*** unit/classes/EnhancedSizeUnitCalculator.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (7 occurrences)
+--- BEFORE ---
+  L66: this.strategyRegistry = strategyRegistry || new SizeValueCalculationStrategyRegistry();
+  L76: new WeightedAverageSizeComposer(),
+  L77: new PriorityBasedSizeComposer(),
+  L78: new AdaptiveSizeComposer(),
+  L219: throw new Error('Cannot calculate width for height-only dimension');
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+
+
+@@ SRP-Logging L15
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

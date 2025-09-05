@@ -1,0 +1,13 @@
+*** unit/strategies/cache/StrategyCache.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (1 occurrences)
+--- BEFORE ---
+  L16: private cache: Map<string, ICacheEntry<TResult>> = new Map();
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+
+
+@@ SRP-Logging L3
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

@@ -1,0 +1,10 @@
+*** unit/templates/IUnitCalculationTemplate.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (2 occurrences)
+--- BEFORE ---
+  L54: throw new Error(`Input validation failed: ${validationResult.errors.join(', ')}`);
+  L80: error instanceof Error ? error : new Error(String(error)),
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

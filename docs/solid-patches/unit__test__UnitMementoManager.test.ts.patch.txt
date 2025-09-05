@@ -1,0 +1,12 @@
+*** unit/test/UnitMementoManager.test.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (4 occurrences)
+--- BEFORE ---
+  L23: manager = new UnitMementoManager();
+  L24: mockTemplate = new MockSizeCalculationTemplate();
+  L210: getTimestamp: () => new Date(),
+  L578: const template2 = new MockSizeCalculationTemplate();
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

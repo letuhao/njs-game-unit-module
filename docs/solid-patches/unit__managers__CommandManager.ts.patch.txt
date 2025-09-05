@@ -1,0 +1,5 @@
+*** unit/managers/CommandManager.ts — SOLID refactor template patches ***
+
+@@ SRP-Logging L3
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

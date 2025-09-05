@@ -1,0 +1,13 @@
+*** unit/test/RangeValidator.test.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (14 occurrences)
+--- BEFORE ---
+  L26: validator = new RangeValidator();
+  L37: validator = new RangeValidator('CustomValidator', 0, 100, false);
+  L48: validator = new RangeValidator('InclusiveValidator', 10, 50, true);
+  L60: validator = new RangeValidator();
+  L130: validator = new RangeValidator('TestValidator', 0, 100, true);
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

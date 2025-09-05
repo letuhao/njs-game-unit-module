@@ -1,0 +1,13 @@
+*** unit/test/LegacyPositionUnitAdapter.test.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (15 occurrences)
+--- BEFORE ---
+  L24: convertedAt: new Date().toISOString(),
+  L28: adapter = new LegacyPositionUnitAdapter('adapter-1', 'Legacy Position Adapter', mockLegacyUnit);
+  L62: const largeAdapter = new LegacyPositionUnitAdapter(
+  L77: const percentAdapter = new LegacyPositionUnitAdapter(
+  L93: const yAxisAdapter = new LegacyPositionUnitAdapter(
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

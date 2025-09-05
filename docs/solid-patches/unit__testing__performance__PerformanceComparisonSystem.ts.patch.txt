@@ -1,0 +1,17 @@
+*** unit/testing/performance/PerformanceComparisonSystem.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (6 occurrences)
+--- BEFORE ---
+  L60: this.originalSizeCalculator = new SizeUnitCalculator(
+  L67: this.refactoredSizeCalculator = new RefactoredSizeUnitCalculator(
+  L74: this.originalPositionCalculator = new PositionUnitCalculator(
+  L81: this.refactoredPositionCalculator = new RefactoredPositionUnitCalculator(
+  L88: this.originalScaleCalculator = new ScaleUnitCalculator(
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+
+
+@@ SRP-Logging L109
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

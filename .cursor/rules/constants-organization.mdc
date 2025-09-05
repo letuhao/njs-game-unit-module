@@ -1,0 +1,152 @@
+---
+description: Define constants instead of magic values, organize in dedicated folders
+globs:
+alwaysApply: true
+---
+
+# Constants Management Rule
+
+## ❌ FORBIDDEN - Magic Numbers/Strings
+```typescript
+// ❌ FORBIDDEN - Magic numbers in code
+function calculateArea(width: number, height: number): number {
+  return width * height * 0.5; // What does 0.5 mean?
+}
+
+// ❌ FORBIDDEN - Magic strings in code
+function processType(type: string): void {
+  if (type === 'admin') { // What does 'admin' mean?
+    // Process admin
+  }
+}
+
+// ❌ FORBIDDEN - Hardcoded values
+const maxRetries = 3; // Should be in constants
+const timeoutMs = 5000; // Should be in constants
+const defaultTheme = 'dark'; // Should be in constants
+```
+
+## ✅ CORRECT - Define Constants
+```typescript
+// ✅ CORRECT - Define constants for all magic values
+// src/unit/constants/UnitSystemConstants.ts
+export const CALCULATION_CONSTANTS = {
+  AREA_MULTIPLIER: 0.5,
+  PERIMETER_MULTIPLIER: 2.0,
+  VOLUME_MULTIPLIER: 1.0
+} as const;
+
+export const USER_TYPE_CONSTANTS = {
+  ADMIN: 'admin',
+  USER: 'user',
+  GUEST: 'guest',
+  MODERATOR: 'moderator'
+} as const;
+
+export const SYSTEM_CONSTANTS = {
+  MAX_RETRIES: 3,
+  TIMEOUT_MS: 5000,
+  DEFAULT_THEME: 'dark',
+  CACHE_SIZE: 1000
+} as const;
+
+// ✅ CORRECT - Use constants in code
+import { CALCULATION_CONSTANTS, USER_TYPE_CONSTANTS, SYSTEM_CONSTANTS } from '../constants';
+
+function calculateArea(width: number, height: number): number {
+  return width * height * CALCULATION_CONSTANTS.AREA_MULTIPLIER;
+}
+
+function processType(type: string): void {
+  if (type === USER_TYPE_CONSTANTS.ADMIN) {
+    // Process admin
+  }
+}
+```
+
+## ✅ CORRECT - Constants in Dedicated Constants Folders
+```typescript
+// ✅ CORRECT - Constants in dedicated constants folders
+// src/unit/constants/UnitSystemConstants.ts
+export const UNIT_CONSTANTS = {
+  DEFAULT_SIZE: 100,
+  MIN_SIZE: 1,
+  MAX_SIZE: 10000
+} as const;
+
+// src/game-object/constants/GameObjectConstants.ts
+export const GAME_OBJECT_CONSTANTS = {
+  DEFAULT_POSITION: { x: 0, y: 0 },
+  DEFAULT_SCALE: { x: 1, y: 1 },
+  MAX_CHILDREN: 1000
+} as const;
+
+// src/scene/constants/SceneConstants.ts
+export const SCENE_CONSTANTS = {
+  DEFAULT_WIDTH: 1200,
+  DEFAULT_HEIGHT: 800,
+  MAX_ELEMENTS: 500
+} as const;
+```
+
+## ✅ CORRECT - Constants Folder Structure
+```
+src/
+├── unit/
+│   └── constants/
+│       ├── UnitSystemConstants.ts
+│       ├── SizeConstants.ts
+│       ├── PositionConstants.ts
+│       └── index.ts
+├── game-object/
+│   └── constants/
+│       ├── GameObjectConstants.ts
+│       ├── EffectConstants.ts
+│       ├── AudioConstants.ts
+│       └── index.ts
+├── scene/
+│   └── constants/
+│       ├── SceneConstants.ts
+│       ├── TransitionConstants.ts
+│       └── index.ts
+└── layout/
+    └── constants/
+        ├── LayoutConstants.ts
+        ├── StyleConstants.ts
+        └── index.ts
+```
+
+## ❌ FORBIDDEN - Constants Outside Constants Folders
+```typescript
+// ❌ FORBIDDEN - Constants defined outside constants folders
+// src/unit/classes/UnitCalculator.ts
+export const DEFAULT_SIZE = 100; // Should be in constants folder
+
+export class UnitCalculator {
+  // Implementation
+}
+
+// ❌ FORBIDDEN - Constants in interface files
+// src/unit/interfaces/IUnit.ts
+export const MAX_UNITS = 1000; // Should be in constants folder
+
+export interface IUnit {
+  // Interface definition
+}
+```
+
+## Constants Organization Guidelines
+```typescript
+// Group related constants
+export const PERFORMANCE_CONSTANTS = {
+  MAX_CALCULATION_HISTORY: 100,
+  ERROR_THRESHOLD: 0.1,
+  TIMEOUT_MS: 5000
+} as const;
+
+export const VALIDATION_CONSTANTS = {
+  MAX_ERRORS: 10,
+  STRICT_MODE: true,
+  AUTO_VALIDATE: true
+} as const;
+```

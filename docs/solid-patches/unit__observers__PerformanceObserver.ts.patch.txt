@@ -1,0 +1,16 @@
+*** unit/observers/PerformanceObserver.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (4 occurrences)
+--- BEFORE ---
+  L56: timestamp: new Date().toISOString(),
+  L126: timestamp: new Date().toISOString(),
+  L147: timestamp: new Date().toISOString(),
+  L188: timestamp: new Date().toISOString(),
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+
+
+@@ SRP-Logging L2
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

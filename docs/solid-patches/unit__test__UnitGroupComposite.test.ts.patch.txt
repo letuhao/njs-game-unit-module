@@ -1,0 +1,17 @@
+*** unit/test/UnitGroupComposite.test.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (31 occurrences)
+--- BEFORE ---
+  L49: return new MockUnit(this.id, this.name, this.unitType);
+  L71: composite = new UnitGroupComposite('test-group', 'Test Group', 0, CalculationStrategy.SUM);
+  L92: const customComposite = new UnitGroupComposite(
+  L107: const child1 = new MockUnit('child-1', 'Child 1');
+  L108: const child2 = new MockUnit('child-2', 'Child 2');
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+
+
+@@ SRP-Logging L7
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

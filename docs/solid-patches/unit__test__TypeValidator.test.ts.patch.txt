@@ -1,0 +1,13 @@
+*** unit/test/TypeValidator.test.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (18 occurrences)
+--- BEFORE ---
+  L21: validator = new TypeValidator();
+  L35: validator = new TypeValidator('CustomValidator', allowedTypes, allowedDimensions, true);
+  L47: validator = new TypeValidator('SizeValidator', allowedTypes);
+  L58: validator = new TypeValidator('WidthValidator', Object.values(UnitType), allowedDimensions);
+  L70: validator = new TypeValidator();
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

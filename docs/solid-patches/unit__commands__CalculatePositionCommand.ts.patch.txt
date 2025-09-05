@@ -1,0 +1,9 @@
+*** unit/commands/CalculatePositionCommand.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (1 occurrences)
+--- BEFORE ---
+  L19: this.strategy = new PositionUnitStrategy();
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

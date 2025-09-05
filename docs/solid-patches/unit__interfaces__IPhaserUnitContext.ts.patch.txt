@@ -1,0 +1,13 @@
+*** unit/interfaces/IPhaserUnitContext.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (7 occurrences)
+--- BEFORE ---
+  L197: return new PhaserUnitContext(gameObject.scene, gameObject.scene.game, gameObject);
+  L207: return new PhaserUnitContext(gameObject.scene, gameObject.scene.game, gameObject, parent);
+  L217: return new PhaserUnitContext(
+  L234: return new PhaserUnitContext(
+  L248: return new PhaserUnitContext(container.scene, container.scene.game, container);
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

@@ -1,0 +1,13 @@
+*** unit/test/CompleteCalculatorRefactoring.test.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (45 occurrences)
+--- BEFORE ---
+  L44: sizeStrategyRegistry = new SizeValueCalculationStrategyRegistry();
+  L45: positionStrategyRegistry = new PositionValueCalculationStrategyRegistry();
+  L46: scaleStrategyRegistry = new ScaleValueCalculationStrategyRegistry();
+  L49: sizeStrategyRegistry.registerStrategy(new PixelSizeValueCalculationStrategy());
+  L50: sizeStrategyRegistry.registerStrategy(new FillSizeValueCalculationStrategy());
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

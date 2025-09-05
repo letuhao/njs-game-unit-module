@@ -1,0 +1,57 @@
+[
+  {
+    "ctx": {
+      "viewportWidth": 320,
+      "viewportHeight": 568
+    },
+    "input": {
+      "unit": "PERCENT_WIDTH",
+      "value": 25
+    },
+    "expected": 80
+  },
+  {
+    "ctx": {
+      "viewportWidth": 768,
+      "viewportHeight": 1024
+    },
+    "input": {
+      "unit": "PERCENT_WIDTH",
+      "value": 50
+    },
+    "expected": 384
+  },
+  {
+    "ctx": {
+      "viewportWidth": 1920,
+      "viewportHeight": 1080
+    },
+    "input": {
+      "unit": "PERCENT_WIDTH",
+      "value": 100
+    },
+    "expected": 1920
+  },
+  {
+    "ctx": {
+      "viewportWidth": 1440,
+      "viewportHeight": 900
+    },
+    "input": {
+      "unit": "PERCENT_WIDTH",
+      "value": "25"
+    },
+    "expected": 360
+  },
+  {
+    "ctx": {
+      "viewportWidth": 1000,
+      "viewportHeight": 500
+    },
+    "input": {
+      "unit": "PERCENT_WIDTH",
+      "value": "foo"
+    },
+    "expected": 0
+  }
+]

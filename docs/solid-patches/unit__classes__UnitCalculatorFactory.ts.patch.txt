@@ -1,0 +1,13 @@
+*** unit/classes/UnitCalculatorFactory.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (9 occurrences)
+--- BEFORE ---
+  L30: private calculators: Map<string, IUnit> = new Map();
+  L39: UnitCalculatorFactory.instance = new UnitCalculatorFactory();
+  L55: const calculator = new SizeUnitCalculator(
+  L78: const calculator = new PositionUnitCalculator(id, name, positionUnit, axis, baseValue);
+  L94: const calculator = new ScaleUnitCalculator(id, name, scaleUnit, baseValue, maintainAspectRatio);
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+

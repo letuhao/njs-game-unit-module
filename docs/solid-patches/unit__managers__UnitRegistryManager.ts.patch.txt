@@ -1,0 +1,17 @@
+*** unit/managers/UnitRegistryManager.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (6 occurrences)
+--- BEFORE ---
+  L41: private units: Map<string, IUnit> = new Map();
+  L65: throw new Error(`Failed to create unit of type: ${unitType}`);
+  L185: throw new Error(`Invalid config for size unit: ${config.id}`);
+  L198: throw new Error(`Invalid config for position unit: ${config.id}`);
+  L210: throw new Error(`Invalid config for scale unit: ${config.id}`);
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+
+
+@@ SRP-Logging L4
+--- ACTION ---
+  Move logging/console from core to a LoggingDecorator. Remove logger imports.

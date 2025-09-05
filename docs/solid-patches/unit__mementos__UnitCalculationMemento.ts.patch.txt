@@ -1,0 +1,10 @@
+*** unit/mementos/UnitCalculationMemento.ts — SOLID refactor template patches ***
+
+@@ DIP-Construction (2 occurrences)
+--- BEFORE ---
+  L267: return new UnitCalculationMemento(
+  L302: return new UnitCalculationMemento(
+--- AFTER (template) ---
+  // Replace direct constructions with DI resolve (composition root)
+  // const svc = resolve(TOKENS.SizeCalc)
+
