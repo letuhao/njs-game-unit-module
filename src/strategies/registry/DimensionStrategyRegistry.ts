@@ -66,6 +66,10 @@ export class DimensionStrategyRegistry {
    * Calculate width value
    */
   private calculateWidth(context: UnitContext): number {
+    // For content-based calculations, prioritize content dimensions
+    if (context.content) {
+      return context.content.width;
+    }
     if (context.scene) {
       return context.scene.width;
     }
@@ -82,6 +86,10 @@ export class DimensionStrategyRegistry {
    * Calculate height value
    */
   private calculateHeight(context: UnitContext): number {
+    // For content-based calculations, prioritize content dimensions
+    if (context.content) {
+      return context.content.height;
+    }
     if (context.scene) {
       return context.scene.height;
     }
@@ -95,9 +103,13 @@ export class DimensionStrategyRegistry {
   }
 
   /**
-   * Calculate both width and height (return minimum)
+   * Calculate both width and height (return maximum for content-based calculations)
    */
   private calculateBoth(context: UnitContext): number {
+    // For content-based calculations, return maximum of width and height
+    if (context.content) {
+      return Math.max(context.content.width, context.content.height);
+    }
     const width = this.calculateWidth(context);
     const height = this.calculateHeight(context);
     return Math.min(width, height);

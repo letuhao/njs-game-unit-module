@@ -134,6 +134,11 @@ export class AutoSizeValueCalculationStrategy implements ISizeValueCalculationSt
   readonly sizeValue = SizeValue.AUTO;
   readonly sizeUnit = SizeUnit.PIXEL; // AUTO behavior with pixel measurement
   readonly dimension = Dimension.WIDTH;
+  private strategyRegistry: DimensionStrategyRegistry;
+
+  constructor() {
+    this.strategyRegistry = DimensionStrategyRegistry.getInstance();
+  }
 
   canHandle(
     sizeValue: SizeValue,
@@ -157,13 +162,9 @@ export class AutoSizeValueCalculationStrategy implements ISizeValueCalculationSt
 
     // Auto size calculation based on content
     if (context.content) {
-      if (dimension === Dimension.WIDTH) {
-        return context.content.width;
-      } else if (dimension === Dimension.HEIGHT) {
-        return context.content.height;
-      } else if (dimension === Dimension.BOTH) {
-        return Math.max(context.content.width, context.content.height);
-      }
+      // Use registry to get the appropriate strategy for the dimension
+      const dimensionStrategy = this.strategyRegistry.getDimensionStrategy(dimension);
+      return dimensionStrategy(context);
     }
 
     // Fallback to default auto size
