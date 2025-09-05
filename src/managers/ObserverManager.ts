@@ -1,77 +1,24 @@
-import type { IUnitObserver } from '../observers/IUnitObserver';
-import { logger } from '../core/Logger';
-
-/**
- * Core observer manager interface - basic observer operations
- */
-export interface IObserverManagerCore {
-  /** Add an observer to the manager */
-  addObserver(observer: IUnitObserver): void;
-
-  /** Remove an observer from the manager */
-  removeObserver(observer: IUnitObserver): boolean;
-}
-
-/**
- * Observer notification interface - notification operations
- */
-export interface IObserverManagerNotification {
-  /** Notify all observers with a generic event */
-  notifyObservers(eventType: string, data: Record<string, string | number | boolean>): void;
-
-  /** Notify observers of unit creation */
-  notifyUnitCreated(unitId: string, unitType: string): void;
-
-  /** Notify observers of unit destruction */
-  notifyUnitDestroyed(unitId: string): void;
-
-  /** Notify observers of unit value change */
-  notifyUnitValueChanged(unitId: string, oldValue: number, newValue: number): void;
-}
-
-/**
- * Observer management interface - management operations
- */
-export interface IObserverManagerManagement {
-  /** Get all registered observers */
-  getAllObservers(): IUnitObserver[];
-
-  /** Get the number of registered observers */
-  getObserverCount(): number;
-
-  /** Clear all observers */
-  clearObservers(): void;
-}
-
-/**
- * Observer validation interface - validation operations
- */
-export interface IObserverManagerValidation {
-  /** Check if an observer is registered */
-  hasObserver(observer: IUnitObserver): boolean;
-
-  /** Validate an observer before registration */
-  validateObserver(observer: IUnitObserver): boolean;
-}
-
-/**
- * Complete observer manager interface
- * Combines all observer manager functionality
- */
-export interface IObserverManager extends 
-  IObserverManagerCore,
-  IObserverManagerNotification,
-  IObserverManagerManagement,
-  IObserverManagerValidation {
-}
+import type { IObserverManager } from './IObserverManager';
+import type { IUnitObserver } from '../interfaces/IUnitObserver';
+import { container } from '../container/DiContainer';
+import { TOKENS } from '../container/Tokens';
 
 /**
  * Observer Manager Implementation
- * Concrete implementation of observer management
+ * Concrete implementation of observer management using DI
  */
 export class ObserverManager implements IObserverManager {
   private observers: Set<IUnitObserver> = new Set();
-  private readonly logger: typeof logger = logger;
+  private logger: any;
+
+  constructor() {
+    // Resolve logger from DI container
+    try {
+      this.logger = container.resolve(TOKENS.LOGGER);
+    } catch (error) {
+      this.logger = console; // Fallback to console
+    }
+  }
 
   /**
    * Add an observer to the manager
@@ -79,25 +26,10 @@ export class ObserverManager implements IObserverManager {
   public addObserver(observer: IUnitObserver): void {
     this.logger.debug('ObserverManager', 'addObserver', 'Adding observer', {
       observerType: observer.constructor.name,
+      totalObservers: this.observers.size + 1,
     });
 
-    try {
-      if (this.validateObserver(observer)) {
-        this.observers.add(observer);
-        this.logger.info('ObserverManager', 'addObserver', 'Observer added successfully', {
-          observerType: observer.constructor.name,
-          totalObservers: this.observers.size,
-        });
-      } else {
-        throw new Error('Invalid observer provided');
-      }
-    } catch (error) {
-      this.logger.error('ObserverManager', 'addObserver', 'Failed to add observer', {
-        observerType: observer.constructor.name,
-        error: error instanceof Error ? error.message : String(error),
-      });
-      throw error;
-    }
+    this.observers.add(observer);
   }
 
   /**
@@ -105,162 +37,190 @@ export class ObserverManager implements IObserverManager {
    */
   public removeObserver(observer: IUnitObserver): boolean {
     const removed = this.observers.delete(observer);
-
-    if (removed) {
-      this.logger.info('ObserverManager', 'removeObserver', 'Observer removed successfully', {
-        observerType: observer.constructor.name,
-        remainingObservers: this.observers.size,
-      });
-    } else {
-      this.logger.debug('ObserverManager', 'removeObserver', 'Observer not found for removal', {
-        observerType: observer.constructor.name,
-      });
-    }
+    
+    this.logger.debug('ObserverManager', 'removeObserver', 'Removing observer', {
+      observerType: observer.constructor.name,
+      removed,
+      totalObservers: this.observers.size,
+    });
 
     return removed;
   }
 
   /**
-   * Notify all observers with a generic event
+   * Notify all observers of a unit event
    */
-  public notifyObservers(eventType: string, data: Record<string, string | number | boolean>): void {
+  public notifyObservers(event: string, data: any): void {
     this.logger.debug('ObserverManager', 'notifyObservers', 'Notifying observers', {
-      eventType,
+      event,
       observerCount: this.observers.size,
-      dataKeys: Object.keys(data),
     });
 
-    let successCount = 0;
-    let errorCount = 0;
-
-    this.observers.forEach(observer => {
+    for (const observer of this.observers) {
       try {
-        // Call appropriate observer method based on event type
-        switch (eventType) {
-          case 'unit_created':
-            if (typeof data.unitId === 'string' && typeof data.unitType === 'string') {
-              observer.onUnitCreated(data.unitId, data.unitType);
-              successCount++;
-            }
-            break;
-          case 'unit_destroyed':
-            if (typeof data.unitId === 'string') {
-              observer.onUnitDestroyed(data.unitId);
-              successCount++;
-            }
-            break;
-          case 'value_changed':
-            if (
-              typeof data.unitId === 'string' &&
-              typeof data.oldValue === 'number' &&
-              typeof data.newValue === 'number'
-            ) {
-              observer.onUnitValueChanged(data.unitId, data.oldValue, data.newValue);
-              successCount++;
-            }
-            break;
-          default:
-            this.logger.warn('ObserverManager', 'notifyObservers', 'Unknown event type', {
-              eventType,
-            });
-            break;
-        }
+        observer.update(event, data);
       } catch (error) {
-        errorCount++;
-        this.logger.error('ObserverManager', 'notifyObservers', 'Error notifying observer', {
+        this.logger.error('ObserverManager', 'notifyObservers', 'Observer notification failed', {
           observerType: observer.constructor.name,
-          eventType,
-          error: error instanceof Error ? error.message : String(error),
+          event,
+          error,
         });
       }
-    });
-
-    this.logger.info('ObserverManager', 'notifyObservers', 'Observer notification completed', {
-      eventType,
-      totalObservers: this.observers.size,
-      successCount,
-      errorCount,
-    });
+    }
   }
 
   /**
-   * Notify observers of unit creation
+   * Get all observers
    */
-  public notifyUnitCreated(unitId: string, unitType: string): void {
-    this.notifyObservers('unit_created', { unitId, unitType });
-  }
-
-  /**
-   * Notify observers of unit destruction
-   */
-  public notifyUnitDestroyed(unitId: string): void {
-    this.notifyObservers('unit_destroyed', { unitId });
-  }
-
-  /**
-   * Notify observers of unit value change
-   */
-  public notifyUnitValueChanged(unitId: string, oldValue: number, newValue: number): void {
-    this.notifyObservers('value_changed', { unitId, oldValue, newValue });
-  }
-
-  /**
-   * Get all registered observers
-   */
-  public getAllObservers(): IUnitObserver[] {
+  public getObservers(): IUnitObserver[] {
     return Array.from(this.observers);
   }
 
   /**
-   * Get the number of registered observers
+   * Get observer count
    */
   public getObserverCount(): number {
     return this.observers.size;
   }
 
   /**
-   * Clear all observers
-   */
-  public clearObservers(): void {
-    const count = this.observers.size;
-    this.observers.clear();
-    this.logger.info('ObserverManager', 'clearObservers', 'All observers cleared', { count });
-  }
-
-  /**
-   * Check if an observer is registered
+   * Check if observer exists
    */
   public hasObserver(observer: IUnitObserver): boolean {
     return this.observers.has(observer);
   }
 
   /**
-   * Validate an observer before registration
+   * Clear all observers
    */
-  public validateObserver(observer: IUnitObserver): boolean {
+  public clearObservers(): void {
+    this.logger.debug('ObserverManager', 'clearObservers', 'Clearing all observers', {
+      observerCount: this.observers.size,
+    });
+
+    this.observers.clear();
+  }
+
+  /**
+   * Get observers by type
+   */
+  public getObserversByType(type: string): IUnitObserver[] {
+    return this.getObservers().filter(observer => 
+      observer.constructor.name === type
+    );
+  }
+
+  /**
+   * Get observer statistics
+   */
+  public getStatistics(): {
+    totalObservers: number;
+    observerTypes: Record<string, number>;
+    observerNames: string[];
+  } {
+    const observerTypes: Record<string, number> = {};
+    const observerNames: string[] = [];
+
+    for (const observer of this.observers) {
+      const type = observer.constructor.name;
+      observerTypes[type] = (observerTypes[type] || 0) + 1;
+      observerNames.push(type);
+    }
+
+    return {
+      totalObservers: this.observers.size,
+      observerTypes,
+      observerNames,
+    };
+  }
+
+  /**
+   * Validate observer before adding
+   */
+  private validateObserver(observer: IUnitObserver): boolean {
     if (!observer) {
       this.logger.warn('ObserverManager', 'validateObserver', 'Observer is null or undefined');
       return false;
     }
 
-    if (typeof observer.onUnitCreated !== 'function') {
-      this.logger.warn('ObserverManager', 'validateObserver', 'Missing onUnitCreated method');
+    if (typeof observer.update !== 'function') {
+      this.logger.warn('ObserverManager', 'validateObserver', 'Observer does not have update method');
       return false;
     }
 
-    if (typeof observer.onUnitDestroyed !== 'function') {
-      this.logger.warn('ObserverManager', 'validateObserver', 'Missing onUnitDestroyed method');
-      return false;
-    }
-
-    if (typeof observer.onUnitValueChanged !== 'function') {
-      this.logger.warn('ObserverManager', 'validateObserver', 'Missing onUnitValueChanged method');
-      return false;
-    }
-
-    this.logger.debug('ObserverManager', 'validateObserver', 'Observer validation passed', {
-      observerType: observer.constructor.name,
-    });
     return true;
+  }
+
+  /**
+   * Add observer with validation
+   */
+  public addObserverWithValidation(observer: IUnitObserver): boolean {
+    if (!this.validateObserver(observer)) {
+      return false;
+    }
+
+    this.addObserver(observer);
+    return true;
+  }
+
+  /**
+   * Notify observers with error handling
+   */
+  public notifyObserversSafely(event: string, data: any): {
+    success: boolean;
+    errorCount: number;
+    successCount: number;
+  } {
+    let errorCount = 0;
+    let successCount = 0;
+
+    for (const observer of this.observers) {
+      try {
+        observer.update(event, data);
+        successCount++;
+      } catch (error) {
+        errorCount++;
+        this.logger.error('ObserverManager', 'notifyObserversSafely', 'Observer notification failed', {
+          observerType: observer.constructor.name,
+          event,
+          error,
+        });
+      }
+    }
+
+    return {
+      success: errorCount === 0,
+      errorCount,
+      successCount,
+    };
+  }
+
+  /**
+   * Get manager metadata
+   */
+  public getMetadata(): {
+    managerType: string;
+    observerCount: number;
+    loggerAvailable: boolean;
+    methods: string[];
+  } {
+    return {
+      managerType: 'ObserverManager',
+      observerCount: this.observers.size,
+      loggerAvailable: !!this.logger,
+      methods: [
+        'addObserver',
+        'removeObserver',
+        'notifyObservers',
+        'getObservers',
+        'getObserverCount',
+        'hasObserver',
+        'clearObservers',
+        'getObserversByType',
+        'getStatistics',
+        'addObserverWithValidation',
+        'notifyObserversSafely',
+      ],
+    };
   }
 }

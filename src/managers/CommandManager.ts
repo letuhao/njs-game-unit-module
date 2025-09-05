@@ -8,10 +8,10 @@ import { DEFAULT_FALLBACK_VALUES, COMMAND_CONSTANTS } from '../constants';
  */
 export interface ICommandManagerCore {
   /** Execute a single command */
-  executeCommand(command: IUnitCommand, context: UnitContext): number;
+  executeCommand(command: IUnitCommand, context: UnitContext): boolean;
 
   /** Execute multiple commands in batch */
-  executeBatch(commands: IUnitCommand[], context: UnitContext): number[];
+  executeBatch(commands: IUnitCommand[], context: UnitContext): boolean[];
 }
 
 /**
@@ -91,7 +91,7 @@ export class CommandManager implements ICommandManager {
   /**
    * Execute a single command
    */
-  public executeCommand(command: IUnitCommand, context: UnitContext): number {
+  public executeCommand(command: IUnitCommand, context: UnitContext): boolean {
     const startTime = performance.now();
 
     this.logger.debug('CommandManager', 'executeCommand', 'Executing command', {
@@ -100,7 +100,7 @@ export class CommandManager implements ICommandManager {
     });
 
     try {
-      const result = command.execute(context);
+      const result = command.execute();
 
       // Add to history
       this.commandHistory.splice(this.commandIndex + 1);
@@ -126,7 +126,7 @@ export class CommandManager implements ICommandManager {
         executionTime: duration,
       });
 
-      return result;
+      return true;
     } catch (error) {
       this.logger.error('CommandManager', 'executeCommand', 'Command execution failed', {
         commandType: command.constructor.name,
@@ -134,19 +134,19 @@ export class CommandManager implements ICommandManager {
       });
 
       // Return fallback value on error
-      return DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
+      return false;
     }
   }
 
   /**
    * Execute multiple commands in batch
    */
-  public executeBatch(commands: IUnitCommand[], context: UnitContext): number[] {
+  public executeBatch(commands: IUnitCommand[], context: UnitContext): boolean[] {
     this.logger.debug('CommandManager', 'executeBatch', 'Executing batch of commands', {
       commandCount: commands.length,
     });
 
-    const results: number[] = [];
+    const results: boolean[] = [];
 
     for (const command of commands) {
       try {
@@ -162,7 +162,7 @@ export class CommandManager implements ICommandManager {
             error: error instanceof Error ? error.message : String(error),
           }
         );
-        results.push(DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT);
+        results.push(false);
       }
     }
 

@@ -10,6 +10,11 @@ import { ScaleUnitCalculator } from '../classes/ScaleUnitCalculator';
 import { RefactoredSizeUnitCalculator } from '../classes/RefactoredSizeUnitCalculator';
 import { RefactoredScaleUnitCalculator } from '../classes/RefactoredScaleUnitCalculator';
 import { RandomValueNumber } from '../classes/RandomValueNumber';
+import { CalculatePositionCommand } from '../commands/CalculatePositionCommand';
+import { CalculateSizeCommand } from '../commands/CalculateSizeCommand';
+import { ValidationManager } from '../managers/ValidationManager';
+import { ConfigManager } from '../managers/ConfigManager';
+import { logger } from '../core/Logger';
 
 /**
  * Container Setup
@@ -32,6 +37,15 @@ export function setupContainer(): void {
 
   // Register random value services
   container.registerClass(TOKENS.RANDOM_VALUE_NUMBER, RandomValueNumber);
+
+  // Register command services
+  container.registerClass(TOKENS.POSITION_COMMAND, CalculatePositionCommand);
+  container.registerClass(TOKENS.SIZE_COMMAND, CalculateSizeCommand);
+
+  // Register manager services
+  container.registerSingleton(TOKENS.VALIDATION_MANAGER, () => new ValidationManager());
+  container.registerSingleton(TOKENS.CONFIG_MANAGER, () => new ConfigManager());
+  container.registerSingleton(TOKENS.LOGGER, () => logger);
 
   // Register strategy registries (these will be resolved from existing registries)
   container.registerSingleton(TOKENS.SIZE_VALUE_STRATEGY_REGISTRY, () => {

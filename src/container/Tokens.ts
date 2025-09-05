@@ -46,6 +46,16 @@ export const TOKENS = {
   POSITION_STRATEGY: Symbol('PositionStrategy'),
   SIZE_STRATEGY: Symbol('SizeStrategy'),
 
+  // Command Services
+  POSITION_COMMAND: Symbol('PositionCommand'),
+  SIZE_COMMAND: Symbol('SizeCommand'),
+  SCALE_COMMAND: Symbol('ScaleCommand'),
+
+  // Manager Services
+  VALIDATION_MANAGER: Symbol('ValidationManager'),
+  CONFIG_MANAGER: Symbol('ConfigManager'),
+  LOGGER: Symbol('Logger'),
+
   // Factory Services
   UNIT_CALCULATOR_FACTORY: Symbol('UnitCalculatorFactory'),
 } as const;
@@ -81,6 +91,12 @@ export type ServiceTypes = {
   [TOKENS.REFACTORED_SCALE_CALCULATOR]: Constructor<any>;
   [TOKENS.POSITION_STRATEGY]: Constructor<any>;
   [TOKENS.SIZE_STRATEGY]: Constructor<any>;
+  [TOKENS.POSITION_COMMAND]: Constructor<any>;
+  [TOKENS.SIZE_COMMAND]: Constructor<any>;
+  [TOKENS.SCALE_COMMAND]: Constructor<any>;
+  [TOKENS.VALIDATION_MANAGER]: any;
+  [TOKENS.CONFIG_MANAGER]: any;
+  [TOKENS.LOGGER]: any;
   [TOKENS.UNIT_CALCULATOR_FACTORY]: any;
 };
 

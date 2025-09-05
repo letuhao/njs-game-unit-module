@@ -1,311 +1,242 @@
-// Phaser types are optional - can be installed separately
-// import type { GameObjects, Scene, Game } from 'phaser';
+import type { UnitContext } from '../interfaces/IUnit';
+import { container } from '../container/DiContainer';
+import { TOKENS } from '../container/Tokens';
 
-// Define minimal Phaser types for this interface
-type GameObjects = {
-  GameObject: any;
-};
-type Scene = any;
-type Game = any;
-import type { UnitContext } from './IUnit';
-import { DEFAULT_FALLBACK_VALUES } from '../constants';
+// Minimal Phaser types for browser compatibility
+declare const Phaser: any;
 
 /**
- * Core Phaser context interface - basic Phaser objects
+ * Phaser Unit Context Interface
+ * Defines the contract for Phaser-specific unit contexts
  */
-export interface IPhaserUnitContextCore extends UnitContext {
-  /** Phaser Scene instance */
-  phaserScene: Scene;
-
-  /** Phaser Game instance */
-  game: Game;
-
-  /** Current Phaser GameObject (the one being positioned/sized) */
-  currentObject: GameObjects["GameObject"];
-
-  /** Parent Phaser GameObject (container) */
-  phaserParent: GameObjects["GameObject"];
+export interface IPhaserUnitContext extends UnitContext {
+  readonly scene: any;
+  readonly game: any;
+  readonly gameObject: any;
+  readonly phaserParent?: any;
+  [key: string]: any;
 }
 
 /**
- * Phaser context targets interface - target and reference objects
- */
-export interface IPhaserUnitContextTargets {
-  /** Target Phaser GameObject (for relative positioning) */
-  target?: GameObjects["GameObject"];
-}
-
-/**
- * Phaser context camera interface - camera information
- */
-export interface IPhaserUnitContextCamera {
-  /** Phaser camera information */
-  camera?: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    zoom: number;
-  };
-}
-
-/**
- * Phaser context input interface - input information
- */
-export interface IPhaserUnitContextInput {
-  /** Phaser input information */
-  input?: {
-    x: number;
-    y: number;
-    isDown: boolean;
-  };
-}
-
-/**
- * Phaser context time interface - time information
- */
-export interface IPhaserUnitContextTime {
-  /** Phaser time information */
-  time?: {
-    now: number;
-    delta: number;
-    elapsed: number;
-  };
-}
-
-/**
- * Phaser context physics interface - physics information
- */
-export interface IPhaserUnitContextPhysics {
-  /** Phaser physics information */
-  physics?: {
-    gravity: { x: number; y: number };
-    bounds: { x: number; y: number; width: number; height: number };
-  };
-}
-
-/**
- * Complete Phaser unit context interface
- * Combines all Phaser context functionality
- */
-export interface IPhaserUnitContext extends 
-  IPhaserUnitContextCore,
-  IPhaserUnitContextTargets,
-  IPhaserUnitContextCamera,
-  IPhaserUnitContextInput,
-  IPhaserUnitContextTime,
-  IPhaserUnitContextPhysics {
-}
-
-/**
- * Base Phaser Unit Context implementation
- * Provides default values and type safety
+ * Phaser Unit Context Implementation
+ * Provides Phaser-specific unit context using DI
  */
 export class PhaserUnitContext implements IPhaserUnitContext {
-  constructor(
-    public readonly phaserScene: Scene,
-    public readonly game: Game,
-    public readonly currentObject: GameObjects.GameObject,
-    public readonly phaserParent: GameObjects.GameObject,
-    public readonly target?: GameObjects.GameObject
-  ) {}
+  public readonly scene: any;
+  public readonly game: any;
+  public readonly gameObject: any;
+  public readonly phaserParent?: any;
 
-  // Implement UnitContext properties with Phaser defaults
-  get scene() {
-    return {
-      width: this.phaserScene.scale.width,
-      height: this.phaserScene.scale.height,
-    };
-  }
+  private logger: any;
 
-  get parent() {
-    if (this.phaserParent && 'width' in this.phaserParent && 'height' in this.phaserParent) {
-      const parent = this.phaserParent as {
-        width: number;
-        height: number;
-        x?: number;
-        y?: number;
-      };
-      return {
-        width: parent.width,
-        height: parent.height,
-        x: parent.x || 0,
-        y: parent.y || 0,
-      };
+  constructor(scene: any, game: any, gameObject: any, phaserParent?: any) {
+    this.scene = scene;
+    this.game = game;
+    this.gameObject = gameObject;
+    this.phaserParent = phaserParent;
+
+    // Resolve logger from DI container
+    try {
+      this.logger = container.resolve(TOKENS.LOGGER);
+    } catch (error) {
+      this.logger = console; // Fallback to console
     }
-    return {
-      width: 0,
-      height: 0,
-      x: 0,
-      y: 0,
-    };
   }
 
-  get viewport() {
-    return {
-      width: this.game.scale.width,
-      height: this.game.scale.height,
-    };
-  }
-
-  get breakpoint() {
-    const width = this.game.scale.width;
-    if (width < 768) return { name: 'mobile', width, height: this.game.scale.height };
-    if (width < 1024) return { name: 'tablet', width, height: this.game.scale.height };
-    return { name: 'desktop', width, height: this.game.scale.height };
-  }
-
-  get content() {
-    if (this.currentObject && 'width' in this.currentObject && 'height' in this.currentObject) {
-      const obj = this.currentObject as {
-        width: number;
-        height: number;
-      };
+  /**
+   * Get parent context
+   */
+  get parent(): any {
+    if (this.phaserParent) {
       return {
-        width: obj.width,
-        height: obj.height,
-      };
-    }
-    return {
-      width: DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT,
-      height: DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT,
-    };
-  }
-
-  // Enhanced properties for your Container system
-  get container() {
-    if (this.currentObject && 'containerType' in this.currentObject) {
-      const obj = this.currentObject as {
-        containerType: string;
-        childCount?: number;
-        hasChildren?: boolean;
-        spacing?: {
-          gap: number;
-          padding: { left: number; right: number; top: number; bottom: number };
-        };
-      };
-      return {
-        type: obj.containerType,
-        childCount: obj.childCount || 0,
-        hasChildren: obj.hasChildren || false,
-        spacing: obj.spacing || { gap: 0, padding: { left: 0, right: 0, top: 0, bottom: 0 } },
+        x: this.phaserParent.x || 0,
+        y: this.phaserParent.y || 0,
+        width: this.phaserParent.width || 0,
+        height: this.phaserParent.height || 0,
       };
     }
     return undefined;
   }
 
-  get style() {
-    if (this.currentObject && 'getStyle' in this.currentObject) {
-      const obj = this.currentObject as {
-        getStyle(): unknown;
-      };
-      return obj.getStyle();
-    }
-    return undefined;
+  /**
+   * Get viewport context
+   */
+  get viewport(): any {
+    return this.scene?.viewport || {
+      width: this.game?.config?.width || 800,
+      height: this.game?.config?.height || 600,
+    };
   }
 
-  get layout() {
-    if (this.currentObject && 'layoutProperties' in this.currentObject) {
-      const obj = this.currentObject as {
-        layoutProperties: unknown;
-      };
-      return obj.layoutProperties;
-    }
-    return undefined;
+  /**
+   * Get content context
+   */
+  get content(): any {
+    return {
+      width: this.gameObject?.width || 0,
+      height: this.gameObject?.height || 0,
+    };
   }
 
-  // Custom context data
-  [key: string]: unknown;
+  /**
+   * Get scene context
+   */
+  get sceneContext(): any {
+    return {
+      width: this.scene?.width || 800,
+      height: this.scene?.height || 600,
+    };
+  }
+
+  /**
+   * Validate context
+   */
+  validate(): boolean {
+    if (!this.scene) {
+      this.logger.warn('PhaserUnitContext', 'validate', 'Scene is required');
+      return false;
+    }
+    if (!this.game) {
+      this.logger.warn('PhaserUnitContext', 'validate', 'Game is required');
+      return false;
+    }
+    if (!this.gameObject) {
+      this.logger.warn('PhaserUnitContext', 'validate', 'GameObject is required');
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Get context metadata
+   */
+  getMetadata(): {
+    scene: string;
+    game: string;
+    gameObject: string;
+    hasParent: boolean;
+    viewport: { width: number; height: number };
+    content: { width: number; height: number };
+  } {
+    return {
+      scene: this.scene?.scene?.key || 'unknown',
+      game: this.game?.version || 'unknown',
+      gameObject: this.gameObject?.constructor?.name || 'unknown',
+      hasParent: !!this.parent,
+      viewport: this.viewport,
+      content: this.content,
+    };
+  }
+
+  /**
+   * Clone context
+   */
+  clone(): PhaserUnitContext {
+    return new PhaserUnitContext(this.scene, this.game, this.gameObject, this.phaserParent);
+  }
+
+  /**
+   * Get string representation
+   */
+  toString(): string {
+    return `PhaserUnitContext(${this.scene?.scene?.key || 'unknown'}, ${this.gameObject?.constructor?.name || 'unknown'})`;
+  }
 }
 
 /**
- * Factory for creating Phaser unit contexts
+ * Phaser Unit Context Factory
+ * Creates Phaser unit contexts using DI
  */
 export class PhaserUnitContextFactory {
+  private static logger: any;
+
+  static {
+    // Initialize logger from DI container
+    try {
+      this.logger = container.resolve(TOKENS.LOGGER);
+    } catch (error) {
+      this.logger = console; // Fallback to console
+    }
+  }
+
   /**
    * Create context from a Phaser GameObject
    */
-  static fromGameObject(gameObject: GameObjects.GameObject): PhaserUnitContext {
-    return new PhaserUnitContext(gameObject.scene, gameObject.scene.game, gameObject, gameObject.parent as GameObjects.GameObject);
+  static fromGameObject(gameObject: any): PhaserUnitContext {
+    return new PhaserUnitContext(gameObject.scene, gameObject.scene.game, gameObject, gameObject.parent);
   }
 
   /**
    * Create context with parent relationship
    */
   static withParent(
-    gameObject: GameObjects.GameObject,
-    parent: GameObjects.GameObject
+    gameObject: any,
+    parent: any
   ): PhaserUnitContext {
     return new PhaserUnitContext(gameObject.scene, gameObject.scene.game, gameObject, parent);
   }
 
   /**
-   * Create context with target for relative positioning
+   * Create context from scene
    */
-  static withTarget(
-    gameObject: GameObjects.GameObject,
-    target: GameObjects.GameObject
-  ): PhaserUnitContext {
-    return new PhaserUnitContext(
-      gameObject.scene,
-      gameObject.scene.game,
-      gameObject,
-      parent as GameObjects.GameObject,
-      target
-    );
+  static fromScene(scene: any): PhaserUnitContext {
+    return new PhaserUnitContext(scene, scene.game, scene, undefined);
   }
 
   /**
-   * Create context with all relationships
+   * Create context from game
    */
-  static withRelationships(
-    gameObject: GameObjects.GameObject,
-    parent?: GameObjects.GameObject,
-    target?: GameObjects.GameObject
-  ): PhaserUnitContext {
-    return new PhaserUnitContext(
-      gameObject.scene,
-      gameObject.scene.game,
-      gameObject,
-      parent as GameObjects.GameObject,
-      target
-    );
+  static fromGame(game: any): PhaserUnitContext {
+    return new PhaserUnitContext(game.scene, game, game, undefined);
   }
 
   /**
-   * Create context specifically for your Container system
-   * Provides enhanced access to Container-specific properties
+   * Create context with custom parameters
    */
-  static fromContainer(container: GameObjects.GameObject): PhaserUnitContext {
-    return new PhaserUnitContext(container.scene, container.scene.game, container, container.parent as GameObjects.GameObject);
+  static create(
+    scene: any,
+    game: any,
+    gameObject: any,
+    parent?: any
+  ): PhaserUnitContext {
+    return new PhaserUnitContext(scene, game, gameObject, parent);
   }
 
   /**
-   * Create context for Container with parent relationship
-   * Perfect for nested container layouts
+   * Validate context creation parameters
    */
-  static fromContainerWithParent(
-    container: GameObjects.GameObject,
-    parent: GameObjects.GameObject
-  ): PhaserUnitContext {
-    return new PhaserUnitContext(container.scene, container.scene.game, container, parent);
-  }
-
-  /**
-   * Create context for Container with style information
-   * Integrates with your existing style system
-   */
-  static fromContainerWithStyle(
-    container: GameObjects.GameObject,
-    styleOverrides?: Record<string, unknown>
-  ): PhaserUnitContext {
-    const context = new PhaserUnitContext(container.scene, container.scene.game, container, container.parent as GameObjects.GameObject);
-
-    // Add style overrides to context
-    if (styleOverrides) {
-      Object.assign(context, { styleOverrides });
+  static validateParameters(scene: any, game: any, gameObject: any): boolean {
+    if (!scene) {
+      this.logger.warn('PhaserUnitContextFactory', 'validateParameters', 'Scene is required');
+      return false;
     }
+    if (!game) {
+      this.logger.warn('PhaserUnitContextFactory', 'validateParameters', 'Game is required');
+      return false;
+    }
+    if (!gameObject) {
+      this.logger.warn('PhaserUnitContextFactory', 'validateParameters', 'GameObject is required');
+      return false;
+    }
+    return true;
+  }
 
-    return context;
+  /**
+   * Get factory statistics
+   */
+  static getStatistics(): {
+    loggerAvailable: boolean;
+    factoryMethods: string[];
+  } {
+    return {
+      loggerAvailable: !!this.logger,
+      factoryMethods: [
+        'fromGameObject',
+        'withParent',
+        'fromScene',
+        'fromGame',
+        'create',
+      ],
+    };
   }
 }
