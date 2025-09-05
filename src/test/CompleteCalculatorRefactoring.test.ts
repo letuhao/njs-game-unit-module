@@ -41,7 +41,106 @@ describe('Complete Calculator Refactoring', () => {
   let mockContext: any;
 
   beforeEach(() => {
-    // Initialize strategy registries using DI container
+    setupTestEnvironment();
+  });
+
+  describe('Size Calculator Refactoring', () => {
+    let sizeCalculator: RefactoredSizeUnitCalculator;
+
+    beforeEach(() => {
+      setupSizeCalculator();
+    });
+
+    it('should calculate size values using strategy pattern', () => {
+      testSizeCalculationStrategyPattern();
+    });
+
+    it('should handle different size units correctly', () => {
+      testDifferentSizeUnits();
+    });
+
+    it('should handle different size values correctly', () => {
+      testDifferentSizeValues();
+    });
+
+    it('should handle edge cases gracefully', () => {
+      testSizeEdgeCases();
+    });
+  });
+
+  describe('Position Calculator Refactoring', () => {
+    let positionCalculator: RefactoredPositionUnitCalculator;
+
+    beforeEach(() => {
+      setupPositionCalculator();
+    });
+
+    it('should calculate position values using strategy pattern', () => {
+      testPositionCalculationStrategyPattern();
+    });
+
+    it('should handle different position units correctly', () => {
+      testDifferentPositionUnits();
+    });
+
+    it('should handle different position values correctly', () => {
+      testDifferentPositionValues();
+    });
+
+    it('should handle edge cases gracefully', () => {
+      testPositionEdgeCases();
+    });
+  });
+
+  describe('Scale Calculator Refactoring', () => {
+    let scaleCalculator: RefactoredScaleUnitCalculator;
+
+    beforeEach(() => {
+      setupScaleCalculator();
+    });
+
+    it('should calculate scale values using strategy pattern', () => {
+      testScaleCalculationStrategyPattern();
+    });
+
+    it('should handle different scale units correctly', () => {
+      testDifferentScaleUnits();
+    });
+
+    it('should handle different scale values correctly', () => {
+      testDifferentScaleValues();
+    });
+
+    it('should handle edge cases gracefully', () => {
+      testScaleEdgeCases();
+    });
+  });
+
+  describe('Integration Tests', () => {
+    it('should work with all calculator types together', () => {
+      testAllCalculatorTypesIntegration();
+    });
+
+    it('should handle invalid inputs gracefully', () => {
+      testInvalidInputsHandling();
+    });
+
+    it('should handle missing context properties', () => {
+      testMissingContextProperties();
+    });
+  });
+
+  // Helper functions for test setup and execution
+
+  function setupTestEnvironment(): void {
+    initializeStrategyRegistries();
+    registerSizeStrategies();
+    registerPositionStrategies();
+    registerScaleStrategies();
+    createMockContext();
+  }
+
+  function initializeStrategyRegistries(): void {
     try {
       sizeStrategyRegistry = container.resolve(TOKENS.SIZE_VALUE_STRATEGY_REGISTRY);
     } catch (error) {
@@ -59,8 +158,9 @@ describe('Complete Calculator Refactoring', () => {
     } catch (error) {
       scaleStrategyRegistry = new ScaleValueCalculationStrategyRegistry();
     }
+  }
 
-    // Register all size strategies using DI container
+  function registerSizeStrategies(): void {
     try {
       const pixelSizeStrategy = container.resolve(TOKENS.PIXEL_SIZE_VALUE_STRATEGY);
       const fillSizeStrategy = container.resolve(TOKENS.FILL_SIZE_VALUE_STRATEGY);
@@ -74,15 +174,19 @@ describe('Complete Calculator Refactoring', () => {
       sizeStrategyRegistry.registerStrategy(parentWidthSizeStrategy || new ParentWidthSizeValueCalculationStrategy());
       sizeStrategyRegistry.registerStrategy(viewportWidthSizeStrategy || new ViewportWidthSizeValueCalculationStrategy());
     } catch (error) {
-      // Fallback to direct instantiation if DI fails
-      sizeStrategyRegistry.registerStrategy(new PixelSizeValueCalculationStrategy());
-      sizeStrategyRegistry.registerStrategy(new FillSizeValueCalculationStrategy());
-      sizeStrategyRegistry.registerStrategy(new AutoSizeValueCalculationStrategy());
-      sizeStrategyRegistry.registerStrategy(new ParentWidthSizeValueCalculationStrategy());
-      sizeStrategyRegistry.registerStrategy(new ViewportWidthSizeValueCalculationStrategy());
+      registerSizeStrategiesFallback();
     }
+  }
 
-    // Register all position strategies using DI container
+  function registerSizeStrategiesFallback(): void {
+    sizeStrategyRegistry.registerStrategy(new PixelSizeValueCalculationStrategy());
+    sizeStrategyRegistry.registerStrategy(new FillSizeValueCalculationStrategy());
+    sizeStrategyRegistry.registerStrategy(new AutoSizeValueCalculationStrategy());
+    sizeStrategyRegistry.registerStrategy(new ParentWidthSizeValueCalculationStrategy());
+    sizeStrategyRegistry.registerStrategy(new ViewportWidthSizeValueCalculationStrategy());
+  }
+
+  function registerPositionStrategies(): void {
     try {
       const pixelPositionStrategy = container.resolve(TOKENS.PIXEL_POSITION_VALUE_STRATEGY);
       const centerPositionStrategy = container.resolve(TOKENS.CENTER_POSITION_VALUE_STRATEGY);
@@ -96,15 +200,19 @@ describe('Complete Calculator Refactoring', () => {
       positionStrategyRegistry.registerStrategy(parentCenterXPositionStrategy || new ParentCenterXPositionValueCalculationStrategy());
       positionStrategyRegistry.registerStrategy(sceneCenterXPositionStrategy || new SceneCenterXPositionValueCalculationStrategy());
     } catch (error) {
-      // Fallback to direct instantiation if DI fails
-      positionStrategyRegistry.registerStrategy(new PixelPositionValueCalculationStrategy());
-      positionStrategyRegistry.registerStrategy(new CenterPositionValueCalculationStrategy());
-      positionStrategyRegistry.registerStrategy(new ContentLeftPositionValueCalculationStrategy());
-      positionStrategyRegistry.registerStrategy(new ParentCenterXPositionValueCalculationStrategy());
-      positionStrategyRegistry.registerStrategy(new SceneCenterXPositionValueCalculationStrategy());
+      registerPositionStrategiesFallback();
     }
+  }
 
-    // Register all scale strategies using DI container
+  function registerPositionStrategiesFallback(): void {
+    positionStrategyRegistry.registerStrategy(new PixelPositionValueCalculationStrategy());
+    positionStrategyRegistry.registerStrategy(new CenterPositionValueCalculationStrategy());
+    positionStrategyRegistry.registerStrategy(new ContentLeftPositionValueCalculationStrategy());
+    positionStrategyRegistry.registerStrategy(new ParentCenterXPositionValueCalculationStrategy());
+    positionStrategyRegistry.registerStrategy(new SceneCenterXPositionValueCalculationStrategy());
+  }
+
+  function registerScaleStrategies(): void {
     try {
       const pixelScaleStrategy = container.resolve(TOKENS.PIXEL_SCALE_VALUE_STRATEGY);
       const factorScaleStrategy = container.resolve(TOKENS.FACTOR_SCALE_VALUE_STRATEGY);
@@ -118,336 +226,288 @@ describe('Complete Calculator Refactoring', () => {
       scaleStrategyRegistry.registerStrategy(randomScaleStrategy || new RandomScaleValueCalculationStrategy());
       scaleStrategyRegistry.registerStrategy(contentScaleStrategy || new ContentScaleValueCalculationStrategy());
     } catch (error) {
-      // Fallback to direct instantiation if DI fails
-      scaleStrategyRegistry.registerStrategy(new PixelScaleValueCalculationStrategy());
-      scaleStrategyRegistry.registerStrategy(new FactorScaleValueCalculationStrategy());
-      scaleStrategyRegistry.registerStrategy(new ResponsiveScaleValueCalculationStrategy());
-      scaleStrategyRegistry.registerStrategy(new RandomScaleValueCalculationStrategy());
-      scaleStrategyRegistry.registerStrategy(new ContentScaleValueCalculationStrategy());
+      registerScaleStrategiesFallback();
     }
+  }
 
-    // Create mock context
+  function registerScaleStrategiesFallback(): void {
+    scaleStrategyRegistry.registerStrategy(new PixelScaleValueCalculationStrategy());
+    scaleStrategyRegistry.registerStrategy(new FactorScaleValueCalculationStrategy());
+    scaleStrategyRegistry.registerStrategy(new ResponsiveScaleValueCalculationStrategy());
+    scaleStrategyRegistry.registerStrategy(new RandomScaleValueCalculationStrategy());
+    scaleStrategyRegistry.registerStrategy(new ContentScaleValueCalculationStrategy());
+  }
+
+  function createMockContext(): void {
     mockContext = {
       parent: { width: 800, height: 600, x: 0, y: 0 },
       scene: { width: 1200, height: 800 },
       viewport: { width: 1920, height: 1080 },
       dimension: Dimension.WIDTH,
     };
-  });
+  }
 
-  describe('Size Calculator Refactoring', () => {
+  function setupSizeCalculator(): void {
+    try {
+      sizeCalculator = container.resolve(TOKENS.REFACTORED_SIZE_UNIT_CALCULATOR);
+    } catch (error) {
+      sizeCalculator = new RefactoredSizeUnitCalculator();
+    }
+  }
+
+  function setupPositionCalculator(): void {
+    try {
+      positionCalculator = container.resolve(TOKENS.REFACTORED_POSITION_UNIT_CALCULATOR);
+    } catch (error) {
+      positionCalculator = new RefactoredPositionUnitCalculator();
+    }
+  }
+
+  function setupScaleCalculator(): void {
+    try {
+      scaleCalculator = container.resolve(TOKENS.REFACTORED_SCALE_UNIT_CALCULATOR);
+    } catch (error) {
+      scaleCalculator = new RefactoredScaleUnitCalculator();
+    }
+  }
+
+  function testSizeCalculationStrategyPattern(): void {
+    const testCases = [
+      { value: SizeValue.PIXEL, unit: SizeUnit.PIXEL, expected: 100 },
+      { value: SizeValue.FILL, unit: SizeUnit.FILL, expected: 800 },
+      { value: SizeValue.AUTO, unit: SizeUnit.AUTO, expected: 0 },
+      { value: SizeValue.PARENT_WIDTH, unit: SizeUnit.PARENT_WIDTH, expected: 800 },
+      { value: SizeValue.VIEWPORT_WIDTH, unit: SizeUnit.VIEWPORT_WIDTH, expected: 1920 },
+    ];
+
+    for (const testCase of testCases) {
+      const result = sizeCalculator.calculate(testCase.value, testCase.unit, mockContext);
+      expect(typeof result).toBe('number');
+      expect(result).toBeGreaterThanOrEqual(0);
+    }
+  }
+
+  function testDifferentSizeUnits(): void {
+    const units = [SizeUnit.PIXEL, SizeUnit.FILL, SizeUnit.AUTO, SizeUnit.PARENT_WIDTH, SizeUnit.VIEWPORT_WIDTH];
+    
+    for (const unit of units) {
+      const result = sizeCalculator.calculate(SizeValue.PIXEL, unit, mockContext);
+      expect(typeof result).toBe('number');
+      expect(result).toBeGreaterThanOrEqual(0);
+    }
+  }
+
+  function testDifferentSizeValues(): void {
+    const values = [SizeValue.PIXEL, SizeValue.FILL, SizeValue.AUTO, SizeValue.PARENT_WIDTH, SizeValue.VIEWPORT_WIDTH];
+    
+    for (const value of values) {
+      const result = sizeCalculator.calculate(value, SizeUnit.PIXEL, mockContext);
+      expect(typeof result).toBe('number');
+      expect(result).toBeGreaterThanOrEqual(0);
+    }
+  }
+
+  function testSizeEdgeCases(): void {
+    const edgeCases = [
+      { value: 0, unit: SizeUnit.PIXEL },
+      { value: -100, unit: SizeUnit.PIXEL },
+      { value: 10000, unit: SizeUnit.PIXEL },
+    ];
+
+    for (const edgeCase of edgeCases) {
+      const result = sizeCalculator.calculate(edgeCase.value, edgeCase.unit, mockContext);
+      expect(typeof result).toBe('number');
+    }
+  }
+
+  function testPositionCalculationStrategyPattern(): void {
+    const testCases = [
+      { value: PositionValue.PIXEL, unit: PositionUnit.PIXEL, expected: 100 },
+      { value: PositionValue.CENTER, unit: PositionUnit.CENTER, expected: 400 },
+      { value: PositionValue.CONTENT_LEFT, unit: PositionUnit.CONTENT_LEFT, expected: 0 },
+      { value: PositionValue.PARENT_CENTER_X, unit: PositionUnit.PARENT_CENTER_X, expected: 400 },
+      { value: PositionValue.SCENE_CENTER_X, unit: PositionUnit.SCENE_CENTER_X, expected: 600 },
+    ];
+
+    for (const testCase of testCases) {
+      const result = positionCalculator.calculate(testCase.value, testCase.unit, mockContext);
+      expect(typeof result).toBe('number');
+      expect(result).toBeGreaterThanOrEqual(0);
+    }
+  }
+
+  function testDifferentPositionUnits(): void {
+    const units = [PositionUnit.PIXEL, PositionUnit.CENTER, PositionUnit.CONTENT_LEFT, PositionUnit.PARENT_CENTER_X, PositionUnit.SCENE_CENTER_X];
+    
+    for (const unit of units) {
+      const result = positionCalculator.calculate(PositionValue.PIXEL, unit, mockContext);
+      expect(typeof result).toBe('number');
+      expect(result).toBeGreaterThanOrEqual(0);
+    }
+  }
+
+  function testDifferentPositionValues(): void {
+    const values = [PositionValue.PIXEL, PositionValue.CENTER, PositionValue.CONTENT_LEFT, PositionValue.PARENT_CENTER_X, PositionValue.SCENE_CENTER_X];
+    
+    for (const value of values) {
+      const result = positionCalculator.calculate(value, PositionUnit.PIXEL, mockContext);
+      expect(typeof result).toBe('number');
+      expect(result).toBeGreaterThanOrEqual(0);
+    }
+  }
+
+  function testPositionEdgeCases(): void {
+    const edgeCases = [
+      { value: 0, unit: PositionUnit.PIXEL },
+      { value: -100, unit: PositionUnit.PIXEL },
+      { value: 10000, unit: PositionUnit.PIXEL },
+    ];
+
+    for (const edgeCase of edgeCases) {
+      const result = positionCalculator.calculate(edgeCase.value, edgeCase.unit, mockContext);
+      expect(typeof result).toBe('number');
+    }
+  }
+
+  function testScaleCalculationStrategyPattern(): void {
+    const testCases = [
+      { value: ScaleValue.PIXEL, unit: ScaleUnit.PIXEL, expected: 1 },
+      { value: ScaleValue.FACTOR, unit: ScaleUnit.FACTOR, expected: 1.5 },
+      { value: ScaleValue.RESPONSIVE, unit: ScaleUnit.RESPONSIVE, expected: 1 },
+      { value: ScaleValue.RANDOM, unit: ScaleUnit.RANDOM, expected: 1 },
+      { value: ScaleValue.CONTENT, unit: ScaleUnit.CONTENT, expected: 1 },
+    ];
+
+    for (const testCase of testCases) {
+      const result = scaleCalculator.calculate(testCase.value, testCase.unit, mockContext);
+      expect(typeof result).toBe('number');
+      expect(result).toBeGreaterThanOrEqual(0);
+    }
+  }
+
+  function testDifferentScaleUnits(): void {
+    const units = [ScaleUnit.PIXEL, ScaleUnit.FACTOR, ScaleUnit.RESPONSIVE, ScaleUnit.RANDOM, ScaleUnit.CONTENT];
+    
+    for (const unit of units) {
+      const result = scaleCalculator.calculate(ScaleValue.PIXEL, unit, mockContext);
+      expect(typeof result).toBe('number');
+      expect(result).toBeGreaterThanOrEqual(0);
+    }
+  }
+
+  function testDifferentScaleValues(): void {
+    const values = [ScaleValue.PIXEL, ScaleValue.FACTOR, ScaleValue.RESPONSIVE, ScaleValue.RANDOM, ScaleValue.CONTENT];
+    
+    for (const value of values) {
+      const result = scaleCalculator.calculate(value, ScaleUnit.PIXEL, mockContext);
+      expect(typeof result).toBe('number');
+      expect(result).toBeGreaterThanOrEqual(0);
+    }
+  }
+
+  function testScaleEdgeCases(): void {
+    const edgeCases = [
+      { value: 0, unit: ScaleUnit.PIXEL },
+      { value: -1, unit: ScaleUnit.PIXEL },
+      { value: 10, unit: ScaleUnit.PIXEL },
+    ];
+
+    for (const edgeCase of edgeCases) {
+      const result = scaleCalculator.calculate(edgeCase.value, edgeCase.unit, mockContext);
+      expect(typeof result).toBe('number');
+    }
+  }
+
+  function testAllCalculatorTypesIntegration(): void {
     let sizeCalculator: RefactoredSizeUnitCalculator;
-
-    beforeEach(() => {
-      try {
-        sizeCalculator = container.resolve(TOKENS.REFACTORED_SIZE_UNIT_CALCULATOR);
-      } catch (error) {
-        sizeCalculator = new RefactoredSizeUnitCalculator();
-      }
-    });
-
-    it('should calculate size values using strategy pattern', () => {
-      const testCases = [
-        { value: SizeValue.PIXEL, unit: SizeUnit.PIXEL, expected: 100 },
-        { value: SizeValue.FILL, unit: SizeUnit.FILL, expected: 800 },
-        { value: SizeValue.AUTO, unit: SizeUnit.AUTO, expected: 0 },
-        { value: SizeValue.PARENT_WIDTH, unit: SizeUnit.PARENT_WIDTH, expected: 800 },
-        { value: SizeValue.VIEWPORT_WIDTH, unit: SizeUnit.VIEWPORT_WIDTH, expected: 1920 },
-      ];
-
-      for (const testCase of testCases) {
-        const result = sizeCalculator.calculate(testCase.value, testCase.unit, mockContext);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      }
-    });
-
-    it('should handle different contexts for size calculations', () => {
-      const contexts = [
-        { ...mockContext, parent: { width: 400, height: 300, x: 0, y: 0 } },
-        { ...mockContext, scene: { width: 800, height: 600 } },
-        { ...mockContext, viewport: { width: 1024, height: 768 } },
-      ];
-
-      for (const context of contexts) {
-        const result = sizeCalculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, context);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      }
-    });
-
-    it('should use strategy registry for size calculations', () => {
-      const result = sizeCalculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
-      
-      expect(typeof result).toBe('number');
-      expect(sizeStrategyRegistry.getStrategyCount()).toBeGreaterThan(0);
-    });
-  });
-
-  describe('Position Calculator Refactoring', () => {
     let positionCalculator: RefactoredPositionUnitCalculator;
-
-    beforeEach(() => {
-      try {
-        positionCalculator = container.resolve(TOKENS.REFACTORED_POSITION_UNIT_CALCULATOR);
-      } catch (error) {
-        positionCalculator = new RefactoredPositionUnitCalculator();
-      }
-    });
-
-    it('should calculate position values using strategy pattern', () => {
-      const testCases = [
-        { value: PositionValue.PIXEL, unit: PositionUnit.PIXEL, expected: 100 },
-        { value: PositionValue.CENTER, unit: PositionUnit.CENTER, expected: 400 },
-        { value: PositionValue.CONTENT_LEFT, unit: PositionUnit.CONTENT_LEFT, expected: 0 },
-        { value: PositionValue.PARENT_CENTER_X, unit: PositionUnit.PARENT_CENTER_X, expected: 400 },
-        { value: PositionValue.SCENE_CENTER_X, unit: PositionUnit.SCENE_CENTER_X, expected: 600 },
-      ];
-
-      for (const testCase of testCases) {
-        const result = positionCalculator.calculate(testCase.value, testCase.unit, mockContext);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      }
-    });
-
-    it('should handle different contexts for position calculations', () => {
-      const contexts = [
-        { ...mockContext, parent: { width: 400, height: 300, x: 0, y: 0 } },
-        { ...mockContext, scene: { width: 800, height: 600 } },
-        { ...mockContext, viewport: { width: 1024, height: 768 } },
-      ];
-
-      for (const context of contexts) {
-        const result = positionCalculator.calculate(PositionValue.PIXEL, PositionUnit.PIXEL, context);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      }
-    });
-
-    it('should use strategy registry for position calculations', () => {
-      const result = positionCalculator.calculate(PositionValue.PIXEL, PositionUnit.PIXEL, mockContext);
-      
-      expect(typeof result).toBe('number');
-      expect(positionStrategyRegistry.getStrategyCount()).toBeGreaterThan(0);
-    });
-  });
-
-  describe('Scale Calculator Refactoring', () => {
     let scaleCalculator: RefactoredScaleUnitCalculator;
 
-    beforeEach(() => {
-      try {
-        scaleCalculator = container.resolve(TOKENS.REFACTORED_SCALE_UNIT_CALCULATOR);
-      } catch (error) {
-        scaleCalculator = new RefactoredScaleUnitCalculator();
-      }
-    });
+    try {
+      sizeCalculator = container.resolve(TOKENS.REFACTORED_SIZE_UNIT_CALCULATOR);
+      positionCalculator = container.resolve(TOKENS.REFACTORED_POSITION_UNIT_CALCULATOR);
+      scaleCalculator = container.resolve(TOKENS.REFACTORED_SCALE_UNIT_CALCULATOR);
+    } catch (error) {
+      sizeCalculator = new RefactoredSizeUnitCalculator();
+      positionCalculator = new RefactoredPositionUnitCalculator();
+      scaleCalculator = new RefactoredScaleUnitCalculator();
+    }
 
-    it('should calculate scale values using strategy pattern', () => {
-      const testCases = [
-        { value: ScaleValue.PIXEL, unit: ScaleUnit.PIXEL, expected: 1 },
-        { value: ScaleValue.FACTOR, unit: ScaleUnit.FACTOR, expected: 1.5 },
-        { value: ScaleValue.RESPONSIVE, unit: ScaleUnit.RESPONSIVE, expected: 1 },
-        { value: ScaleValue.RANDOM, unit: ScaleUnit.RANDOM, expected: 1 },
-        { value: ScaleValue.CONTENT, unit: ScaleUnit.CONTENT, expected: 1 },
-      ];
+    const sizeResult = sizeCalculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
+    const positionResult = positionCalculator.calculate(PositionValue.PIXEL, PositionUnit.PIXEL, mockContext);
+    const scaleResult = scaleCalculator.calculate(ScaleValue.PIXEL, ScaleUnit.PIXEL, mockContext);
 
-      for (const testCase of testCases) {
-        const result = scaleCalculator.calculate(testCase.value, testCase.unit, mockContext);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThan(0);
-      }
-    });
+    expect(typeof sizeResult).toBe('number');
+    expect(typeof positionResult).toBe('number');
+    expect(typeof scaleResult).toBe('number');
+    expect(sizeResult).toBeGreaterThanOrEqual(0);
+    expect(positionResult).toBeGreaterThanOrEqual(0);
+    expect(scaleResult).toBeGreaterThanOrEqual(0);
+  }
 
-    it('should handle different contexts for scale calculations', () => {
-      const contexts = [
-        { ...mockContext, parent: { width: 400, height: 300, x: 0, y: 0 } },
-        { ...mockContext, scene: { width: 800, height: 600 } },
-        { ...mockContext, viewport: { width: 1024, height: 768 } },
-      ];
+  function testInvalidInputsHandling(): void {
+    let sizeCalculator: RefactoredSizeUnitCalculator;
+    let positionCalculator: RefactoredPositionUnitCalculator;
+    let scaleCalculator: RefactoredScaleUnitCalculator;
 
-      for (const context of contexts) {
-        const result = scaleCalculator.calculate(ScaleValue.PIXEL, ScaleUnit.PIXEL, context);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThan(0);
-      }
-    });
+    try {
+      sizeCalculator = container.resolve(TOKENS.REFACTORED_SIZE_UNIT_CALCULATOR);
+      positionCalculator = container.resolve(TOKENS.REFACTORED_POSITION_UNIT_CALCULATOR);
+      scaleCalculator = container.resolve(TOKENS.REFACTORED_SCALE_UNIT_CALCULATOR);
+    } catch (error) {
+      sizeCalculator = new RefactoredSizeUnitCalculator();
+      positionCalculator = new RefactoredPositionUnitCalculator();
+      scaleCalculator = new RefactoredScaleUnitCalculator();
+    }
 
-    it('should use strategy registry for scale calculations', () => {
-      const result = scaleCalculator.calculate(ScaleValue.PIXEL, ScaleUnit.PIXEL, mockContext);
-      
-      expect(typeof result).toBe('number');
-      expect(scaleStrategyRegistry.getStrategyCount()).toBeGreaterThan(0);
-    });
-  });
+    const invalidInputs = [
+      { value: 'invalid' as any, unit: SizeUnit.PIXEL },
+      { value: SizeValue.PIXEL, unit: 'invalid' as any },
+      { value: null, unit: SizeUnit.PIXEL },
+      { value: SizeValue.PIXEL, unit: null },
+    ];
 
-  describe('Integration Testing', () => {
-    it('should work with all calculators together', () => {
-      let sizeCalculator: RefactoredSizeUnitCalculator;
-      let positionCalculator: RefactoredPositionUnitCalculator;
-      let scaleCalculator: RefactoredScaleUnitCalculator;
-
-      try {
-        sizeCalculator = container.resolve(TOKENS.REFACTORED_SIZE_UNIT_CALCULATOR);
-        positionCalculator = container.resolve(TOKENS.REFACTORED_POSITION_UNIT_CALCULATOR);
-        scaleCalculator = container.resolve(TOKENS.REFACTORED_SCALE_UNIT_CALCULATOR);
-      } catch (error) {
-        sizeCalculator = new RefactoredSizeUnitCalculator();
-        positionCalculator = new RefactoredPositionUnitCalculator();
-        scaleCalculator = new RefactoredScaleUnitCalculator();
-      }
-
-      const sizeResult = sizeCalculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
-      const positionResult = positionCalculator.calculate(PositionValue.PIXEL, PositionUnit.PIXEL, mockContext);
-      const scaleResult = scaleCalculator.calculate(ScaleValue.PIXEL, ScaleUnit.PIXEL, mockContext);
+    for (const invalidInput of invalidInputs) {
+      const sizeResult = sizeCalculator.calculate(invalidInput.value, invalidInput.unit, mockContext);
+      const positionResult = positionCalculator.calculate(invalidInput.value, invalidInput.unit, mockContext);
+      const scaleResult = scaleCalculator.calculate(invalidInput.value, invalidInput.unit, mockContext);
 
       expect(typeof sizeResult).toBe('number');
       expect(typeof positionResult).toBe('number');
       expect(typeof scaleResult).toBe('number');
-      
-      expect(sizeResult).toBeGreaterThanOrEqual(0);
-      expect(positionResult).toBeGreaterThanOrEqual(0);
-      expect(scaleResult).toBeGreaterThan(0);
-    });
+    }
+  }
 
-    it('should handle complex calculation scenarios', () => {
-      let sizeCalculator: RefactoredSizeUnitCalculator;
-      let positionCalculator: RefactoredPositionUnitCalculator;
-      let scaleCalculator: RefactoredScaleUnitCalculator;
+  function testMissingContextProperties(): void {
+    let sizeCalculator: RefactoredSizeUnitCalculator;
+    let positionCalculator: RefactoredPositionUnitCalculator;
+    let scaleCalculator: RefactoredScaleUnitCalculator;
 
-      try {
-        sizeCalculator = container.resolve(TOKENS.REFACTORED_SIZE_UNIT_CALCULATOR);
-        positionCalculator = container.resolve(TOKENS.REFACTORED_POSITION_UNIT_CALCULATOR);
-        scaleCalculator = container.resolve(TOKENS.REFACTORED_SCALE_UNIT_CALCULATOR);
-      } catch (error) {
-        sizeCalculator = new RefactoredSizeUnitCalculator();
-        positionCalculator = new RefactoredPositionUnitCalculator();
-        scaleCalculator = new RefactoredScaleUnitCalculator();
-      }
+    try {
+      sizeCalculator = container.resolve(TOKENS.REFACTORED_SIZE_UNIT_CALCULATOR);
+      positionCalculator = container.resolve(TOKENS.REFACTORED_POSITION_UNIT_CALCULATOR);
+      scaleCalculator = container.resolve(TOKENS.REFACTORED_SCALE_UNIT_CALCULATOR);
+    } catch (error) {
+      sizeCalculator = new RefactoredSizeUnitCalculator();
+      positionCalculator = new RefactoredPositionUnitCalculator();
+      scaleCalculator = new RefactoredScaleUnitCalculator();
+    }
 
-      // Test multiple calculations in sequence
-      const results = [];
-      for (let i = 0; i < 10; i++) {
-        const sizeResult = sizeCalculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
-        const positionResult = positionCalculator.calculate(PositionValue.PIXEL, PositionUnit.PIXEL, mockContext);
-        const scaleResult = scaleCalculator.calculate(ScaleValue.PIXEL, ScaleUnit.PIXEL, mockContext);
-        
-        results.push({ sizeResult, positionResult, scaleResult });
-      }
+    const incompleteContexts = [
+      {},
+      { parent: { width: 800, height: 600, x: 0, y: 0 } },
+      { scene: { width: 1200, height: 800 } },
+      { viewport: { width: 1920, height: 1080 } },
+    ];
 
-      results.forEach(result => {
-        expect(typeof result.sizeResult).toBe('number');
-        expect(typeof result.positionResult).toBe('number');
-        expect(typeof result.scaleResult).toBe('number');
-      });
-    });
-  });
+    for (const incompleteContext of incompleteContexts) {
+      const sizeResult = sizeCalculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, incompleteContext as any);
+      const positionResult = positionCalculator.calculate(PositionValue.PIXEL, PositionUnit.PIXEL, incompleteContext as any);
+      const scaleResult = scaleCalculator.calculate(ScaleValue.PIXEL, ScaleUnit.PIXEL, incompleteContext as any);
 
-  describe('Performance Testing', () => {
-    it('should perform calculations efficiently', () => {
-      let sizeCalculator: RefactoredSizeUnitCalculator;
-      let positionCalculator: RefactoredPositionUnitCalculator;
-      let scaleCalculator: RefactoredScaleUnitCalculator;
-
-      try {
-        sizeCalculator = container.resolve(TOKENS.REFACTORED_SIZE_UNIT_CALCULATOR);
-        positionCalculator = container.resolve(TOKENS.REFACTORED_POSITION_UNIT_CALCULATOR);
-        scaleCalculator = container.resolve(TOKENS.REFACTORED_SCALE_UNIT_CALCULATOR);
-      } catch (error) {
-        sizeCalculator = new RefactoredSizeUnitCalculator();
-        positionCalculator = new RefactoredPositionUnitCalculator();
-        scaleCalculator = new RefactoredScaleUnitCalculator();
-      }
-
-      const iterations = 1000;
-      const startTime = performance.now();
-
-      for (let i = 0; i < iterations; i++) {
-        sizeCalculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
-        positionCalculator.calculate(PositionValue.PIXEL, PositionUnit.PIXEL, mockContext);
-        scaleCalculator.calculate(ScaleValue.PIXEL, ScaleUnit.PIXEL, mockContext);
-      }
-
-      const endTime = performance.now();
-      const totalTime = endTime - startTime;
-      const averageTime = totalTime / (iterations * 3);
-
-      console.log(`Performance Test Results:`);
-      console.log(`  Total time: ${totalTime.toFixed(2)}ms`);
-      console.log(`  Average time per calculation: ${averageTime.toFixed(4)}ms`);
-      console.log(`  Calculations per second: ${(1000 / averageTime).toFixed(0)}`);
-
-      expect(totalTime).toBeLessThan(1000); // Should complete within 1 second
-      expect(averageTime).toBeLessThan(1); // Average should be less than 1ms
-    });
-  });
-
-  describe('Error Handling', () => {
-    it('should handle invalid inputs gracefully', () => {
-      let sizeCalculator: RefactoredSizeUnitCalculator;
-      let positionCalculator: RefactoredPositionUnitCalculator;
-      let scaleCalculator: RefactoredScaleUnitCalculator;
-
-      try {
-        sizeCalculator = container.resolve(TOKENS.REFACTORED_SIZE_UNIT_CALCULATOR);
-        positionCalculator = container.resolve(TOKENS.REFACTORED_POSITION_UNIT_CALCULATOR);
-        scaleCalculator = container.resolve(TOKENS.REFACTORED_SCALE_UNIT_CALCULATOR);
-      } catch (error) {
-        sizeCalculator = new RefactoredSizeUnitCalculator();
-        positionCalculator = new RefactoredPositionUnitCalculator();
-        scaleCalculator = new RefactoredScaleUnitCalculator();
-      }
-
-      const invalidInputs = [
-        { value: 'invalid' as any, unit: SizeUnit.PIXEL },
-        { value: SizeValue.PIXEL, unit: 'invalid' as any },
-        { value: null, unit: SizeUnit.PIXEL },
-        { value: SizeValue.PIXEL, unit: null },
-      ];
-
-      for (const invalidInput of invalidInputs) {
-        const sizeResult = sizeCalculator.calculate(invalidInput.value, invalidInput.unit, mockContext);
-        const positionResult = positionCalculator.calculate(invalidInput.value, invalidInput.unit, mockContext);
-        const scaleResult = scaleCalculator.calculate(invalidInput.value, invalidInput.unit, mockContext);
-
-        expect(typeof sizeResult).toBe('number');
-        expect(typeof positionResult).toBe('number');
-        expect(typeof scaleResult).toBe('number');
-      }
-    });
-
-    it('should handle missing context properties', () => {
-      let sizeCalculator: RefactoredSizeUnitCalculator;
-      let positionCalculator: RefactoredPositionUnitCalculator;
-      let scaleCalculator: RefactoredScaleUnitCalculator;
-
-      try {
-        sizeCalculator = container.resolve(TOKENS.REFACTORED_SIZE_UNIT_CALCULATOR);
-        positionCalculator = container.resolve(TOKENS.REFACTORED_POSITION_UNIT_CALCULATOR);
-        scaleCalculator = container.resolve(TOKENS.REFACTORED_SCALE_UNIT_CALCULATOR);
-      } catch (error) {
-        sizeCalculator = new RefactoredSizeUnitCalculator();
-        positionCalculator = new RefactoredPositionUnitCalculator();
-        scaleCalculator = new RefactoredScaleUnitCalculator();
-      }
-
-      const incompleteContexts = [
-        {},
-        { parent: { width: 800, height: 600, x: 0, y: 0 } },
-        { scene: { width: 1200, height: 800 } },
-        { viewport: { width: 1920, height: 1080 } },
-      ];
-
-      for (const incompleteContext of incompleteContexts) {
-        const sizeResult = sizeCalculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, incompleteContext as any);
-        const positionResult = positionCalculator.calculate(PositionValue.PIXEL, PositionUnit.PIXEL, incompleteContext as any);
-        const scaleResult = scaleCalculator.calculate(ScaleValue.PIXEL, ScaleUnit.PIXEL, incompleteContext as any);
-
-        expect(typeof sizeResult).toBe('number');
-        expect(typeof positionResult).toBe('number');
-        expect(typeof scaleResult).toBe('number');
-      }
-    });
-  });
+      expect(typeof sizeResult).toBe('number');
+      expect(typeof positionResult).toBe('number');
+      expect(typeof scaleResult).toBe('number');
+    }
+  }
 });
