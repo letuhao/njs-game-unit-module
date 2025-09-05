@@ -11,17 +11,7 @@ describe('UnitCalculationMemento', () => {
   let mockPerformanceMetrics: any;
 
   beforeEach(() => {
-    mockInput = { value: 100, unit: SizeUnit.PIXEL };
-    mockContext = {
-      parent: { width: 800, height: 600, x: 0, y: 0 },
-      scene: { width: 1920, height: 1080 },
-      viewport: { width: 1366, height: 768 },
-    };
-    mockPerformanceMetrics = {
-      totalTime: 50,
-      stepTimes: { validation: 10, calculation: 30, rounding: 10 },
-      memoryUsage: 1024,
-    };
+    setupTestEnvironment();
   });
 
   afterEach(() => {
@@ -30,408 +20,618 @@ describe('UnitCalculationMemento', () => {
 
   describe('constructor', () => {
     it('should create memento with all required properties', () => {
-      // Use DI container to resolve memento instead of direct instantiation
-      try {
-        memento = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
-        // Set properties for the resolved memento
-        (memento as any).input = mockInput;
-        (memento as any).context = mockContext;
-        (memento as any).result = 150;
-        (memento as any).unitId = 'test-unit-1';
-        (memento as any).unitType = UnitType.SIZE;
-        (memento as any).templateName = 'SizeCalculationTemplate';
-        (memento as any).strategyName = 'SizeUnitStrategy';
-        (memento as any).validatorNames = ['RangeValidator', 'TypeValidator'];
-        (memento as any).performanceMetrics = mockPerformanceMetrics;
-        (memento as any).isSuccess = true;
-        (memento as any).error = undefined;
-        (memento as any).timestamp = new Date();
-      } catch (error) {
-        // Fallback to direct instantiation if DI fails
-        memento = new UnitCalculationMemento(
-          mockInput,
-          mockContext,
-          150,
-          'test-unit-1',
-          UnitType.SIZE,
-          'SizeCalculationTemplate',
-          'SizeUnitStrategy',
-          ['RangeValidator', 'TypeValidator'],
-          mockPerformanceMetrics,
-          true,
-          undefined,
-          new Date()
-        );
-      }
-
-      expect(memento).toBeInstanceOf(UnitCalculationMemento);
+      testMementoCreation();
     });
 
-    it('should create memento with minimal properties', () => {
-      let minimalMemento: UnitCalculationMemento;
-      try {
-        minimalMemento = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
-        (minimalMemento as any).input = mockInput;
-        (minimalMemento as any).context = mockContext;
-        (minimalMemento as any).result = 100;
-        (minimalMemento as any).unitId = 'minimal-unit';
-        (minimalMemento as any).unitType = UnitType.SIZE;
-        (minimalMemento as any).templateName = 'MinimalTemplate';
-        (minimalMemento as any).strategyName = 'MinimalStrategy';
-        (minimalMemento as any).validatorNames = [];
-        (minimalMemento as any).performanceMetrics = {};
-        (minimalMemento as any).isSuccess = true;
-        (minimalMemento as any).error = undefined;
-        (minimalMemento as any).timestamp = new Date();
-      } catch (error) {
-        minimalMemento = new UnitCalculationMemento(
-          mockInput,
-          mockContext,
-          100,
-          'minimal-unit',
-          UnitType.SIZE,
-          'MinimalTemplate',
-          'MinimalStrategy',
-          [],
-          {},
-          true,
-          undefined,
-          new Date()
-        );
-      }
+    it('should create memento with default values', () => {
+      testDefaultMementoCreation();
+    });
 
-      expect(minimalMemento).toBeInstanceOf(UnitCalculationMemento);
+    it('should handle missing properties gracefully', () => {
+      testMissingPropertiesHandling();
     });
   });
 
   describe('property access', () => {
-    beforeEach(() => {
-      try {
-        memento = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
-        (memento as any).input = mockInput;
-        (memento as any).context = mockContext;
-        (memento as any).result = 150;
-        (memento as any).unitId = 'test-unit-1';
-        (memento as any).unitType = UnitType.SIZE;
-        (memento as any).templateName = 'SizeCalculationTemplate';
-        (memento as any).strategyName = 'SizeUnitStrategy';
-        (memento as any).validatorNames = ['RangeValidator', 'TypeValidator'];
-        (memento as any).performanceMetrics = mockPerformanceMetrics;
-        (memento as any).isSuccess = true;
-        (memento as any).error = undefined;
-        (memento as any).timestamp = new Date();
-      } catch (error) {
-        memento = new UnitCalculationMemento(
-          mockInput,
-          mockContext,
-          150,
-          'test-unit-1',
-          UnitType.SIZE,
-          'SizeCalculationTemplate',
-          'SizeUnitStrategy',
-          ['RangeValidator', 'TypeValidator'],
-          mockPerformanceMetrics,
-          true,
-          undefined,
-          new Date()
-        );
-      }
+    it('should get input property', () => {
+      testInputPropertyAccess();
     });
 
-    it('should provide access to input', () => {
-      expect((memento as any).input).toBe(mockInput);
+    it('should get context property', () => {
+      testContextPropertyAccess();
     });
 
-    it('should provide access to context', () => {
-      expect((memento as any).context).toBe(mockContext);
+    it('should get result property', () => {
+      testResultPropertyAccess();
     });
 
-    it('should provide access to result', () => {
-      expect((memento as any).result).toBe(150);
+    it('should get unitId property', () => {
+      testUnitIdPropertyAccess();
     });
 
-    it('should provide access to unit ID', () => {
-      expect((memento as any).unitId).toBe('test-unit-1');
-    });
-
-    it('should provide access to unit type', () => {
-      expect((memento as any).unitType).toBe(UnitType.SIZE);
-    });
-
-    it('should provide access to template name', () => {
-      expect((memento as any).templateName).toBe('SizeCalculationTemplate');
-    });
-
-    it('should provide access to strategy name', () => {
-      expect((memento as any).strategyName).toBe('SizeUnitStrategy');
-    });
-
-    it('should provide access to validator names', () => {
-      expect((memento as any).validatorNames).toEqual(['RangeValidator', 'TypeValidator']);
-    });
-
-    it('should provide access to performance metrics', () => {
-      expect((memento as any).performanceMetrics).toBe(mockPerformanceMetrics);
-    });
-
-    it('should provide access to success status', () => {
-      expect((memento as any).isSuccess).toBe(true);
-    });
-
-    it('should provide access to error', () => {
-      expect((memento as any).error).toBeUndefined();
-    });
-
-    it('should provide access to timestamp', () => {
-      expect((memento as any).timestamp).toBeInstanceOf(Date);
+    it('should get unitType property', () => {
+      testUnitTypePropertyAccess();
     });
   });
 
-  describe('error handling', () => {
-    it('should handle memento creation errors gracefully', () => {
-      const invalidInputs = [null, undefined, 'string', {}, [], true];
-      
-      for (const input of invalidInputs) {
-        let errorMemento: UnitCalculationMemento;
-        try {
-          errorMemento = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
-          (errorMemento as any).input = input;
-          (errorMemento as any).context = mockContext;
-          (errorMemento as any).result = 0;
-          (errorMemento as any).unitId = 'error-unit';
-          (errorMemento as any).unitType = UnitType.SIZE;
-          (errorMemento as any).templateName = 'ErrorTemplate';
-          (errorMemento as any).strategyName = 'ErrorStrategy';
-          (errorMemento as any).validatorNames = [];
-          (errorMemento as any).performanceMetrics = {};
-          (errorMemento as any).isSuccess = false;
-          (errorMemento as any).error = 'Invalid input';
-          (errorMemento as any).timestamp = new Date();
-        } catch (error) {
-          errorMemento = new UnitCalculationMemento(
-            input,
-            mockContext,
-            0,
-            'error-unit',
-            UnitType.SIZE,
-            'ErrorTemplate',
-            'ErrorStrategy',
-            [],
-            {},
-            false,
-            'Invalid input',
-            new Date()
-          );
-        }
-
-        expect(errorMemento).toBeInstanceOf(UnitCalculationMemento);
-        expect((errorMemento as any).isSuccess).toBe(false);
-        expect((errorMemento as any).error).toBe('Invalid input');
-      }
+  describe('metadata access', () => {
+    it('should get template name', () => {
+      testTemplateNameAccess();
     });
 
-    it('should handle missing context gracefully', () => {
-      let contextMemento: UnitCalculationMemento;
-      try {
-        contextMemento = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
-        (contextMemento as any).input = mockInput;
-        (contextMemento as any).context = null;
-        (contextMemento as any).result = 100;
-        (contextMemento as any).unitId = 'context-unit';
-        (contextMemento as any).unitType = UnitType.SIZE;
-        (contextMemento as any).templateName = 'ContextTemplate';
-        (contextMemento as any).strategyName = 'ContextStrategy';
-        (contextMemento as any).validatorNames = [];
-        (contextMemento as any).performanceMetrics = {};
-        (contextMemento as any).isSuccess = true;
-        (contextMemento as any).error = undefined;
-        (contextMemento as any).timestamp = new Date();
-      } catch (error) {
-        contextMemento = new UnitCalculationMemento(
-          mockInput,
-          null as any,
-          100,
-          'context-unit',
-          UnitType.SIZE,
-          'ContextTemplate',
-          'ContextStrategy',
-          [],
-          {},
-          true,
-          undefined,
-          new Date()
-        );
-      }
+    it('should get strategy name', () => {
+      testStrategyNameAccess();
+    });
 
-      expect(contextMemento).toBeInstanceOf(UnitCalculationMemento);
-      expect((contextMemento as any).context).toBeNull();
+    it('should get validator names', () => {
+      testValidatorNamesAccess();
+    });
+
+    it('should get performance metrics', () => {
+      testPerformanceMetricsAccess();
+    });
+  });
+
+  describe('status and error handling', () => {
+    it('should get success status', () => {
+      testSuccessStatusAccess();
+    });
+
+    it('should get error information', () => {
+      testErrorInformationAccess();
+    });
+
+    it('should get timestamp', () => {
+      testTimestampAccess();
+    });
+  });
+
+  describe('serialization', () => {
+    it('should serialize to JSON', () => {
+      testJsonSerialization();
+    });
+
+    it('should deserialize from JSON', () => {
+      testJsonDeserialization();
+    });
+
+    it('should handle circular references', () => {
+      testCircularReferenceHandling();
+    });
+  });
+
+  describe('validation', () => {
+    it('should validate memento data', () => {
+      testMementoDataValidation();
+    });
+
+    it('should handle invalid data gracefully', () => {
+      testInvalidDataHandling();
+    });
+
+    it('should validate required properties', () => {
+      testRequiredPropertiesValidation();
     });
   });
 
   describe('performance', () => {
-    beforeEach(() => {
-      try {
-        memento = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
-        (memento as any).input = mockInput;
-        (memento as any).context = mockContext;
-        (memento as any).result = 150;
-        (memento as any).unitId = 'test-unit-1';
-        (memento as any).unitType = UnitType.SIZE;
-        (memento as any).templateName = 'SizeCalculationTemplate';
-        (memento as any).strategyName = 'SizeUnitStrategy';
-        (memento as any).validatorNames = ['RangeValidator', 'TypeValidator'];
-        (memento as any).performanceMetrics = mockPerformanceMetrics;
-        (memento as any).isSuccess = true;
-        (memento as any).error = undefined;
-        (memento as any).timestamp = new Date();
-      } catch (error) {
-        memento = new UnitCalculationMemento(
-          mockInput,
-          mockContext,
-          150,
-          'test-unit-1',
-          UnitType.SIZE,
-          'SizeCalculationTemplate',
-          'SizeUnitStrategy',
-          ['RangeValidator', 'TypeValidator'],
-          mockPerformanceMetrics,
-          true,
-          undefined,
-          new Date()
-        );
-      }
+    it('should create memento efficiently', () => {
+      testMementoCreationEfficiency();
     });
 
-    it('should create mementos efficiently', () => {
-      const startTime = performance.now();
-      
-      for (let i = 0; i < 1000; i++) {
-        let testMemento: UnitCalculationMemento;
-        try {
-          testMemento = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
-          (testMemento as any).input = mockInput;
-          (testMemento as any).context = mockContext;
-          (testMemento as any).result = i;
-          (testMemento as any).unitId = `unit-${i}`;
-          (testMemento as any).unitType = UnitType.SIZE;
-          (testMemento as any).templateName = `Template${i}`;
-          (testMemento as any).strategyName = `Strategy${i}`;
-          (testMemento as any).validatorNames = [];
-          (testMemento as any).performanceMetrics = {};
-          (testMemento as any).isSuccess = true;
-          (testMemento as any).error = undefined;
-          (testMemento as any).timestamp = new Date();
-        } catch (error) {
-          testMemento = new UnitCalculationMemento(
-            mockInput,
-            mockContext,
-            i,
-            `unit-${i}`,
-            UnitType.SIZE,
-            `Template${i}`,
-            `Strategy${i}`,
-            [],
-            {},
-            true,
-            undefined,
-            new Date()
-          );
-        }
-      }
-      
-      const endTime = performance.now();
-      const totalTime = endTime - startTime;
-
-      expect(totalTime).toBeLessThan(100); // Should complete within 100ms
+    it('should serialize efficiently', () => {
+      testSerializationEfficiency();
     });
   });
 
   describe('integration', () => {
     it('should work with different unit types', () => {
-      const unitTypes = [UnitType.SIZE, UnitType.POSITION, UnitType.SCALE];
-      
-      for (const unitType of unitTypes) {
-        let typeMemento: UnitCalculationMemento;
-        try {
-          typeMemento = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
-          (typeMemento as any).input = mockInput;
-          (typeMemento as any).context = mockContext;
-          (typeMemento as any).result = 100;
-          (typeMemento as any).unitId = `unit-${unitType}`;
-          (typeMemento as any).unitType = unitType;
-          (typeMemento as any).templateName = `${unitType}Template`;
-          (typeMemento as any).strategyName = `${unitType}Strategy`;
-          (typeMemento as any).validatorNames = [];
-          (typeMemento as any).performanceMetrics = {};
-          (typeMemento as any).isSuccess = true;
-          (typeMemento as any).error = undefined;
-          (typeMemento as any).timestamp = new Date();
-        } catch (error) {
-          typeMemento = new UnitCalculationMemento(
-            mockInput,
-            mockContext,
-            100,
-            `unit-${unitType}`,
-            unitType,
-            `${unitType}Template`,
-            `${unitType}Strategy`,
-            [],
-            {},
-            true,
-            undefined,
-            new Date()
-          );
-        }
+      testDifferentUnitTypes();
+    });
 
-        expect(typeMemento).toBeInstanceOf(UnitCalculationMemento);
-        expect((typeMemento as any).unitType).toBe(unitType);
-        expect((typeMemento as any).unitId).toBe(`unit-${unitType}`);
-      }
+    it('should work with different contexts', () => {
+      testDifferentContexts();
     });
 
     it('should work with different performance metrics', () => {
-      const metrics = [
-        { totalTime: 10, stepTimes: {}, memoryUsage: 512 },
-        { totalTime: 100, stepTimes: { validation: 20, calculation: 60, rounding: 20 }, memoryUsage: 2048 },
-        { totalTime: 1000, stepTimes: { validation: 100, calculation: 800, rounding: 100 }, memoryUsage: 4096 },
-      ];
-
-      for (const metric of metrics) {
-        let metricMemento: UnitCalculationMemento;
-        try {
-          metricMemento = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
-          (metricMemento as any).input = mockInput;
-          (metricMemento as any).context = mockContext;
-          (metricMemento as any).result = 100;
-          (metricMemento as any).unitId = 'metric-unit';
-          (metricMemento as any).unitType = UnitType.SIZE;
-          (metricMemento as any).templateName = 'MetricTemplate';
-          (metricMemento as any).strategyName = 'MetricStrategy';
-          (metricMemento as any).validatorNames = [];
-          (metricMemento as any).performanceMetrics = metric;
-          (metricMemento as any).isSuccess = true;
-          (metricMemento as any).error = undefined;
-          (metricMemento as any).timestamp = new Date();
-        } catch (error) {
-          metricMemento = new UnitCalculationMemento(
-            mockInput,
-            mockContext,
-            100,
-            'metric-unit',
-            UnitType.SIZE,
-            'MetricTemplate',
-            'MetricStrategy',
-            [],
-            metric,
-            true,
-            undefined,
-            new Date()
-          );
-        }
-
-        expect(metricMemento).toBeInstanceOf(UnitCalculationMemento);
-        expect((metricMemento as any).performanceMetrics).toBe(metric);
-      }
+      testDifferentPerformanceMetrics();
     });
   });
+
+  // Helper functions for test setup and execution
+
+  function setupTestEnvironment(): void {
+    createMockInput();
+    createMockContext();
+    createMockPerformanceMetrics();
+  }
+
+  function createMockInput(): void {
+    mockInput = { value: 100, unit: SizeUnit.PIXEL };
+  }
+
+  function createMockContext(): void {
+    mockContext = {
+      parent: { width: 800, height: 600, x: 0, y: 0 },
+      scene: { width: 1920, height: 1080 },
+      viewport: { width: 1366, height: 768 },
+    };
+  }
+
+  function createMockPerformanceMetrics(): void {
+    mockPerformanceMetrics = {
+      totalTime: 50,
+      stepTimes: { validation: 10, calculation: 30, rounding: 10 },
+      memoryUsage: 1024,
+    };
+  }
+
+  function testMementoCreation(): void {
+    const memento = createMementoWithProperties();
+    
+    verifyMementoProperties(memento);
+  }
+
+  function createMementoWithProperties(): UnitCalculationMemento {
+    try {
+      const memento = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
+      setMementoProperties(memento);
+      return memento;
+    } catch (error) {
+      return new UnitCalculationMemento(
+        mockInput,
+        mockContext,
+        150,
+        'test-unit-1',
+        UnitType.SIZE,
+        'SizeCalculationTemplate',
+        'SizeUnitStrategy',
+        ['RangeValidator', 'TypeValidator'],
+        mockPerformanceMetrics,
+        true,
+        undefined,
+        new Date()
+      );
+    }
+  }
+
+  function setMementoProperties(memento: UnitCalculationMemento): void {
+    (memento as any).input = mockInput;
+    (memento as any).context = mockContext;
+    (memento as any).result = 150;
+    (memento as any).unitId = 'test-unit-1';
+    (memento as any).unitType = UnitType.SIZE;
+    (memento as any).templateName = 'SizeCalculationTemplate';
+    (memento as any).strategyName = 'SizeUnitStrategy';
+    (memento as any).validatorNames = ['RangeValidator', 'TypeValidator'];
+    (memento as any).performanceMetrics = mockPerformanceMetrics;
+    (memento as any).isSuccess = true;
+    (memento as any).error = undefined;
+    (memento as any).timestamp = new Date();
+  }
+
+  function verifyMementoProperties(memento: UnitCalculationMemento): void {
+    expect(memento.input).toBe(mockInput);
+    expect(memento.context).toBe(mockContext);
+    expect(memento.result).toBe(150);
+    expect(memento.unitId).toBe('test-unit-1');
+    expect(memento.unitType).toBe(UnitType.SIZE);
+    expect(memento.templateName).toBe('SizeCalculationTemplate');
+    expect(memento.strategyName).toBe('SizeUnitStrategy');
+    expect(memento.validatorNames).toEqual(['RangeValidator', 'TypeValidator']);
+    expect(memento.performanceMetrics).toBe(mockPerformanceMetrics);
+    expect(memento.isSuccess).toBe(true);
+    expect(memento.error).toBeUndefined();
+    expect(memento.timestamp).toBeInstanceOf(Date);
+  }
+
+  function testDefaultMementoCreation(): void {
+    const defaultMemento = createDefaultMemento();
+    
+    expect(defaultMemento).toBeInstanceOf(UnitCalculationMemento);
+    expect(defaultMemento.input).toBeDefined();
+    expect(defaultMemento.context).toBeDefined();
+  }
+
+  function createDefaultMemento(): UnitCalculationMemento {
+    try {
+      const memento = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
+      setDefaultMementoProperties(memento);
+      return memento;
+    } catch (error) {
+      return new UnitCalculationMemento(
+        mockInput,
+        mockContext,
+        0,
+        'default-unit',
+        UnitType.SIZE,
+        'DefaultTemplate',
+        'DefaultStrategy',
+        [],
+        {},
+        false,
+        undefined,
+        new Date()
+      );
+    }
+  }
+
+  function setDefaultMementoProperties(memento: UnitCalculationMemento): void {
+    (memento as any).input = mockInput;
+    (memento as any).context = mockContext;
+    (memento as any).result = 0;
+    (memento as any).unitId = 'default-unit';
+    (memento as any).unitType = UnitType.SIZE;
+    (memento as any).templateName = 'DefaultTemplate';
+    (memento as any).strategyName = 'DefaultStrategy';
+    (memento as any).validatorNames = [];
+    (memento as any).performanceMetrics = {};
+    (memento as any).isSuccess = false;
+    (memento as any).error = undefined;
+    (memento as any).timestamp = new Date();
+  }
+
+  function testMissingPropertiesHandling(): void {
+    const memento = createMementoWithMissingProperties();
+    
+    expect(memento).toBeInstanceOf(UnitCalculationMemento);
+    expect(() => memento.input).not.toThrow();
+  }
+
+  function createMementoWithMissingProperties(): UnitCalculationMemento {
+    try {
+      const memento = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
+      setMementoWithMissingProperties(memento);
+      return memento;
+    } catch (error) {
+      return new UnitCalculationMemento(
+        null,
+        null,
+        0,
+        '',
+        UnitType.SIZE,
+        '',
+        '',
+        [],
+        {},
+        false,
+        undefined,
+        new Date()
+      );
+    }
+  }
+
+  function setMementoWithMissingProperties(memento: UnitCalculationMemento): void {
+    (memento as any).input = null;
+    (memento as any).context = null;
+    (memento as any).result = 0;
+    (memento as any).unitId = '';
+    (memento as any).unitType = UnitType.SIZE;
+    (memento as any).templateName = '';
+    (memento as any).strategyName = '';
+    (memento as any).validatorNames = [];
+    (memento as any).performanceMetrics = {};
+    (memento as any).isSuccess = false;
+    (memento as any).error = undefined;
+    (memento as any).timestamp = new Date();
+  }
+
+  function testInputPropertyAccess(): void {
+    const memento = createMementoWithProperties();
+    
+    expect(memento.input).toBe(mockInput);
+    expect(typeof memento.input).toBe('object');
+  }
+
+  function testContextPropertyAccess(): void {
+    const memento = createMementoWithProperties();
+    
+    expect(memento.context).toBe(mockContext);
+    expect(typeof memento.context).toBe('object');
+  }
+
+  function testResultPropertyAccess(): void {
+    const memento = createMementoWithProperties();
+    
+    expect(memento.result).toBe(150);
+    expect(typeof memento.result).toBe('number');
+  }
+
+  function testUnitIdPropertyAccess(): void {
+    const memento = createMementoWithProperties();
+    
+    expect(memento.unitId).toBe('test-unit-1');
+    expect(typeof memento.unitId).toBe('string');
+  }
+
+  function testUnitTypePropertyAccess(): void {
+    const memento = createMementoWithProperties();
+    
+    expect(memento.unitType).toBe(UnitType.SIZE);
+    expect(typeof memento.unitType).toBe('string');
+  }
+
+  function testTemplateNameAccess(): void {
+    const memento = createMementoWithProperties();
+    
+    expect(memento.templateName).toBe('SizeCalculationTemplate');
+    expect(typeof memento.templateName).toBe('string');
+  }
+
+  function testStrategyNameAccess(): void {
+    const memento = createMementoWithProperties();
+    
+    expect(memento.strategyName).toBe('SizeUnitStrategy');
+    expect(typeof memento.strategyName).toBe('string');
+  }
+
+  function testValidatorNamesAccess(): void {
+    const memento = createMementoWithProperties();
+    
+    expect(memento.validatorNames).toEqual(['RangeValidator', 'TypeValidator']);
+    expect(Array.isArray(memento.validatorNames)).toBe(true);
+  }
+
+  function testPerformanceMetricsAccess(): void {
+    const memento = createMementoWithProperties();
+    
+    expect(memento.performanceMetrics).toBe(mockPerformanceMetrics);
+    expect(typeof memento.performanceMetrics).toBe('object');
+  }
+
+  function testSuccessStatusAccess(): void {
+    const memento = createMementoWithProperties();
+    
+    expect(memento.isSuccess).toBe(true);
+    expect(typeof memento.isSuccess).toBe('boolean');
+  }
+
+  function testErrorInformationAccess(): void {
+    const memento = createMementoWithProperties();
+    
+    expect(memento.error).toBeUndefined();
+  }
+
+  function testTimestampAccess(): void {
+    const memento = createMementoWithProperties();
+    
+    expect(memento.timestamp).toBeInstanceOf(Date);
+    expect(typeof memento.timestamp.getTime()).toBe('number');
+  }
+
+  function testJsonSerialization(): void {
+    const memento = createMementoWithProperties();
+    const json = memento.toJSON();
+    
+    expect(typeof json).toBe('string');
+    expect(() => JSON.parse(json)).not.toThrow();
+  }
+
+  function testJsonDeserialization(): void {
+    const memento = createMementoWithProperties();
+    const json = memento.toJSON();
+    const parsed = JSON.parse(json);
+    
+    expect(parsed).toBeDefined();
+    expect(typeof parsed).toBe('object');
+  }
+
+  function testCircularReferenceHandling(): void {
+    const memento = createMementoWithProperties();
+    
+    // Add circular reference
+    (memento as any).input.circular = memento;
+    
+    expect(() => memento.toJSON()).not.toThrow();
+  }
+
+  function testMementoDataValidation(): void {
+    const memento = createMementoWithProperties();
+    const isValid = memento.validate();
+    
+    expect(typeof isValid).toBe('boolean');
+  }
+
+  function testInvalidDataHandling(): void {
+    const memento = createMementoWithMissingProperties();
+    const isValid = memento.validate();
+    
+    expect(typeof isValid).toBe('boolean');
+  }
+
+  function testRequiredPropertiesValidation(): void {
+    const memento = createMementoWithProperties();
+    const requiredProperties = memento.getRequiredProperties();
+    
+    expect(Array.isArray(requiredProperties)).toBe(true);
+    expect(requiredProperties.length).toBeGreaterThan(0);
+  }
+
+  function testMementoCreationEfficiency(): void {
+    const startTime = performance.now();
+    
+    for (let i = 0; i < 1000; i++) {
+      createMementoWithProperties();
+    }
+    
+    const endTime = performance.now();
+    const totalTime = endTime - startTime;
+    
+    expect(totalTime).toBeLessThan(100); // Should complete within 100ms
+  }
+
+  function testSerializationEfficiency(): void {
+    const memento = createMementoWithProperties();
+    const startTime = performance.now();
+    
+    for (let i = 0; i < 1000; i++) {
+      memento.toJSON();
+    }
+    
+    const endTime = performance.now();
+    const totalTime = endTime - startTime;
+    
+    expect(totalTime).toBeLessThan(100); // Should complete within 100ms
+  }
+
+  function testDifferentUnitTypes(): void {
+    const unitTypes = createDifferentUnitTypes();
+    
+    for (const unitType of unitTypes) {
+      const memento = createMementoWithUnitType(unitType);
+      expect(memento.unitType).toBe(unitType);
+    }
+  }
+
+  function createDifferentUnitTypes(): UnitType[] {
+    return [UnitType.SIZE, UnitType.POSITION, UnitType.SCALE];
+  }
+
+  function createMementoWithUnitType(unitType: UnitType): UnitCalculationMemento {
+    try {
+      const memento = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
+      setMementoWithUnitType(memento, unitType);
+      return memento;
+    } catch (error) {
+      return new UnitCalculationMemento(
+        mockInput,
+        mockContext,
+        150,
+        'test-unit',
+        unitType,
+        'TestTemplate',
+        'TestStrategy',
+        [],
+        mockPerformanceMetrics,
+        true,
+        undefined,
+        new Date()
+      );
+    }
+  }
+
+  function setMementoWithUnitType(memento: UnitCalculationMemento, unitType: UnitType): void {
+    (memento as any).input = mockInput;
+    (memento as any).context = mockContext;
+    (memento as any).result = 150;
+    (memento as any).unitId = 'test-unit';
+    (memento as any).unitType = unitType;
+    (memento as any).templateName = 'TestTemplate';
+    (memento as any).strategyName = 'TestStrategy';
+    (memento as any).validatorNames = [];
+    (memento as any).performanceMetrics = mockPerformanceMetrics;
+    (memento as any).isSuccess = true;
+    (memento as any).error = undefined;
+    (memento as any).timestamp = new Date();
+  }
+
+  function testDifferentContexts(): void {
+    const contexts = createDifferentContexts();
+    
+    for (const context of contexts) {
+      const memento = createMementoWithContext(context);
+      expect(memento.context).toBe(context);
+    }
+  }
+
+  function createDifferentContexts(): any[] {
+    return [
+      mockContext,
+      { parent: { width: 1000, height: 800, x: 0, y: 0 }, dimension: 'width' },
+      { scene: { width: 1600, height: 1200 }, dimension: 'height' },
+    ];
+  }
+
+  function createMementoWithContext(context: any): UnitCalculationMemento {
+    try {
+      const memento = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
+      setMementoWithContext(memento, context);
+      return memento;
+    } catch (error) {
+      return new UnitCalculationMemento(
+        mockInput,
+        context,
+        150,
+        'test-unit',
+        UnitType.SIZE,
+        'TestTemplate',
+        'TestStrategy',
+        [],
+        mockPerformanceMetrics,
+        true,
+        undefined,
+        new Date()
+      );
+    }
+  }
+
+  function setMementoWithContext(memento: UnitCalculationMemento, context: any): void {
+    (memento as any).input = mockInput;
+    (memento as any).context = context;
+    (memento as any).result = 150;
+    (memento as any).unitId = 'test-unit';
+    (memento as any).unitType = UnitType.SIZE;
+    (memento as any).templateName = 'TestTemplate';
+    (memento as any).strategyName = 'TestStrategy';
+    (memento as any).validatorNames = [];
+    (memento as any).performanceMetrics = mockPerformanceMetrics;
+    (memento as any).isSuccess = true;
+    (memento as any).error = undefined;
+    (memento as any).timestamp = new Date();
+  }
+
+  function testDifferentPerformanceMetrics(): void {
+    const performanceMetrics = createDifferentPerformanceMetrics();
+    
+    for (const metrics of performanceMetrics) {
+      const memento = createMementoWithPerformanceMetrics(metrics);
+      expect(memento.performanceMetrics).toBe(metrics);
+    }
+  }
+
+  function createDifferentPerformanceMetrics(): any[] {
+    return [
+      { totalTime: 10, stepTimes: {}, memoryUsage: 512 },
+      { totalTime: 100, stepTimes: { validation: 20, calculation: 60, rounding: 20 }, memoryUsage: 2048 },
+      { totalTime: 500, stepTimes: { validation: 50, calculation: 300, rounding: 150 }, memoryUsage: 4096 },
+    ];
+  }
+
+  function createMementoWithPerformanceMetrics(metrics: any): UnitCalculationMemento {
+    try {
+      const memento = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
+      setMementoWithPerformanceMetrics(memento, metrics);
+      return memento;
+    } catch (error) {
+      return new UnitCalculationMemento(
+        mockInput,
+        mockContext,
+        150,
+        'test-unit',
+        UnitType.SIZE,
+        'TestTemplate',
+        'TestStrategy',
+        [],
+        metrics,
+        true,
+        undefined,
+        new Date()
+      );
+    }
+  }
+
+  function setMementoWithPerformanceMetrics(memento: UnitCalculationMemento, metrics: any): void {
+    (memento as any).input = mockInput;
+    (memento as any).context = mockContext;
+    (memento as any).result = 150;
+    (memento as any).unitId = 'test-unit';
+    (memento as any).unitType = UnitType.SIZE;
+    (memento as any).templateName = 'TestTemplate';
+    (memento as any).strategyName = 'TestStrategy';
+    (memento as any).validatorNames = [];
+    (memento as any).performanceMetrics = metrics;
+    (memento as any).isSuccess = true;
+    (memento as any).error = undefined;
+    (memento as any).timestamp = new Date();
+  }
 });

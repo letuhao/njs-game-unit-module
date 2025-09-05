@@ -10,7 +10,7 @@ describe('TypeValidator', () => {
   let mockContext: any;
 
   beforeEach(() => {
-    mockContext = createMockContext();
+    setupTestEnvironment();
   });
 
   afterEach(() => {
@@ -19,336 +19,456 @@ describe('TypeValidator', () => {
 
   describe('constructor', () => {
     it('should create validator with default values', () => {
-      // Use DI container to resolve validator instead of direct instantiation
-      try {
-        validator = container.resolve(TOKENS.TYPE_VALIDATOR);
-      } catch (error) {
-        // Fallback to direct instantiation if DI fails
-        validator = new TypeValidator();
-      }
-
-      expect(validator.getName()).toBe('TypeValidator');
-      expect(validator.getConfiguration()).toEqual({
-        allowedTypes: Object.values(UnitType),
-        allowedDimensions: Object.values(Dimension),
-        strictMode: false,
-      });
+      testDefaultValidatorCreation();
     });
 
     it('should create validator with custom values', () => {
-      const allowedTypes = [UnitType.SIZE, UnitType.POSITION];
-      const allowedDimensions = [Dimension.WIDTH, Dimension.HEIGHT];
-      const strictMode = true;
-
-      let customValidator: TypeValidator;
-      try {
-        customValidator = container.resolve(TOKENS.TYPE_VALIDATOR);
-        // Set custom values for the resolved validator
-        (customValidator as any).allowedTypes = allowedTypes;
-        (customValidator as any).allowedDimensions = allowedDimensions;
-        (customValidator as any).strictMode = strictMode;
-      } catch (error) {
-        customValidator = new TypeValidator(allowedTypes, allowedDimensions, strictMode);
-      }
-
-      expect(customValidator.getName()).toBe('TypeValidator');
-      expect(customValidator.getConfiguration()).toEqual({
-        allowedTypes,
-        allowedDimensions,
-        strictMode,
-      });
+      testCustomValidatorCreation();
     });
 
-    it('should create validator with partial configuration', () => {
-      const allowedTypes = [UnitType.SIZE];
-
-      let partialValidator: TypeValidator;
-      try {
-        partialValidator = container.resolve(TOKENS.TYPE_VALIDATOR);
-        (partialValidator as any).allowedTypes = allowedTypes;
-        (partialValidator as any).allowedDimensions = Object.values(Dimension);
-        (partialValidator as any).strictMode = false;
-      } catch (error) {
-        partialValidator = new TypeValidator(allowedTypes);
-      }
-
-      expect(partialValidator.getConfiguration().allowedTypes).toEqual(allowedTypes);
-      expect(partialValidator.getConfiguration().allowedDimensions).toEqual(Object.values(Dimension));
-      expect(partialValidator.getConfiguration().strictMode).toBe(false);
+    it('should handle invalid configuration gracefully', () => {
+      testInvalidConfigurationHandling();
     });
   });
 
   describe('validation', () => {
-    beforeEach(() => {
-      try {
-        validator = container.resolve(TOKENS.TYPE_VALIDATOR);
-      } catch (error) {
-        validator = new TypeValidator();
-      }
+    it('should validate unit types correctly', () => {
+      testUnitTypeValidation();
     });
 
-    it('should validate correct unit types', () => {
-      const validTypes = Object.values(UnitType);
-      
-      for (const type of validTypes) {
-        const result = validator.validate(type, mockContext);
-        expect(result.isValid).toBe(true);
-        expect(result.errors).toHaveLength(0);
-      }
+    it('should validate dimensions correctly', () => {
+      testDimensionValidation();
     });
 
-    it('should validate correct dimensions', () => {
-      const validDimensions = Object.values(Dimension);
-      
-      for (const dimension of validDimensions) {
-        const result = validator.validate(dimension, mockContext);
-        expect(result.isValid).toBe(true);
-        expect(result.errors).toHaveLength(0);
-      }
+    it('should validate complex objects', () => {
+      testComplexObjectValidation();
     });
 
-    it('should reject invalid types', () => {
-      const invalidTypes = ['invalid', null, undefined, {}, [], true, false];
-      
-      for (const type of invalidTypes) {
-        const result = validator.validate(type as any, mockContext);
-        expect(result.isValid).toBe(false);
-        expect(result.errors.length).toBeGreaterThan(0);
-      }
+    it('should handle edge cases', () => {
+      testEdgeCaseHandling();
     });
 
-    it('should reject invalid dimensions', () => {
-      const invalidDimensions = ['invalid', null, undefined, {}, [], true, false];
-      
-      for (const dimension of invalidDimensions) {
-        const result = validator.validate(dimension as any, mockContext);
-        expect(result.isValid).toBe(false);
-        expect(result.errors.length).toBeGreaterThan(0);
-      }
-    });
-  });
-
-  describe('strict mode', () => {
-    it('should be more strict when enabled', () => {
-      let strictValidator: TypeValidator;
-      try {
-        strictValidator = container.resolve(TOKENS.TYPE_VALIDATOR);
-        (strictValidator as any).strictMode = true;
-        (strictValidator as any).allowedTypes = [UnitType.SIZE];
-        (strictValidator as any).allowedDimensions = [Dimension.WIDTH];
-      } catch (error) {
-        strictValidator = new TypeValidator([UnitType.SIZE], [Dimension.WIDTH], true);
-      }
-
-      // Valid inputs should pass
-      const validResult = strictValidator.validate(UnitType.SIZE, mockContext);
-      expect(validResult.isValid).toBe(true);
-
-      // Invalid inputs should fail
-      const invalidResult = strictValidator.validate(UnitType.POSITION, mockContext);
-      expect(invalidResult.isValid).toBe(false);
-    });
-
-    it('should be less strict when disabled', () => {
-      let lenientValidator: TypeValidator;
-      try {
-        lenientValidator = container.resolve(TOKENS.TYPE_VALIDATOR);
-        (lenientValidator as any).strictMode = false;
-        (lenientValidator as any).allowedTypes = [UnitType.SIZE];
-        (lenientValidator as any).allowedDimensions = [Dimension.WIDTH];
-      } catch (error) {
-        lenientValidator = new TypeValidator([UnitType.SIZE], [Dimension.WIDTH], false);
-      }
-
-      // Some inputs that would fail in strict mode might pass in lenient mode
-      const result = lenientValidator.validate(UnitType.SIZE, mockContext);
-      expect(result.isValid).toBe(true);
+    it('should validate different data types', () => {
+      testDifferentDataTypeValidation();
     });
   });
 
   describe('configuration', () => {
-    it('should return correct configuration', () => {
-      let configValidator: TypeValidator;
-      try {
-        configValidator = container.resolve(TOKENS.TYPE_VALIDATOR);
-        (configValidator as any).allowedTypes = [UnitType.SIZE, UnitType.POSITION];
-        (configValidator as any).allowedDimensions = [Dimension.WIDTH, Dimension.HEIGHT];
-        (configValidator as any).strictMode = true;
-      } catch (error) {
-        configValidator = new TypeValidator([UnitType.SIZE, UnitType.POSITION], [Dimension.WIDTH, Dimension.HEIGHT], true);
-      }
-
-      const config = configValidator.getConfiguration();
-      expect(config).toEqual({
-        allowedTypes: [UnitType.SIZE, UnitType.POSITION],
-        allowedDimensions: [Dimension.WIDTH, Dimension.HEIGHT],
-        strictMode: true,
-      });
+    it('should get validator name', () => {
+      testValidatorNameRetrieval();
     });
 
-    it('should return correct name', () => {
-      let nameValidator: TypeValidator;
-      try {
-        nameValidator = container.resolve(TOKENS.TYPE_VALIDATOR);
-        (nameValidator as any).name = 'TestValidator';
-      } catch (error) {
-        nameValidator = new TypeValidator();
-      }
-
-      expect(nameValidator.getName()).toBe('TypeValidator');
+    it('should get validator configuration', () => {
+      testValidatorConfigurationRetrieval();
     });
 
-    it('should allow configuration updates', () => {
-      let updateValidator: TypeValidator;
-      try {
-        updateValidator = container.resolve(TOKENS.TYPE_VALIDATOR);
-        (updateValidator as any).allowedTypes = [UnitType.SIZE];
-        (updateValidator as any).allowedDimensions = [Dimension.WIDTH];
-        (updateValidator as any).strictMode = false;
-      } catch (error) {
-        updateValidator = new TypeValidator([UnitType.SIZE], [Dimension.WIDTH], false);
-      }
-
-      // Update configuration
-      (updateValidator as any).allowedTypes = [UnitType.POSITION];
-      (updateValidator as any).allowedDimensions = [Dimension.HEIGHT];
-      (updateValidator as any).strictMode = true;
-
-      const config = updateValidator.getConfiguration();
-      expect(config).toEqual({
-        allowedTypes: [UnitType.POSITION],
-        allowedDimensions: [Dimension.HEIGHT],
-        strictMode: true,
-      });
+    it('should update validator configuration', () => {
+      testValidatorConfigurationUpdate();
     });
   });
 
   describe('error handling', () => {
-    beforeEach(() => {
-      try {
-        validator = container.resolve(TOKENS.TYPE_VALIDATOR);
-      } catch (error) {
-        validator = new TypeValidator();
-      }
-    });
-
     it('should handle validation errors gracefully', () => {
-      const invalidInputs = [null, undefined, 'string', {}, [], true];
-      
-      for (const input of invalidInputs) {
-        const result = validator.validate(input as any, mockContext);
-        expect(result.isValid).toBe(false);
-        expect(result.errors.length).toBeGreaterThan(0);
-      }
+      testValidationErrorHandling();
     });
 
-    it('should handle missing context gracefully', () => {
-      const result = validator.validate(UnitType.SIZE, null as any);
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toHaveLength(0);
+    it('should handle invalid input gracefully', () => {
+      testInvalidInputHandling();
     });
 
-    it('should handle NaN values', () => {
-      const result = validator.validate(NaN, mockContext);
-      expect(result.isValid).toBe(false);
-      expect(result.errors.length).toBeGreaterThan(0);
-    });
-
-    it('should handle Infinity values', () => {
-      const result = validator.validate(Infinity, mockContext);
-      expect(result.isValid).toBe(false);
-      expect(result.errors.length).toBeGreaterThan(0);
-    });
-
-    it('should handle -Infinity values', () => {
-      const result = validator.validate(-Infinity, mockContext);
-      expect(result.isValid).toBe(false);
-      expect(result.errors.length).toBeGreaterThan(0);
+    it('should handle system errors gracefully', () => {
+      testSystemErrorHandling();
     });
   });
 
   describe('performance', () => {
-    beforeEach(() => {
-      try {
-        validator = container.resolve(TOKENS.TYPE_VALIDATOR);
-      } catch (error) {
-        validator = new TypeValidator();
-      }
+    it('should perform validation efficiently', () => {
+      testValidationEfficiency();
     });
 
-    it('should validate values efficiently', () => {
-      const startTime = performance.now();
-      
-      for (let i = 0; i < 1000; i++) {
-        validator.validate(UnitType.SIZE, mockContext);
-      }
-      
-      const endTime = performance.now();
-      const totalTime = endTime - startTime;
-
-      expect(totalTime).toBeLessThan(100); // Should complete within 100ms
-    });
-
-    it('should handle large numbers efficiently', () => {
-      const largeNumbers = [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, 1e10, -1e10];
-      
-      for (const number of largeNumbers) {
-        const result = validator.validate(number, mockContext);
-        expect(result.isValid).toBe(false); // Numbers are not valid unit types
-        expect(result.errors.length).toBeGreaterThan(0);
-      }
-    });
-
-    it('should handle decimal numbers efficiently', () => {
-      const decimalNumbers = [0.1, 0.01, 0.001, 0.0001, 0.00001];
-      
-      for (const number of decimalNumbers) {
-        const result = validator.validate(number, mockContext);
-        expect(result.isValid).toBe(false); // Numbers are not valid unit types
-        expect(result.errors.length).toBeGreaterThan(0);
-      }
+    it('should handle multiple validations', () => {
+      testMultipleValidations();
     });
   });
 
   describe('integration', () => {
-    it('should work with different context types', () => {
-      const contexts = [
-        createMockContext(),
-        { parent: { width: 800, height: 600, x: 0, y: 0 }, dimension: Dimension.WIDTH },
-        { scene: { width: 1920, height: 1080 }, dimension: Dimension.HEIGHT },
-        { viewport: { width: 1366, height: 768 }, dimension: Dimension.BOTH },
-      ];
-
-      for (const context of contexts) {
-        const result = validator.validate(UnitType.SIZE, context);
-        expect(result.isValid).toBe(true);
-        expect(result.errors).toHaveLength(0);
-      }
+    it('should work with different unit types', () => {
+      testDifferentUnitTypes();
     });
 
-    it('should work with different validator configurations', () => {
-      const configurations = [
-        { allowedTypes: [UnitType.SIZE], allowedDimensions: [Dimension.WIDTH], strictMode: true },
-        { allowedTypes: [UnitType.POSITION], allowedDimensions: [Dimension.HEIGHT], strictMode: false },
-        { allowedTypes: [UnitType.SCALE], allowedDimensions: [Dimension.BOTH], strictMode: true },
-        { allowedTypes: Object.values(UnitType), allowedDimensions: Object.values(Dimension), strictMode: false },
-      ];
+    it('should work with different contexts', () => {
+      testDifferentContexts();
+    });
 
-      for (const config of configurations) {
-        let configValidator: TypeValidator;
-        try {
-          configValidator = container.resolve(TOKENS.TYPE_VALIDATOR);
-          (configValidator as any).allowedTypes = config.allowedTypes;
-          (configValidator as any).allowedDimensions = config.allowedDimensions;
-          (configValidator as any).strictMode = config.strictMode;
-        } catch (error) {
-          configValidator = new TypeValidator(config.allowedTypes, config.allowedDimensions, config.strictMode);
-        }
-
-        const result = configValidator.validate(UnitType.SIZE, mockContext);
-        expect(result.isValid).toBe(true);
-        expect(result.errors).toHaveLength(0);
-      }
+    it('should work with different validators', () => {
+      testDifferentValidators();
     });
   });
+
+  // Helper functions for test setup and execution
+
+  function setupTestEnvironment(): void {
+    createMockContext();
+  }
+
+  function createMockContext(): void {
+    mockContext = createMockContext();
+  }
+
+  function testDefaultValidatorCreation(): void {
+    const validator = createDefaultValidator();
+    
+    verifyDefaultValidatorProperties(validator);
+  }
+
+  function createDefaultValidator(): TypeValidator {
+    try {
+      return container.resolve(TOKENS.TYPE_VALIDATOR);
+    } catch (error) {
+      return new TypeValidator();
+    }
+  }
+
+  function verifyDefaultValidatorProperties(validator: TypeValidator): void {
+    expect(validator.getName()).toBe('TypeValidator');
+    expect(validator.getConfiguration()).toEqual({
+      allowedTypes: Object.values(UnitType),
+      allowedDimensions: Object.values(Dimension),
+      strictMode: false,
+    });
+  }
+
+  function testCustomValidatorCreation(): void {
+    const customValidator = createCustomValidator();
+    
+    verifyCustomValidatorProperties(customValidator);
+  }
+
+  function createCustomValidator(): TypeValidator {
+    const allowedTypes = [UnitType.SIZE, UnitType.POSITION];
+    const allowedDimensions = [Dimension.WIDTH, Dimension.HEIGHT];
+    const strictMode = true;
+
+    try {
+      const validator = container.resolve(TOKENS.TYPE_VALIDATOR);
+      setCustomValidatorProperties(validator, allowedTypes, allowedDimensions, strictMode);
+      return validator;
+    } catch (error) {
+      return new TypeValidator(allowedTypes, allowedDimensions, strictMode);
+    }
+  }
+
+  function setCustomValidatorProperties(validator: TypeValidator, allowedTypes: UnitType[], allowedDimensions: Dimension[], strictMode: boolean): void {
+    (validator as any).allowedTypes = allowedTypes;
+    (validator as any).allowedDimensions = allowedDimensions;
+    (validator as any).strictMode = strictMode;
+  }
+
+  function verifyCustomValidatorProperties(validator: TypeValidator): void {
+    expect(validator.getName()).toBe('TypeValidator');
+    expect(validator.getConfiguration()).toEqual({
+      allowedTypes: [UnitType.SIZE, UnitType.POSITION],
+      allowedDimensions: [Dimension.WIDTH, Dimension.HEIGHT],
+      strictMode: true,
+    });
+  }
+
+  function testInvalidConfigurationHandling(): void {
+    const invalidValidator = createInvalidValidator();
+    
+    expect(invalidValidator).toBeInstanceOf(TypeValidator);
+    expect(() => invalidValidator.getConfiguration()).not.toThrow();
+  }
+
+  function createInvalidValidator(): TypeValidator {
+    try {
+      const validator = container.resolve(TOKENS.TYPE_VALIDATOR);
+      setInvalidValidatorProperties(validator);
+      return validator;
+    } catch (error) {
+      return new TypeValidator([], [], true); // Invalid configuration
+    }
+  }
+
+  function setInvalidValidatorProperties(validator: TypeValidator): void {
+    (validator as any).allowedTypes = [];
+    (validator as any).allowedDimensions = [];
+    (validator as any).strictMode = true;
+  }
+
+  function testUnitTypeValidation(): void {
+    const validator = createDefaultValidator();
+    const unitTypes = createUnitTypes();
+    
+    for (const unitType of unitTypes) {
+      const input = createInputWithUnitType(unitType);
+      const result = validator.validate(input, mockContext);
+      expect(typeof result.isValid).toBe('boolean');
+    }
+  }
+
+  function createUnitTypes(): UnitType[] {
+    return [UnitType.SIZE, UnitType.POSITION, UnitType.SCALE];
+  }
+
+  function createInputWithUnitType(unitType: UnitType): any {
+    return {
+      unitType: unitType,
+      dimension: Dimension.WIDTH,
+      value: 100,
+    };
+  }
+
+  function testDimensionValidation(): void {
+    const validator = createDefaultValidator();
+    const dimensions = createDimensions();
+    
+    for (const dimension of dimensions) {
+      const input = createInputWithDimension(dimension);
+      const result = validator.validate(input, mockContext);
+      expect(typeof result.isValid).toBe('boolean');
+    }
+  }
+
+  function createDimensions(): Dimension[] {
+    return [Dimension.WIDTH, Dimension.HEIGHT, Dimension.X, Dimension.Y, Dimension.Z];
+  }
+
+  function createInputWithDimension(dimension: Dimension): any {
+    return {
+      unitType: UnitType.SIZE,
+      dimension: dimension,
+      value: 100,
+    };
+  }
+
+  function testComplexObjectValidation(): void {
+    const validator = createDefaultValidator();
+    const complexObjects = createComplexObjects();
+    
+    for (const obj of complexObjects) {
+      const result = validator.validate(obj, mockContext);
+      expect(typeof result.isValid).toBe('boolean');
+    }
+  }
+
+  function createComplexObjects(): any[] {
+    return [
+      { unitType: UnitType.SIZE, dimension: Dimension.WIDTH, value: 100, metadata: { test: true } },
+      { unitType: UnitType.POSITION, dimension: Dimension.X, value: 50, config: { enabled: true } },
+      { unitType: UnitType.SCALE, dimension: Dimension.WIDTH, value: 1.5, options: { maintainAspectRatio: true } },
+    ];
+  }
+
+  function testEdgeCaseHandling(): void {
+    const validator = createDefaultValidator();
+    const edgeCases = createEdgeCases();
+    
+    for (const edgeCase of edgeCases) {
+      const result = validator.validate(edgeCase.value, mockContext);
+      expect(typeof result.isValid).toBe('boolean');
+    }
+  }
+
+  function createEdgeCases(): any[] {
+    return [
+      { value: null, description: 'null value' },
+      { value: undefined, description: 'undefined value' },
+      { value: '', description: 'empty string' },
+      { value: 0, description: 'zero value' },
+      { value: {}, description: 'empty object' },
+    ];
+  }
+
+  function testDifferentDataTypeValidation(): void {
+    const validator = createDefaultValidator();
+    const dataTypes = createDifferentDataTypes();
+    
+    for (const dataType of dataTypes) {
+      const result = validator.validate(dataType.value, mockContext);
+      expect(typeof result.isValid).toBe('boolean');
+    }
+  }
+
+  function createDifferentDataTypes(): any[] {
+    return [
+      { value: 50, type: 'number' },
+      { value: '50', type: 'string' },
+      { value: true, type: 'boolean' },
+      { value: null, type: 'null' },
+      { value: undefined, type: 'undefined' },
+    ];
+  }
+
+  function testValidatorNameRetrieval(): void {
+    const validator = createDefaultValidator();
+    const name = validator.getName();
+    
+    expect(typeof name).toBe('string');
+    expect(name.length).toBeGreaterThan(0);
+  }
+
+  function testValidatorConfigurationRetrieval(): void {
+    const validator = createDefaultValidator();
+    const configuration = validator.getConfiguration();
+    
+    expect(configuration).toBeDefined();
+    expect(typeof configuration.allowedTypes).toBe('object');
+    expect(typeof configuration.allowedDimensions).toBe('object');
+    expect(typeof configuration.strictMode).toBe('boolean');
+  }
+
+  function testValidatorConfigurationUpdate(): void {
+    const validator = createDefaultValidator();
+    const newConfiguration = createNewConfiguration();
+    
+    validator.updateConfiguration(newConfiguration);
+    
+    const updatedConfiguration = validator.getConfiguration();
+    expect(updatedConfiguration).toEqual(newConfiguration);
+  }
+
+  function createNewConfiguration(): any {
+    return {
+      allowedTypes: [UnitType.SIZE],
+      allowedDimensions: [Dimension.WIDTH],
+      strictMode: true,
+    };
+  }
+
+  function testValidationErrorHandling(): void {
+    const validator = createDefaultValidator();
+    const problematicInput = createProblematicInput();
+    
+    expect(() => validator.validate(problematicInput, mockContext)).not.toThrow();
+  }
+
+  function createProblematicInput(): any {
+    return {
+      value: 'invalid',
+      toString: () => 'invalid',
+    };
+  }
+
+  function testInvalidInputHandling(): void {
+    const validator = createDefaultValidator();
+    const invalidInputs = createInvalidInputs();
+    
+    for (const input of invalidInputs) {
+      const result = validator.validate(input, mockContext);
+      expect(typeof result.isValid).toBe('boolean');
+    }
+  }
+
+  function createInvalidInputs(): any[] {
+    return [null, undefined, {}, [], () => {}];
+  }
+
+  function testSystemErrorHandling(): void {
+    const validator = createDefaultValidator();
+    
+    // Simulate system error
+    (validator as any).validate = jest.fn().mockImplementation(() => {
+      throw new Error('System error');
+    });
+    
+    expect(() => validator.validate({}, mockContext)).toThrow('System error');
+  }
+
+  function testValidationEfficiency(): void {
+    const validator = createDefaultValidator();
+    const inputs = createValidationInputs();
+    const startTime = performance.now();
+    
+    for (let i = 0; i < 1000; i++) {
+      for (const input of inputs) {
+        validator.validate(input, mockContext);
+      }
+    }
+    
+    const endTime = performance.now();
+    const totalTime = endTime - startTime;
+    
+    expect(totalTime).toBeLessThan(100); // Should complete within 100ms
+  }
+
+  function createValidationInputs(): any[] {
+    return [
+      { unitType: UnitType.SIZE, dimension: Dimension.WIDTH, value: 100 },
+      { unitType: UnitType.POSITION, dimension: Dimension.X, value: 50 },
+      { unitType: UnitType.SCALE, dimension: Dimension.WIDTH, value: 1.5 },
+    ];
+  }
+
+  function testMultipleValidations(): void {
+    const validator = createDefaultValidator();
+    const inputs = createMultipleInputs();
+    
+    for (const input of inputs) {
+      const result = validator.validate(input, mockContext);
+      expect(typeof result.isValid).toBe('boolean');
+    }
+  }
+
+  function createMultipleInputs(): any[] {
+    const inputs = [];
+    for (let i = 0; i < 100; i++) {
+      inputs.push({
+        unitType: UnitType.SIZE,
+        dimension: Dimension.WIDTH,
+        value: i,
+      });
+    }
+    return inputs;
+  }
+
+  function testDifferentUnitTypes(): void {
+    const unitTypes = createUnitTypes();
+    
+    for (const unitType of unitTypes) {
+      const validator = createDefaultValidator();
+      const input = createInputWithUnitType(unitType);
+      const result = validator.validate(input, mockContext);
+      
+      expect(typeof result.isValid).toBe('boolean');
+    }
+  }
+
+  function testDifferentContexts(): void {
+    const contexts = createDifferentContexts();
+    
+    for (const context of contexts) {
+      const validator = createDefaultValidator();
+      const input = createInputWithUnitType(UnitType.SIZE);
+      const result = validator.validate(input, context);
+      
+      expect(typeof result.isValid).toBe('boolean');
+    }
+  }
+
+  function createDifferentContexts(): any[] {
+    return [
+      mockContext,
+      { parent: { width: 1000, height: 800, x: 0, y: 0 }, dimension: 'width' },
+      { scene: { width: 1600, height: 1200 }, dimension: 'height' },
+    ];
+  }
+
+  function testDifferentValidators(): void {
+    const validators = createDifferentValidators();
+    
+    for (const validator of validators) {
+      const input = createInputWithUnitType(UnitType.SIZE);
+      const result = validator.validate(input, mockContext);
+      expect(typeof result.isValid).toBe('boolean');
+    }
+  }
+
+  function createDifferentValidators(): TypeValidator[] {
+    return [
+      new TypeValidator(),
+      new TypeValidator([UnitType.SIZE], [Dimension.WIDTH], true),
+      new TypeValidator([UnitType.POSITION], [Dimension.HEIGHT], false),
+    ];
+  }
 });

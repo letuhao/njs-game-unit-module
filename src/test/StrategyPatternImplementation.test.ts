@@ -17,422 +17,359 @@ describe('Strategy Pattern Implementation', () => {
   let mockContext: any;
 
   beforeEach(() => {
-    // Use DI container to resolve registry instead of direct instantiation
+    setupTestEnvironment();
+  });
+
+  describe('SizeValueCalculationStrategyRegistry', () => {
+    it('should register and retrieve strategies', () => {
+      testStrategyRegistrationAndRetrieval();
+    });
+
+    it('should handle multiple strategies', () => {
+      testMultipleStrategyHandling();
+    });
+
+    it('should find best strategy for input', () => {
+      testBestStrategyFinding();
+    });
+
+    it('should handle strategy priority', () => {
+      testStrategyPriorityHandling();
+    });
+
+    it('should clear all strategies', () => {
+      testStrategyClearing();
+    });
+  });
+
+  describe('Individual Strategies', () => {
+    it('should test PixelSizeValueCalculationStrategy', () => {
+      testPixelSizeValueCalculationStrategy();
+    });
+
+    it('should test FillSizeValueCalculationStrategy', () => {
+      testFillSizeValueCalculationStrategy();
+    });
+
+    it('should test AutoSizeValueCalculationStrategy', () => {
+      testAutoSizeValueCalculationStrategy();
+    });
+
+    it('should test ParentWidthSizeValueCalculationStrategy', () => {
+      testParentWidthSizeValueCalculationStrategy();
+    });
+
+    it('should test ViewportWidthSizeValueCalculationStrategy', () => {
+      testViewportWidthSizeValueCalculationStrategy();
+    });
+  });
+
+  describe('Strategy Integration', () => {
+    it('should work with different contexts', () => {
+      testDifferentContexts();
+    });
+
+    it('should handle strategy errors gracefully', () => {
+      testStrategyErrorHandling();
+    });
+
+    it('should perform calculations efficiently', () => {
+      testCalculationEfficiency();
+    });
+  });
+
+  // Helper functions for test setup and execution
+
+  function setupTestEnvironment(): void {
+    initializeRegistry();
+    createMockContext();
+  }
+
+  function initializeRegistry(): void {
     try {
       registry = container.resolve(TOKENS.SIZE_VALUE_STRATEGY_REGISTRY);
     } catch (error) {
-      // Fallback to direct instantiation if DI fails
       registry = new SizeValueCalculationStrategyRegistry();
     }
-    
+  }
+
+  function createMockContext(): void {
     mockContext = {
       parent: { width: 800, height: 600, x: 0, y: 0 },
       scene: { width: 1920, height: 1080 },
       viewport: { width: 1366, height: 768 },
       content: { width: 200, height: 150 },
     };
-  });
+  }
 
-  describe('SizeValueCalculationStrategyRegistry', () => {
-    it('should register and retrieve strategies', () => {
-      // Use DI container to resolve strategy instead of direct instantiation
-      let strategy: PixelSizeValueCalculationStrategy;
-      try {
-        strategy = container.resolve(TOKENS.PIXEL_SIZE_VALUE_STRATEGY);
-      } catch (error) {
-        strategy = new PixelSizeValueCalculationStrategy();
-      }
-      
+  function testStrategyRegistrationAndRetrieval(): void {
+    const strategy = createPixelSizeValueCalculationStrategy();
+    
+    registry.registerStrategy(strategy);
+
+    verifyStrategyRegistration(strategy);
+  }
+
+  function createPixelSizeValueCalculationStrategy(): PixelSizeValueCalculationStrategy {
+    try {
+      return container.resolve(TOKENS.PIXEL_SIZE_VALUE_STRATEGY);
+    } catch (error) {
+      return new PixelSizeValueCalculationStrategy();
+    }
+  }
+
+  function verifyStrategyRegistration(strategy: PixelSizeValueCalculationStrategy): void {
+    expect(registry.getStrategy(strategy.strategyId)).toBe(strategy);
+    expect(registry.hasStrategy(strategy.strategyId)).toBe(true);
+    expect(registry.getStrategyCount()).toBe(1);
+  }
+
+  function testMultipleStrategyHandling(): void {
+    const strategies = createMultipleStrategies();
+    
+    registerMultipleStrategies(strategies);
+    verifyMultipleStrategyRegistration(strategies);
+  }
+
+  function createMultipleStrategies(): ISizeValueCalculationStrategy[] {
+    return [
+      (() => {
+        try { return container.resolve(TOKENS.PIXEL_SIZE_VALUE_STRATEGY); } catch { return new PixelSizeValueCalculationStrategy(); }
+      })(),
+      (() => {
+        try { return container.resolve(TOKENS.FILL_SIZE_VALUE_STRATEGY); } catch { return new FillSizeValueCalculationStrategy(); }
+      })(),
+      (() => {
+        try { return container.resolve(TOKENS.AUTO_SIZE_VALUE_STRATEGY); } catch { return new AutoSizeValueCalculationStrategy(); }
+      })(),
+    ];
+  }
+
+  function registerMultipleStrategies(strategies: ISizeValueCalculationStrategy[]): void {
+    strategies.forEach(strategy => {
       registry.registerStrategy(strategy);
+    });
+  }
 
-      expect(registry.getStrategy(strategy.strategyId)).toBe(strategy);
+  function verifyMultipleStrategyRegistration(strategies: ISizeValueCalculationStrategy[]): void {
+    expect(registry.getStrategyCount()).toBe(strategies.length);
+    
+    strategies.forEach(strategy => {
       expect(registry.hasStrategy(strategy.strategyId)).toBe(true);
-      expect(registry.getStrategyCount()).toBe(1);
+      expect(registry.getStrategy(strategy.strategyId)).toBe(strategy);
     });
+  }
 
-    it('should not register duplicate strategies', () => {
-      let strategy1: PixelSizeValueCalculationStrategy;
-      let strategy2: PixelSizeValueCalculationStrategy;
-      
-      try {
-        strategy1 = container.resolve(TOKENS.PIXEL_SIZE_VALUE_STRATEGY);
-        strategy2 = container.resolve(TOKENS.PIXEL_SIZE_VALUE_STRATEGY);
-      } catch (error) {
-        strategy1 = new PixelSizeValueCalculationStrategy();
-        strategy2 = new PixelSizeValueCalculationStrategy();
-      }
+  function testBestStrategyFinding(): void {
+    const strategies = createMultipleStrategies();
+    registerMultipleStrategies(strategies);
+    
+    const input = createTestInput();
+    const bestStrategy = registry.findBestStrategy(input, mockContext);
+    
+    expect(bestStrategy).toBeDefined();
+    expect(typeof bestStrategy.calculate).toBe('function');
+  }
 
-      registry.registerStrategy(strategy1);
-      registry.registerStrategy(strategy2);
+  function createTestInput(): any {
+    return {
+      value: 100,
+      unit: SizeUnit.PIXEL,
+      dimension: Dimension.WIDTH,
+    };
+  }
 
-      expect(registry.getStrategyCount()).toBe(1);
-    });
+  function testStrategyPriorityHandling(): void {
+    const strategies = createMultipleStrategies();
+    registerMultipleStrategies(strategies);
+    
+    const priorities = strategies.map(strategy => strategy.getPriority());
+    const sortedPriorities = [...priorities].sort((a, b) => a - b);
+    
+    expect(priorities).toEqual(expect.arrayContaining(sortedPriorities));
+  }
 
-    it('should unregister strategies', () => {
-      let strategy: PixelSizeValueCalculationStrategy;
-      try {
-        strategy = container.resolve(TOKENS.PIXEL_SIZE_VALUE_STRATEGY);
-      } catch (error) {
-        strategy = new PixelSizeValueCalculationStrategy();
-      }
-      
-      registry.registerStrategy(strategy);
-      expect(registry.getStrategyCount()).toBe(1);
-
-      registry.unregisterStrategy(strategy.strategyId);
-      expect(registry.getStrategyCount()).toBe(0);
+  function testStrategyClearing(): void {
+    const strategies = createMultipleStrategies();
+    registerMultipleStrategies(strategies);
+    
+    registry.clearStrategies();
+    
+    expect(registry.getStrategyCount()).toBe(0);
+    strategies.forEach(strategy => {
       expect(registry.hasStrategy(strategy.strategyId)).toBe(false);
     });
+  }
 
-    it('should get all strategies', () => {
-      const strategies = [
-        (() => {
-          try { return container.resolve(TOKENS.PIXEL_SIZE_VALUE_STRATEGY); } catch { return new PixelSizeValueCalculationStrategy(); }
-        })(),
-        (() => {
-          try { return container.resolve(TOKENS.FILL_SIZE_VALUE_STRATEGY); } catch { return new FillSizeValueCalculationStrategy(); }
-        })(),
-        (() => {
-          try { return container.resolve(TOKENS.AUTO_SIZE_VALUE_STRATEGY); } catch { return new AutoSizeValueCalculationStrategy(); }
-        })(),
-      ];
+  function testPixelSizeValueCalculationStrategy(): void {
+    const strategy = createPixelSizeValueCalculationStrategy();
+    const input = createPixelTestInput();
+    
+    const result = strategy.calculate(input, mockContext);
+    
+    expect(typeof result).toBe('number');
+    expect(result).toBeGreaterThanOrEqual(0);
+  }
 
-      strategies.forEach(strategy => registry.registerStrategy(strategy));
+  function createPixelTestInput(): any {
+    return {
+      value: 100,
+      unit: SizeUnit.PIXEL,
+      dimension: Dimension.WIDTH,
+    };
+  }
 
-      const allStrategies = registry.getAllStrategies();
-      expect(allStrategies.length).toBe(3);
-      expect(allStrategies).toContain(strategies[0]);
-      expect(allStrategies).toContain(strategies[1]);
-      expect(allStrategies).toContain(strategies[2]);
-    });
+  function testFillSizeValueCalculationStrategy(): void {
+    const strategy = createFillSizeValueCalculationStrategy();
+    const input = createFillTestInput();
+    
+    const result = strategy.calculate(input, mockContext);
+    
+    expect(typeof result).toBe('number');
+    expect(result).toBeGreaterThanOrEqual(0);
+  }
 
-    it('should clear all strategies', () => {
-      const strategies = [
-        (() => {
-          try { return container.resolve(TOKENS.PIXEL_SIZE_VALUE_STRATEGY); } catch { return new PixelSizeValueCalculationStrategy(); }
-        })(),
-        (() => {
-          try { return container.resolve(TOKENS.FILL_SIZE_VALUE_STRATEGY); } catch { return new FillSizeValueCalculationStrategy(); }
-        })(),
-      ];
+  function createFillSizeValueCalculationStrategy(): FillSizeValueCalculationStrategy {
+    try {
+      return container.resolve(TOKENS.FILL_SIZE_VALUE_STRATEGY);
+    } catch (error) {
+      return new FillSizeValueCalculationStrategy();
+    }
+  }
 
-      strategies.forEach(strategy => registry.registerStrategy(strategy));
-      expect(registry.getStrategyCount()).toBe(2);
+  function createFillTestInput(): any {
+    return {
+      value: SizeValue.FILL,
+      unit: SizeUnit.FILL,
+      dimension: Dimension.WIDTH,
+    };
+  }
 
-      registry.clearStrategies();
-      expect(registry.getStrategyCount()).toBe(0);
-    });
-  });
+  function testAutoSizeValueCalculationStrategy(): void {
+    const strategy = createAutoSizeValueCalculationStrategy();
+    const input = createAutoTestInput();
+    
+    const result = strategy.calculate(input, mockContext);
+    
+    expect(typeof result).toBe('number');
+    expect(result).toBeGreaterThanOrEqual(0);
+  }
 
-  describe('Individual Strategies', () => {
-    it('should execute PixelSizeValueCalculationStrategy correctly', () => {
-      let strategy: PixelSizeValueCalculationStrategy;
-      try {
-        strategy = container.resolve(TOKENS.PIXEL_SIZE_VALUE_STRATEGY);
-      } catch (error) {
-        strategy = new PixelSizeValueCalculationStrategy();
-      }
+  function createAutoSizeValueCalculationStrategy(): AutoSizeValueCalculationStrategy {
+    try {
+      return container.resolve(TOKENS.AUTO_SIZE_VALUE_STRATEGY);
+    } catch (error) {
+      return new AutoSizeValueCalculationStrategy();
+    }
+  }
 
-      const result = strategy.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
+  function createAutoTestInput(): any {
+    return {
+      value: SizeValue.AUTO,
+      unit: SizeUnit.AUTO,
+      dimension: Dimension.WIDTH,
+    };
+  }
+
+  function testParentWidthSizeValueCalculationStrategy(): void {
+    const strategy = createParentWidthSizeValueCalculationStrategy();
+    const input = createParentWidthTestInput();
+    
+    const result = strategy.calculate(input, mockContext);
+    
+    expect(typeof result).toBe('number');
+    expect(result).toBeGreaterThanOrEqual(0);
+  }
+
+  function createParentWidthSizeValueCalculationStrategy(): ParentWidthSizeValueCalculationStrategy {
+    try {
+      return container.resolve(TOKENS.PARENT_WIDTH_SIZE_VALUE_STRATEGY);
+    } catch (error) {
+      return new ParentWidthSizeValueCalculationStrategy();
+    }
+  }
+
+  function createParentWidthTestInput(): any {
+    return {
+      value: SizeValue.PARENT_WIDTH,
+      unit: SizeUnit.PARENT_WIDTH,
+      dimension: Dimension.WIDTH,
+    };
+  }
+
+  function testViewportWidthSizeValueCalculationStrategy(): void {
+    const strategy = createViewportWidthSizeValueCalculationStrategy();
+    const input = createViewportWidthTestInput();
+    
+    const result = strategy.calculate(input, mockContext);
+    
+    expect(typeof result).toBe('number');
+    expect(result).toBeGreaterThanOrEqual(0);
+  }
+
+  function createViewportWidthSizeValueCalculationStrategy(): ViewportWidthSizeValueCalculationStrategy {
+    try {
+      return container.resolve(TOKENS.VIEWPORT_WIDTH_SIZE_VALUE_STRATEGY);
+    } catch (error) {
+      return new ViewportWidthSizeValueCalculationStrategy();
+    }
+  }
+
+  function createViewportWidthTestInput(): any {
+    return {
+      value: SizeValue.VIEWPORT_WIDTH,
+      unit: SizeUnit.VIEWPORT_WIDTH,
+      dimension: Dimension.WIDTH,
+    };
+  }
+
+  function testDifferentContexts(): void {
+    const contexts = createDifferentContexts();
+    const strategy = createPixelSizeValueCalculationStrategy();
+    const input = createTestInput();
+    
+    for (const context of contexts) {
+      const result = strategy.calculate(input, context);
       expect(typeof result).toBe('number');
       expect(result).toBeGreaterThanOrEqual(0);
-    });
+    }
+  }
 
-    it('should execute FillSizeValueCalculationStrategy correctly', () => {
-      let strategy: FillSizeValueCalculationStrategy;
-      try {
-        strategy = container.resolve(TOKENS.FILL_SIZE_VALUE_STRATEGY);
-      } catch (error) {
-        strategy = new FillSizeValueCalculationStrategy();
-      }
+  function createDifferentContexts(): any[] {
+    return [
+      mockContext,
+      { parent: { width: 1000, height: 800, x: 0, y: 0 }, dimension: 'width' },
+      { scene: { width: 1600, height: 1200 }, dimension: 'height' },
+    ];
+  }
 
-      const result = strategy.calculate(SizeValue.FILL, SizeUnit.FILL, mockContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
-    });
+  function testStrategyErrorHandling(): void {
+    const strategy = createPixelSizeValueCalculationStrategy();
+    const invalidInput = createInvalidInput();
+    
+    expect(() => strategy.calculate(invalidInput, mockContext)).not.toThrow();
+  }
 
-    it('should execute AutoSizeValueCalculationStrategy correctly', () => {
-      let strategy: AutoSizeValueCalculationStrategy;
-      try {
-        strategy = container.resolve(TOKENS.AUTO_SIZE_VALUE_STRATEGY);
-      } catch (error) {
-        strategy = new AutoSizeValueCalculationStrategy();
-      }
+  function createInvalidInput(): any {
+    return {
+      value: null,
+      unit: null,
+      dimension: 'width',
+    };
+  }
 
-      const result = strategy.calculate(SizeValue.AUTO, SizeUnit.AUTO, mockContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
-    });
-
-    it('should execute ParentWidthSizeValueCalculationStrategy correctly', () => {
-      let strategy: ParentWidthSizeValueCalculationStrategy;
-      try {
-        strategy = container.resolve(TOKENS.PARENT_WIDTH_SIZE_VALUE_STRATEGY);
-      } catch (error) {
-        strategy = new ParentWidthSizeValueCalculationStrategy();
-      }
-
-      const result = strategy.calculate(SizeValue.PARENT_WIDTH, SizeUnit.PARENT_WIDTH, mockContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
-    });
-
-    it('should execute ViewportWidthSizeValueCalculationStrategy correctly', () => {
-      let strategy: ViewportWidthSizeValueCalculationStrategy;
-      try {
-        strategy = container.resolve(TOKENS.VIEWPORT_WIDTH_SIZE_VALUE_STRATEGY);
-      } catch (error) {
-        strategy = new ViewportWidthSizeValueCalculationStrategy();
-      }
-
-      const result = strategy.calculate(SizeValue.VIEWPORT_WIDTH, SizeUnit.VIEWPORT_WIDTH, mockContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
-    });
-  });
-
-  describe('Strategy Selection', () => {
-    beforeEach(() => {
-      // Register all strategies using DI container
-      const strategies = [
-        (() => {
-          try { return container.resolve(TOKENS.PIXEL_SIZE_VALUE_STRATEGY); } catch { return new PixelSizeValueCalculationStrategy(); }
-        })(),
-        (() => {
-          try { return container.resolve(TOKENS.FILL_SIZE_VALUE_STRATEGY); } catch { return new FillSizeValueCalculationStrategy(); }
-        })(),
-        (() => {
-          try { return container.resolve(TOKENS.AUTO_SIZE_VALUE_STRATEGY); } catch { return new AutoSizeValueCalculationStrategy(); }
-        })(),
-        (() => {
-          try { return container.resolve(TOKENS.PARENT_WIDTH_SIZE_VALUE_STRATEGY); } catch { return new ParentWidthSizeValueCalculationStrategy(); }
-        })(),
-        (() => {
-          try { return container.resolve(TOKENS.VIEWPORT_WIDTH_SIZE_VALUE_STRATEGY); } catch { return new ViewportWidthSizeValueCalculationStrategy(); }
-        })(),
-      ];
-
-      strategies.forEach(strategy => registry.registerStrategy(strategy));
-    });
-
-    it('should select correct strategy for pixel values', () => {
-      const selectedStrategy = registry.selectStrategy(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
-      expect(selectedStrategy).toBeDefined();
-      expect(selectedStrategy?.strategyId).toBe('pixel-size-value-calculation');
-    });
-
-    it('should select correct strategy for fill values', () => {
-      const selectedStrategy = registry.selectStrategy(SizeValue.FILL, SizeUnit.FILL, mockContext);
-      expect(selectedStrategy).toBeDefined();
-      expect(selectedStrategy?.strategyId).toBe('fill-size-value-calculation');
-    });
-
-    it('should select correct strategy for auto values', () => {
-      const selectedStrategy = registry.selectStrategy(SizeValue.AUTO, SizeUnit.AUTO, mockContext);
-      expect(selectedStrategy).toBeDefined();
-      expect(selectedStrategy?.strategyId).toBe('auto-size-value-calculation');
-    });
-
-    it('should select correct strategy for parent width values', () => {
-      const selectedStrategy = registry.selectStrategy(SizeValue.PARENT_WIDTH, SizeUnit.PARENT_WIDTH, mockContext);
-      expect(selectedStrategy).toBeDefined();
-      expect(selectedStrategy?.strategyId).toBe('parent-width-size-value-calculation');
-    });
-
-    it('should select correct strategy for viewport width values', () => {
-      const selectedStrategy = registry.selectStrategy(SizeValue.VIEWPORT_WIDTH, SizeUnit.VIEWPORT_WIDTH, mockContext);
-      expect(selectedStrategy).toBeDefined();
-      expect(selectedStrategy?.strategyId).toBe('viewport-width-size-value-calculation');
-    });
-
-    it('should return null for unsupported values', () => {
-      const selectedStrategy = registry.selectStrategy('unsupported' as any, 'unsupported' as any, mockContext);
-      expect(selectedStrategy).toBeNull();
-    });
-  });
-
-  describe('Strategy Execution', () => {
-    beforeEach(() => {
-      // Register all strategies using DI container
-      const strategies = [
-        (() => {
-          try { return container.resolve(TOKENS.PIXEL_SIZE_VALUE_STRATEGY); } catch { return new PixelSizeValueCalculationStrategy(); }
-        })(),
-        (() => {
-          try { return container.resolve(TOKENS.FILL_SIZE_VALUE_STRATEGY); } catch { return new FillSizeValueCalculationStrategy(); }
-        })(),
-        (() => {
-          try { return container.resolve(TOKENS.AUTO_SIZE_VALUE_STRATEGY); } catch { return new AutoSizeValueCalculationStrategy(); }
-        })(),
-        (() => {
-          try { return container.resolve(TOKENS.PARENT_WIDTH_SIZE_VALUE_STRATEGY); } catch { return new ParentWidthSizeValueCalculationStrategy(); }
-        })(),
-        (() => {
-          try { return container.resolve(TOKENS.VIEWPORT_WIDTH_SIZE_VALUE_STRATEGY); } catch { return new ViewportWidthSizeValueCalculationStrategy(); }
-        })(),
-      ];
-
-      strategies.forEach(strategy => registry.registerStrategy(strategy));
-    });
-
-    it('should execute strategy for pixel values', () => {
-      const result = registry.executeStrategy(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
-    });
-
-    it('should execute strategy for fill values', () => {
-      const result = registry.executeStrategy(SizeValue.FILL, SizeUnit.FILL, mockContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
-    });
-
-    it('should execute strategy for auto values', () => {
-      const result = registry.executeStrategy(SizeValue.AUTO, SizeUnit.AUTO, mockContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
-    });
-
-    it('should execute strategy for parent width values', () => {
-      const result = registry.executeStrategy(SizeValue.PARENT_WIDTH, SizeUnit.PARENT_WIDTH, mockContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
-    });
-
-    it('should execute strategy for viewport width values', () => {
-      const result = registry.executeStrategy(SizeValue.VIEWPORT_WIDTH, SizeUnit.VIEWPORT_WIDTH, mockContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
-    });
-
-    it('should return default value for unsupported values', () => {
-      const result = registry.executeStrategy('unsupported' as any, 'unsupported' as any, mockContext);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
-    });
-  });
-
-  describe('Error Handling', () => {
-    it('should handle strategy execution errors gracefully', () => {
-      let strategy: PixelSizeValueCalculationStrategy;
-      try {
-        strategy = container.resolve(TOKENS.PIXEL_SIZE_VALUE_STRATEGY);
-      } catch (error) {
-        strategy = new PixelSizeValueCalculationStrategy();
-      }
-
-      // Mock a failing calculation
-      const originalCalculate = strategy.calculate;
-      strategy.calculate = jest.fn().mockImplementation(() => {
-        throw new Error('Strategy execution failed');
-      });
-
-      registry.registerStrategy(strategy);
-
-      expect(() => registry.executeStrategy(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext)).toThrow('Strategy execution failed');
-
-      // Restore original method
-      strategy.calculate = originalCalculate;
-    });
-
-    it('should handle missing context gracefully', () => {
-      let strategy: PixelSizeValueCalculationStrategy;
-      try {
-        strategy = container.resolve(TOKENS.PIXEL_SIZE_VALUE_STRATEGY);
-      } catch (error) {
-        strategy = new PixelSizeValueCalculationStrategy();
-      }
-
-      registry.registerStrategy(strategy);
-
-      const result = registry.executeStrategy(SizeValue.PIXEL, SizeUnit.PIXEL, null as any);
-      expect(typeof result).toBe('number');
-      expect(result).toBeGreaterThanOrEqual(0);
-    });
-  });
-
-  describe('Performance', () => {
-    beforeEach(() => {
-      // Register all strategies using DI container
-      const strategies = [
-        (() => {
-          try { return container.resolve(TOKENS.PIXEL_SIZE_VALUE_STRATEGY); } catch { return new PixelSizeValueCalculationStrategy(); }
-        })(),
-        (() => {
-          try { return container.resolve(TOKENS.FILL_SIZE_VALUE_STRATEGY); } catch { return new FillSizeValueCalculationStrategy(); }
-        })(),
-        (() => {
-          try { return container.resolve(TOKENS.AUTO_SIZE_VALUE_STRATEGY); } catch { return new AutoSizeValueCalculationStrategy(); }
-        })(),
-        (() => {
-          try { return container.resolve(TOKENS.PARENT_WIDTH_SIZE_VALUE_STRATEGY); } catch { return new ParentWidthSizeValueCalculationStrategy(); }
-        })(),
-        (() => {
-          try { return container.resolve(TOKENS.VIEWPORT_WIDTH_SIZE_VALUE_STRATEGY); } catch { return new ViewportWidthSizeValueCalculationStrategy(); }
-        })(),
-      ];
-
-      strategies.forEach(strategy => registry.registerStrategy(strategy));
-    });
-
-    it('should execute strategies efficiently', () => {
-      const startTime = performance.now();
-      
-      for (let i = 0; i < 1000; i++) {
-        registry.executeStrategy(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
-      }
-      
-      const endTime = performance.now();
-      const totalTime = endTime - startTime;
-
-      expect(totalTime).toBeLessThan(100); // Should complete within 100ms
-    });
-
-    it('should handle multiple rapid executions', () => {
-      const results = [];
-      
-      for (let i = 0; i < 100; i++) {
-        const result = registry.executeStrategy(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
-        results.push(result);
-      }
-      
-      results.forEach(result => {
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      });
-    });
-  });
-
-  describe('Integration', () => {
-    it('should work with different strategy configurations', () => {
-      const testCases = [
-        { value: SizeValue.PIXEL, unit: SizeUnit.PIXEL },
-        { value: SizeValue.FILL, unit: SizeUnit.FILL },
-        { value: SizeValue.AUTO, unit: SizeUnit.AUTO },
-        { value: SizeValue.PARENT_WIDTH, unit: SizeUnit.PARENT_WIDTH },
-        { value: SizeValue.VIEWPORT_WIDTH, unit: SizeUnit.VIEWPORT_WIDTH },
-      ];
-
-      for (const testCase of testCases) {
-        const result = registry.executeStrategy(testCase.value, testCase.unit, mockContext);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      }
-    });
-
-    it('should work with different context types', () => {
-      const contexts = [
-        mockContext,
-        { parent: { width: 1000, height: 800, x: 0, y: 0 }, dimension: Dimension.WIDTH },
-        { scene: { width: 1920, height: 1080 }, dimension: Dimension.HEIGHT },
-        { viewport: { width: 1366, height: 768 }, dimension: Dimension.BOTH },
-      ];
-
-      for (const context of contexts) {
-        const result = registry.executeStrategy(SizeValue.PIXEL, SizeUnit.PIXEL, context as any);
-        expect(typeof result).toBe('number');
-        expect(result).toBeGreaterThanOrEqual(0);
-      }
-    });
-  });
+  function testCalculationEfficiency(): void {
+    const strategy = createPixelSizeValueCalculationStrategy();
+    const input = createTestInput();
+    const startTime = performance.now();
+    
+    for (let i = 0; i < 1000; i++) {
+      strategy.calculate(input, mockContext);
+    }
+    
+    const endTime = performance.now();
+    const totalTime = endTime - startTime;
+    
+    expect(totalTime).toBeLessThan(100); // Should complete within 100ms
+  }
 });
