@@ -1,7 +1,6 @@
 import type { IUnitObserver } from './IUnitObserver';
-import { logger } from '../core/Logger';
+import { container, TOKENS } from '../container/DiContainer';
 import { LogLevel, shouldLogLevel } from '../enums/LogLevel';
-import { LogLevelStrategyRegistry } from '../strategies/registry/LogLevelStrategyRegistry';
 
 /**
  * Logging Observer
@@ -10,13 +9,15 @@ import { LogLevelStrategyRegistry } from '../strategies/registry/LogLevelStrateg
  */
 export class LoggingObserver implements IUnitObserver {
   private logLevel: LogLevel;
-  private readonly logger: typeof logger;
-  private strategyRegistry: LogLevelStrategyRegistry;
+  private readonly logger: any;
 
   constructor(logLevel: LogLevel = LogLevel.INFO) {
     this.logLevel = logLevel;
-    this.logger = logger;
-    this.strategyRegistry = LogLevelStrategyRegistry.getInstance();
+    try {
+      this.logger = container.resolve(TOKENS.LOGGER);
+    } catch (error) {
+      this.logger = console; // Fallback to console
+    }
   }
 
   /**
@@ -97,8 +98,22 @@ export class LoggingObserver implements IUnitObserver {
     const message = `[${event}] Unit event occurred`;
 
     try {
-      const logStrategy = this.strategyRegistry.getLogLevelStrategy(level);
-      logStrategy(objectName, 'LoggingObserver', message, data);
+      switch (level) {
+        case LogLevel.DEBUG:
+          this.logger.debug(objectName, 'LoggingObserver', message, data);
+          break;
+        case LogLevel.INFO:
+          this.logger.info(objectName, 'LoggingObserver', message, data);
+          break;
+        case LogLevel.WARN:
+          this.logger.warn(objectName, 'LoggingObserver', message, data);
+          break;
+        case LogLevel.ERROR:
+          this.logger.error(objectName, 'LoggingObserver', message, data);
+          break;
+        default:
+          this.logger.info(objectName, 'LoggingObserver', message, data);
+      }
     } catch (error) {
       // Fallback to logger if project logger fails
       try {

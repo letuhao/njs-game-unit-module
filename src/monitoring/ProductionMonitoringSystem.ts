@@ -1,6 +1,6 @@
-import type { UnitContext } from '../interfaces/IUnit';
-import type { IUnitConfig } from '../interfaces/IUnitConfig';
-import { logger } from '../core/Logger';
+import { UnitContext } from '../interfaces/IUnit';
+import { IUnitConfig } from '../interfaces/IUnitConfig';
+import { container, TOKENS } from '../container/DiContainer';
 
 export interface PerformanceMetric {
   timestamp: Date;
@@ -15,7 +15,7 @@ export interface HealthCheck {
   status: 'healthy' | 'degraded' | 'unhealthy';
   message: string;
   timestamp: Date;
-  details?: Record<string, unknown>;
+  details?: Record<string, any>;
 }
 
 export interface Alert {
@@ -25,7 +25,7 @@ export interface Alert {
   message: string;
   timestamp: Date;
   component: string;
-  metadata?: Record<string, unknown>;
+  metadata?: Record<string, any>;
   acknowledged: boolean;
   acknowledgedBy?: string;
   acknowledgedAt?: Date;
@@ -44,106 +44,7 @@ export interface MonitoringConfig {
   };
 }
 
-/**
- * Core monitoring interface - basic monitoring operations
- */
-export interface IProductionMonitoringSystemCore {
-  /** Start monitoring */
-  start(): void;
-
-  /** Stop monitoring */
-  stop(): void;
-}
-
-/**
- * Metrics recording interface - metrics operations
- */
-export interface IProductionMonitoringSystemMetrics {
-  /** Record a performance metric */
-  recordMetric(
-    metricName: string,
-    value: number,
-    unit: string,
-    tags?: Record<string, string>
-  ): void;
-
-  /** Record calculation performance */
-  recordCalculationPerformance(
-    operation: string,
-    executionTime: number,
-    memoryUsage: number,
-    context: UnitContext,
-    config: IUnitConfig
-  ): void;
-
-  /** Record cache performance */
-  recordCachePerformance(
-    cacheId: string,
-    hitRate: number,
-    evictionRate: number,
-    memoryUsage: number
-  ): void;
-
-  /** Record strategy performance */
-  recordStrategyPerformance(
-    strategyId: string,
-    executionTime: number,
-    successRate: number,
-    compositionCount: number
-  ): void;
-
-  /** Record error */
-  recordError(error: Error, component: string, context?: Record<string, unknown>): void;
-}
-
-/**
- * Health monitoring interface - health operations
- */
-export interface IProductionMonitoringSystemHealth {
-  /** Get recent metrics */
-  getRecentMetrics(minutes?: number): PerformanceMetric[];
-
-  /** Get recent alerts */
-  getRecentAlerts(hours?: number): Alert[];
-
-  /** Acknowledge an alert */
-  acknowledgeAlert(alertId: string, acknowledgedBy: string): boolean;
-}
-
-/**
- * Statistics interface - statistics operations
- */
-export interface IProductionMonitoringSystemStatistics {
-  /** Get monitoring statistics */
-  getStatistics(): {
-    metricsCount: number;
-    healthChecksCount: number;
-    alertsCount: number;
-    unacknowledgedAlertsCount: number;
-    systemStatus: 'healthy' | 'degraded' | 'unhealthy';
-  };
-
-  /** Export monitoring data */
-  exportData(): {
-    metrics: PerformanceMetric[];
-    healthChecks: HealthCheck[];
-    alerts: Alert[];
-    statistics: ReturnType<ProductionMonitoringSystem['getStatistics']>;
-  };
-}
-
-/**
- * Complete production monitoring system interface
- * Combines all monitoring functionality
- */
-export interface IProductionMonitoringSystem extends 
-  IProductionMonitoringSystemCore,
-  IProductionMonitoringSystemMetrics,
-  IProductionMonitoringSystemHealth,
-  IProductionMonitoringSystemStatistics {
-}
-
-export class ProductionMonitoringSystem implements IProductionMonitoringSystem {
+export class ProductionMonitoringSystem {
   private metrics: PerformanceMetric[] = [];
   private healthChecks: HealthCheck[] = [];
   private alerts: Alert[] = [];
@@ -151,17 +52,21 @@ export class ProductionMonitoringSystem implements IProductionMonitoringSystem {
   private isRunning: boolean = false;
   private metricsInterval?: NodeJS.Timeout;
   private healthCheckInterval?: NodeJS.Timeout;
-  private readonly logger: typeof logger;
+  private readonly logger: any;
 
   constructor(config: MonitoringConfig) {
     this.config = config;
-    this.logger = logger;
+    try {
+      this.logger = container.resolve(TOKENS.LOGGER);
+    } catch (error) {
+      this.logger = console; // Fallback to console
+    }
   }
 
   /**
    * Start monitoring
    */
-  public start(): void {
+  start(): void {
     if (this.isRunning) {
       return;
     }
@@ -186,7 +91,7 @@ export class ProductionMonitoringSystem implements IProductionMonitoringSystem {
   /**
    * Stop monitoring
    */
-  public stop(): void {
+  stop(): void {
     if (!this.isRunning) {
       return;
     }
@@ -209,7 +114,7 @@ export class ProductionMonitoringSystem implements IProductionMonitoringSystem {
   /**
    * Record a performance metric
    */
-  public recordMetric(
+  recordMetric(
     metricName: string,
     value: number,
     unit: string,
@@ -241,7 +146,7 @@ export class ProductionMonitoringSystem implements IProductionMonitoringSystem {
   /**
    * Record calculation performance
    */
-  public recordCalculationPerformance(
+  recordCalculationPerformance(
     operation: string,
     executionTime: number,
     memoryUsage: number,
@@ -270,7 +175,7 @@ export class ProductionMonitoringSystem implements IProductionMonitoringSystem {
   /**
    * Record cache performance
    */
-  public recordCachePerformance(
+  recordCachePerformance(
     cacheId: string,
     hitRate: number,
     evictionRate: number,
@@ -295,7 +200,7 @@ export class ProductionMonitoringSystem implements IProductionMonitoringSystem {
   /**
    * Record strategy performance
    */
-  public recordStrategyPerformance(
+  recordStrategyPerformance(
     strategyId: string,
     executionTime: number,
     successRate: number,
@@ -320,7 +225,7 @@ export class ProductionMonitoringSystem implements IProductionMonitoringSystem {
   /**
    * Record error
    */
-  public recordError(error: Error, component: string, context: Record<string, unknown> = {}): void {
+  recordError(error: Error, component: string, context: Record<string, any> = {}): void {
     this.recordMetric('errors.count', 1, 'count', {
       component,
       errorType: error.constructor.name,
@@ -340,77 +245,6 @@ export class ProductionMonitoringSystem implements IProductionMonitoringSystem {
         },
       });
     }
-  }
-
-  /**
-   * Get recent metrics
-   */
-  public getRecentMetrics(minutes: number = 5): PerformanceMetric[] {
-    const cutoff = new Date(Date.now() - minutes * 60 * 1000);
-    return this.metrics.filter(m => m.timestamp > cutoff);
-  }
-
-  /**
-   * Get recent alerts
-   */
-  public getRecentAlerts(hours: number = 24): Alert[] {
-    const cutoff = new Date(Date.now() - hours * 60 * 60 * 1000);
-    return this.alerts.filter(a => a.timestamp > cutoff);
-  }
-
-  /**
-   * Acknowledge an alert
-   */
-  public acknowledgeAlert(alertId: string, acknowledgedBy: string): boolean {
-    const alert = this.alerts.find(a => a.id === alertId);
-    if (!alert) {
-      return false;
-    }
-
-    alert.acknowledged = true;
-    alert.acknowledgedBy = acknowledgedBy;
-    alert.acknowledgedAt = new Date();
-
-    return true;
-  }
-
-  /**
-   * Get monitoring statistics
-   */
-  public getStatistics(): {
-    metricsCount: number;
-    healthChecksCount: number;
-    alertsCount: number;
-    unacknowledgedAlertsCount: number;
-    systemStatus: 'healthy' | 'degraded' | 'unhealthy';
-  } {
-    const unacknowledgedAlerts = this.alerts.filter(a => !a.acknowledged);
-    const latestHealthCheck = this.healthChecks[this.healthChecks.length - 1];
-
-    return {
-      metricsCount: this.metrics.length,
-      healthChecksCount: this.healthChecks.length,
-      alertsCount: this.alerts.length,
-      unacknowledgedAlertsCount: unacknowledgedAlerts.length,
-      systemStatus: latestHealthCheck?.status || 'healthy',
-    };
-  }
-
-  /**
-   * Export monitoring data
-   */
-  public exportData(): {
-    metrics: PerformanceMetric[];
-    healthChecks: HealthCheck[];
-    alerts: Alert[];
-    statistics: ReturnType<ProductionMonitoringSystem['getStatistics']>;
-  } {
-    return {
-      metrics: [...this.metrics],
-      healthChecks: [...this.healthChecks],
-      alerts: [...this.alerts],
-      statistics: this.getStatistics(),
-    };
   }
 
   /**
@@ -683,5 +517,76 @@ export class ProductionMonitoringSystem implements IProductionMonitoringSystem {
     if ('positionUnit' in config) return 'position';
     if ('scaleUnit' in config) return 'scale';
     return 'unknown';
+  }
+
+  /**
+   * Get monitoring statistics
+   */
+  getStatistics(): {
+    metricsCount: number;
+    healthChecksCount: number;
+    alertsCount: number;
+    unacknowledgedAlertsCount: number;
+    systemStatus: 'healthy' | 'degraded' | 'unhealthy';
+  } {
+    const unacknowledgedAlerts = this.alerts.filter(a => !a.acknowledged);
+    const latestHealthCheck = this.healthChecks[this.healthChecks.length - 1];
+
+    return {
+      metricsCount: this.metrics.length,
+      healthChecksCount: this.healthChecks.length,
+      alertsCount: this.alerts.length,
+      unacknowledgedAlertsCount: unacknowledgedAlerts.length,
+      systemStatus: latestHealthCheck?.status || 'healthy',
+    };
+  }
+
+  /**
+   * Get recent metrics
+   */
+  getRecentMetrics(minutes: number = 5): PerformanceMetric[] {
+    const cutoff = new Date(Date.now() - minutes * 60 * 1000);
+    return this.metrics.filter(m => m.timestamp > cutoff);
+  }
+
+  /**
+   * Get recent alerts
+   */
+  getRecentAlerts(hours: number = 24): Alert[] {
+    const cutoff = new Date(Date.now() - hours * 60 * 60 * 1000);
+    return this.alerts.filter(a => a.timestamp > cutoff);
+  }
+
+  /**
+   * Acknowledge an alert
+   */
+  acknowledgeAlert(alertId: string, acknowledgedBy: string): boolean {
+    const alert = this.alerts.find(a => a.id === alertId);
+    if (!alert) {
+      return false;
+    }
+
+    alert.acknowledged = true;
+    alert.acknowledgedBy = acknowledgedBy;
+    alert.acknowledgedAt = new Date();
+
+    return true;
+  }
+
+  /**
+   * Export monitoring data
+   */
+  exportData(): {
+    metrics: PerformanceMetric[];
+    healthChecks: HealthCheck[];
+    alerts: Alert[];
+    statistics: ReturnType<typeof ProductionMonitoringSystem.prototype.getStatistics>;
+  } {
+    return {
+      metrics: [...this.metrics],
+      healthChecks: [...this.healthChecks],
+      alerts: [...this.alerts],
+      statistics: this.getStatistics(),
+    };
   }
 }
