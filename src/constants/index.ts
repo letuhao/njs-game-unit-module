@@ -16,5 +16,21 @@ export const DEFAULT_FALLBACK_VALUES = {
     DEFAULT: 1,
     MIN: 0.1,
     MAX: 10
+  },
+  PERFORMANCE: {
+    ERROR_THRESHOLD: 100,
+    DEFAULT_MEMORY_LIMIT: 1000
+  }
+} as const;
+
+/**
+ * Command constants for command management
+ */
+export const COMMAND_CONSTANTS = {
+  HISTORY: {
+    DEFAULT_INDEX: -1
+  },
+  METRICS: {
+    MAX_EXECUTION_TIMES: 100
   }
 } as const;
