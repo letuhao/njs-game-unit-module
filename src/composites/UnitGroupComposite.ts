@@ -26,6 +26,80 @@ export class UnitGroupComposite extends BaseUnitComposite {
   }
 
   /**
+   * Get the composite ID
+   */
+  get id(): string {
+    return this.compositeId;
+  }
+
+  /**
+   * Get the composite name
+   */
+  get name(): string {
+    return this.compositeName;
+  }
+
+  /**
+   * Add a unit to the composite
+   */
+  addUnit(unit: IUnit): void {
+    this.units.push(unit);
+  }
+
+  /**
+   * Remove a unit from the composite
+   */
+  removeUnit(unitId: string): void {
+    const index = this.units.findIndex(unit => unit.id === unitId);
+    if (index !== -1) {
+      this.units.splice(index, 1);
+    }
+  }
+
+  /**
+   * Get the number of units in the composite
+   */
+  getUnitCount(): number {
+    return this.units.length;
+  }
+
+  /**
+   * Check if a unit exists in the composite
+   */
+  hasUnit(unitId: string): boolean {
+    return this.units.some(unit => unit.id === unitId);
+  }
+
+  /**
+   * Get units by type
+   */
+  getUnitsByType(unitType: UnitType): IUnit[] {
+    return this.units.filter(unit => unit.unitType === unitType);
+  }
+
+  /**
+   * Get all units in the composite
+   */
+  getAllUnits(): IUnit[] {
+    return [...this.units];
+  }
+
+  /**
+   * Clear all units from the composite
+   */
+  clearUnits(): void {
+    this.units = [];
+  }
+
+  /**
+   * Validate units by type
+   */
+  validateUnitsByType(unitType: UnitType, context: UnitContext): boolean {
+    const unitsOfType = this.getUnitsByType(unitType);
+    return unitsOfType.every(unit => unit.validate(context));
+  }
+
+  /**
    * Calculate the composite result using the specified strategy
    */
   public calculate(context: UnitContext): number {

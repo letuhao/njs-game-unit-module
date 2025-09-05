@@ -248,8 +248,8 @@ export class PositionUnitCalculator implements IPositionUnit {
   private calculateRandomPosition(context: UnitContext): number {
     const max =
       this.axis === Dimension.X
-        ? (context.scene?.width ?? context.viewport?.width ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT)
-        : (context.scene?.height ?? context.viewport?.height ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT);
+        ? (context.scene?.width ?? context.viewport?.width ?? DEFAULT_FALLBACK_VALUES.SIZE)
+        : (context.scene?.height ?? context.viewport?.height ?? DEFAULT_FALLBACK_VALUES.SIZE);
     return Math.random() * max + this.offset;
   }
 
@@ -264,7 +264,7 @@ export class PositionUnitCalculator implements IPositionUnit {
   } {
     return {
       axis: this.axis,
-      alignment: this.alignment,
+      alignment: this.alignment || undefined,
       offset: this.offset,
       isResponsive: this.isResponsive(),
     };
@@ -276,12 +276,12 @@ export class PositionUnitCalculator implements IPositionUnit {
   isWithinBounds(position: number, context: UnitContext): boolean {
     if (this.axis === Dimension.X) {
       const maxX =
-        context.scene?.width ?? context.viewport?.width ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
+        context.scene?.width ?? context.viewport?.width ?? DEFAULT_FALLBACK_VALUES.SIZE;
       return position >= 0 && position <= maxX;
     }
     if (this.axis === Dimension.Y) {
       const maxY =
-        context.scene?.height ?? context.viewport?.height ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
+        context.scene?.height ?? context.viewport?.height ?? DEFAULT_FALLBACK_VALUES.SIZE;
       return position >= 0 && position <= maxY;
     }
     return true;
@@ -294,14 +294,14 @@ export class PositionUnitCalculator implements IPositionUnit {
     if (this.axis === Dimension.X) {
       return {
         min: 0,
-        max: context.scene?.width ?? context.viewport?.width ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT,
+        max: context.scene?.width ?? context.viewport?.width ?? DEFAULT_FALLBACK_VALUES.SIZE,
       };
     }
     if (this.axis === Dimension.Y) {
       return {
         min: 0,
         max:
-          context.scene?.height ?? context.viewport?.height ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT,
+          context.scene?.height ?? context.viewport?.height ?? DEFAULT_FALLBACK_VALUES.SIZE,
       };
     }
     return { min: 0, max: 0 };

@@ -4,7 +4,7 @@ import { PositionUnit } from '../enums/PositionUnit';
 import { Dimension } from '../enums/Dimension';
 import { UnitContext } from '../interfaces/IUnit';
 import { UnitType } from '../enums/UnitType';
-import { container, TOKENS } from '../container';
+import { container, TOKENS, resolve } from '../container';
 
 /**
  * Adapter for legacy position units to modern unit system

@@ -9,9 +9,13 @@
     "noUncheckedIndexedAccess": true,
     "moduleResolution": "Bundler",
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "types": ["jest", "node"],
+    "allowSyntheticDefaultImports": true
   },
   "include": [
-    "src"
+    "src",
+    "src/**/*",
+    "src/test/**/*"
   ]
 }

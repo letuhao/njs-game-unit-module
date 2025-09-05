@@ -254,6 +254,71 @@ export class UnitMementoManager {
   }
 
   /**
+   * Store a memento
+   */
+  public storeMemento(memento: IUnitMemento): void {
+    this.caretaker.addMemento(memento);
+    this.mementoStatistics.totalManualSaves++;
+  }
+
+  /**
+   * Check if a memento exists
+   */
+  public hasMemento(unitId: string): boolean {
+    return this.caretaker.getMementoCount(unitId) > 0;
+  }
+
+  /**
+   * Get a specific memento by unit ID
+   */
+  public getMemento(unitId: string): IUnitMemento | undefined {
+    const mementos = this.caretaker.getMementos(unitId);
+    return mementos.length > 0 ? mementos[0] : undefined;
+  }
+
+  /**
+   * Get all mementos
+   */
+  public getAllMementos(): IUnitMemento[] {
+    return this.caretaker.getAllMementos();
+  }
+
+  /**
+   * Update a memento
+   */
+  public updateMemento(memento: IUnitMemento): void {
+    this.caretaker.updateMemento(memento);
+  }
+
+  /**
+   * Delete a memento
+   */
+  public deleteMemento(unitId: string): void {
+    this.caretaker.removeMemento(unitId);
+  }
+
+  /**
+   * Clear all mementos
+   */
+  public clearMementos(): void {
+    this.caretaker.clearAllMementos();
+  }
+
+  /**
+   * Find mementos by criteria
+   */
+  public findMementosByCriteria(criteria: any): IUnitMemento[] {
+    return this.caretaker.findMementosByCriteria(criteria);
+  }
+
+  /**
+   * Get statistics
+   */
+  public getStatistics(): any {
+    return this.mementoStatistics;
+  }
+
+  /**
    * Get total memento count
    */
   public getTotalMementoCount(): number {

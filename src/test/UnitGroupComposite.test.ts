@@ -1,10 +1,25 @@
 import { describe, beforeEach, afterEach, it, expect, jest } from '@jest/globals';
 import { UnitGroupComposite } from '../composites/UnitGroupComposite';
 import { CalculationStrategy } from '../enums/CalculationStrategy';
+import { UnitType } from '../enums/UnitType';
+import { createMockUnit, createMockContext } from './test-utils';
 import type { IUnit } from '../interfaces/IUnit';
 import type { UnitContext } from '../interfaces/IUnit';
-import { UnitType } from '../enums/UnitType';
 import { container, TOKENS } from '../container/DiContainer';
+
+// Helper function for testing
+function calculateValueBasedOnUnitType(context: UnitContext): number {
+  if (context.parent) {
+    return context.parent.width || 100;
+  }
+  if (context.scene) {
+    return context.scene.width || 100;
+  }
+  if (context.viewport) {
+    return context.viewport.width || 100;
+  }
+  return 100;
+}
 
 // Mock unit for testing
 class MockUnit implements IUnit {
@@ -177,7 +192,7 @@ describe('UnitGroupComposite', () => {
     try {
       composite = container.resolve(TOKENS.UNIT_GROUP_COMPOSITE);
     } catch (error) {
-      composite = new UnitGroupComposite('test-composite', 'Test Composite', CalculationStrategy.SEQUENTIAL);
+      composite = new UnitGroupComposite('test-composite', 'Test Composite', 0, CalculationStrategy.SEQUENTIAL);
     }
   }
 
@@ -193,7 +208,7 @@ describe('UnitGroupComposite', () => {
       setDefaultCompositeProperties(composite);
       return composite;
     } catch (error) {
-      return new UnitGroupComposite('default-composite', 'Default Composite', CalculationStrategy.SEQUENTIAL);
+      return new UnitGroupComposite('default-composite', 'Default Composite', 0, CalculationStrategy.SEQUENTIAL);
     }
   }
 
@@ -221,7 +236,7 @@ describe('UnitGroupComposite', () => {
       setCustomCompositeProperties(composite);
       return composite;
     } catch (error) {
-      return new UnitGroupComposite('custom-composite', 'Custom Composite', CalculationStrategy.PARALLEL);
+      return new UnitGroupComposite('custom-composite', 'Custom Composite', 0, CalculationStrategy.PARALLEL);
     }
   }
 
@@ -377,7 +392,7 @@ describe('UnitGroupComposite', () => {
       setCompositeStrategy(composite, strategy);
       return composite;
     } catch (error) {
-      return new UnitGroupComposite('test-composite', 'Test Composite', strategy);
+      return new UnitGroupComposite('test-composite', 'Test Composite', 0, strategy);
     }
   }
 

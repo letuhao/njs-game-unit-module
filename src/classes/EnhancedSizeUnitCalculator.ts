@@ -31,8 +31,8 @@ export class EnhancedSizeUnitCalculator implements ISizeUnit {
   public readonly maintainAspectRatio: boolean;
   public readonly isActive: boolean = true;
 
-  private minSize?: number;
-  private maxSize?: number;
+  private minSize: number | undefined;
+  private maxSize: number | undefined;
   private readonly strategyRegistry: SizeValueCalculationStrategyRegistry;
   private readonly cache: StrategyCache<SizeValue, SizeUnit, number>;
   private readonly composers: Array<
@@ -70,7 +70,7 @@ export class EnhancedSizeUnitCalculator implements ISizeUnit {
     this.strategyRegistry = strategyRegistry || new SizeValueCalculationStrategyRegistry();
     
     // Initialize cache
-    this.cache = cache || new StrategyCache<SizeValue, SizeUnit, number>();
+    this.cache = cache || new StrategyCache<SizeValue, SizeUnit, number>(`${id}-cache`);
     
     // Initialize composers
     this.composers = composers || [
@@ -101,11 +101,8 @@ export class EnhancedSizeUnitCalculator implements ISizeUnit {
       this.performanceMetrics.cacheMisses++;
 
       // Get base calculation from strategy registry
-      const baseResult = this.strategyRegistry.executeStrategy(
-        this.baseValue as SizeValue,
-        this.sizeUnit,
-        context
-      );
+      const strategy = this.strategyRegistry.getStrategy(`${this.baseValue}-${this.sizeUnit}`);
+      const baseResult = strategy ? strategy.calculate(this.baseValue as SizeValue, this.sizeUnit, context) : this.getFallbackValue();
 
       // Apply composition strategies
       let finalResult = baseResult;
@@ -131,6 +128,52 @@ export class EnhancedSizeUnitCalculator implements ISizeUnit {
       return this.getFallbackValue();
     }
   }
+
+  /**
+   * Calculate size based on context (ISizeUnitCalculation interface)
+   */
+  calculateSize(context: UnitContext): number {
+    return this.calculate(context);
+  }
+
+  /**
+   * Calculate width specifically (ISizeUnitCalculation interface)
+   */
+  calculateWidth(context: UnitContext): number {
+    if (this.dimension === Dimension.HEIGHT) {
+      // If this is a height unit, calculate based on aspect ratio
+      const height = this.calculate(context);
+      return this.maintainAspectRatio ? height * (context.parent?.width || 1) / (context.parent?.height || 1) : height;
+    }
+    return this.calculate(context);
+  }
+
+  /**
+   * Calculate height specifically (ISizeUnitCalculation interface)
+   */
+  calculateHeight(context: UnitContext): number {
+    if (this.dimension === Dimension.WIDTH) {
+      // If this is a width unit, calculate based on aspect ratio
+      const width = this.calculate(context);
+      return this.maintainAspectRatio ? width * (context.parent?.height || 1) / (context.parent?.width || 1) : width;
+    }
+    return this.calculate(context);
+  }
+
+  /**
+   * Get the minimum size constraint (ISizeUnitConstraints interface)
+   */
+  getMinSize(): number | undefined {
+    return this.minSize;
+  }
+
+  /**
+   * Get the maximum size constraint (ISizeUnitConstraints interface)
+   */
+  getMaxSize(): number | undefined {
+    return this.maxSize;
+  }
+
 
   /**
    * Validate the calculator configuration and context

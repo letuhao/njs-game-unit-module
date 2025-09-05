@@ -5,8 +5,12 @@
 export enum SizeUnit {
   PIXEL = 'pixel',
   PERCENT = 'percent',
+  PERCENTAGE = 'percentage',
+  FILL = 'fill',
   PARENT_WIDTH = 'parent-width',
   PARENT_HEIGHT = 'parent-height',
+  SCENE_WIDTH = 'scene-width',
+  SCENE_HEIGHT = 'scene-height',
   VIEWPORT_WIDTH = 'viewport-width',
   VIEWPORT_HEIGHT = 'viewport-height',
   AUTO = 'auto'

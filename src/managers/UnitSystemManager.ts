@@ -1,5 +1,5 @@
 import type { IUnit } from '../interfaces/IUnit';
-// IUnitConfig interface not found, using any for now
+import type { IUnitConfig, IUnitResult, IUnitUpdateResult, IUnitDeleteResult, IUnitCalculationResult, IUnitValidationResult } from '../interfaces/IUnitConfig';
 import type { UnitContext } from '../interfaces/IUnit';
 import { UnitType } from '../enums/UnitType';
 import { CommandManager, ICommandManager } from './CommandManager';
@@ -22,11 +22,13 @@ export interface IUnitSystemManager {
   initialize(): void;
   shutdown(): void;
   getSystemStatus(): {
-    isInitialized: boolean;
-    totalUnits: number;
-    activeStrategies: number;
-    registeredObservers: number;
-    validationErrors: number;
+    initialized: boolean;
+    statistics: {
+      totalUnits: number;
+      totalStrategies: number;
+      totalObservers: number;
+      validationErrors: number;
+    };
   };
 
   // Performance and monitoring
@@ -162,11 +164,13 @@ export class UnitSystemManager implements IUnitSystemManager {
    */
   public getSystemStatus() {
     return {
-      isInitialized: this.isInitialized,
-      totalUnits: this.unitRegistryManager.getUnitCount(),
-      activeStrategies: this.strategyManager.getStrategyCount(),
-      registeredObservers: this.observerManager.getObserverCount(),
-      validationErrors: this.validationManager.getErrorCount(),
+      initialized: this.isInitialized,
+      statistics: {
+        totalUnits: this.unitRegistryManager.getUnitCount(),
+        totalStrategies: this.strategyManager.getStrategyCount(),
+        totalObservers: this.observerManager.getObserverCount(),
+        validationErrors: this.validationManager.getErrorCount(),
+      },
     };
   }
 
@@ -188,6 +192,248 @@ export class UnitSystemManager implements IUnitSystemManager {
    */
   public getConfiguration(): SystemConfiguration {
     return { ...this.configuration };
+  }
+
+  /**
+   * Create a new unit
+   */
+  public createUnit(config: IUnitConfig): IUnitResult {
+    try {
+      if (!this.isInitialized) {
+        return {
+          success: false,
+          error: 'Unit system not initialized',
+        };
+      }
+
+      // Validate configuration
+      const validationResult = this.validationManager.validateUnitConfig(config);
+      if (!validationResult.isValid) {
+        return {
+          success: false,
+          error: `Invalid unit configuration: ${validationResult.errors?.join(', ')}`,
+        };
+      }
+
+      // Create unit using appropriate factory
+      const unit = this.createUnitFromConfig(config);
+      if (!unit) {
+        return {
+          success: false,
+          error: 'Failed to create unit',
+        };
+      }
+
+      // Register unit
+      this.unitRegistryManager.registerUnit(unit);
+
+      return {
+        success: true,
+        unit,
+        metadata: {
+          unitId: unit.id,
+          unitType: unit.unitType,
+          timestamp: new Date().toISOString(),
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Failed to create unit: ${error}`,
+      };
+    }
+  }
+
+  /**
+   * Get a unit by ID
+   */
+  public getUnit(id: string): IUnit | undefined {
+    try {
+      return this.unitRegistryManager.getUnit(id);
+    } catch (error) {
+      return undefined;
+    }
+  }
+
+  /**
+   * Get all units
+   */
+  public getAllUnits(): IUnit[] {
+    try {
+      return this.unitRegistryManager.getAllUnits();
+    } catch (error) {
+      return [];
+    }
+  }
+
+  /**
+   * Update a unit
+   */
+  public updateUnit(id: string, config: IUnitConfig): IUnitUpdateResult {
+    try {
+      const existingUnit = this.getUnit(id);
+      if (!existingUnit) {
+        return {
+          success: false,
+          error: 'Unit not found',
+        };
+      }
+
+      // Validate new configuration
+      const validationResult = this.validationManager.validateUnitConfig(config);
+      if (!validationResult.isValid) {
+        return {
+          success: false,
+          error: `Invalid unit configuration: ${validationResult.errors?.join(', ')}`,
+        };
+      }
+
+      // Create updated unit
+      const updatedUnit = this.createUnitFromConfig(config);
+      if (!updatedUnit) {
+        return {
+          success: false,
+          error: 'Failed to create updated unit',
+        };
+      }
+
+      // Update in registry
+      this.unitRegistryManager.updateUnit(id, updatedUnit);
+
+      return {
+        success: true,
+        unit: updatedUnit,
+        previousUnit: existingUnit,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Failed to update unit: ${error}`,
+      };
+    }
+  }
+
+  /**
+   * Delete a unit
+   */
+  public deleteUnit(id: string): IUnitDeleteResult {
+    try {
+      const existingUnit = this.getUnit(id);
+      if (!existingUnit) {
+        return {
+          success: false,
+          error: 'Unit not found',
+        };
+      }
+
+      // Remove from registry
+      this.unitRegistryManager.unregisterUnit(id);
+
+      return {
+        success: true,
+        deletedUnitId: id,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Failed to delete unit: ${error}`,
+      };
+    }
+  }
+
+  /**
+   * Calculate unit value
+   */
+  public calculateUnit(id: string, context: UnitContext): IUnitCalculationResult {
+    try {
+      const unit = this.getUnit(id);
+      if (!unit) {
+        return {
+          success: false,
+          error: 'Unit not found',
+        };
+      }
+
+      const startTime = performance.now();
+      const result = unit.calculate(context);
+      const endTime = performance.now();
+
+      return {
+        success: true,
+        result,
+        metadata: {
+          unitId: id,
+          unitType: unit.unitType,
+          calculationTime: endTime - startTime,
+          context,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Failed to calculate unit: ${error}`,
+      };
+    }
+  }
+
+  /**
+   * Validate a unit
+   */
+  public validateUnit(id: string, context: UnitContext): IUnitValidationResult {
+    try {
+      const unit = this.getUnit(id);
+      if (!unit) {
+        return {
+          success: false,
+          error: 'Unit not found',
+        };
+      }
+
+      const startTime = performance.now();
+      const isValid = unit.validate(context);
+      const endTime = performance.now();
+
+      return {
+        success: true,
+        isValid,
+        metadata: {
+          unitId: id,
+          unitType: unit.unitType,
+          validationTime: endTime - startTime,
+          context,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Failed to validate unit: ${error}`,
+      };
+    }
+  }
+
+  /**
+   * Create unit from configuration
+   */
+  private createUnitFromConfig(config: IUnitConfig): IUnit | null {
+    try {
+      // This is a simplified implementation
+      // In a real implementation, you would use appropriate factories
+      const unit: IUnit = {
+        id: config.id,
+        name: config.name,
+        unitType: config.unitType,
+        calculate: (context: UnitContext) => 100, // Placeholder
+        validate: (context: UnitContext) => true, // Placeholder
+        format: (format: string) => '100px', // Placeholder
+        clone: () => this.createUnitFromConfig(config)!, // Placeholder
+        getState: () => ({ initialized: true }), // Placeholder
+        setState: (state: any) => {}, // Placeholder
+      };
+
+      return unit;
+    } catch (error) {
+      return null;
+    }
   }
 
   /**

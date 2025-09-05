@@ -235,6 +235,55 @@ export class UnitCalculationMemento implements IUnitMemento {
   }
 
   /**
+   * Convert to JSON
+   */
+  toJSON(): string {
+    return JSON.stringify({
+      unitId: this.unitId,
+      unitType: this.unitType,
+      state: this.state,
+      timestamp: this.timestamp.toISOString(),
+      version: this.version,
+      metadata: this.metadata
+    });
+  }
+
+  /**
+   * Get required properties
+   */
+  getRequiredProperties(): string[] {
+    return ['unitId', 'unitType', 'state', 'timestamp', 'version'];
+  }
+
+  /**
+   * Get input property
+   */
+  get input(): any {
+    return this.state.calculationInput;
+  }
+
+  /**
+   * Get context property
+   */
+  get context(): UnitContext {
+    return this.state.calculationContext;
+  }
+
+  /**
+   * Get result property
+   */
+  get result(): number {
+    return this.state.calculationResult;
+  }
+
+  /**
+   * Get performance metrics property
+   */
+  get performanceMetrics(): any {
+    return this.state.performanceMetrics;
+  }
+
+  /**
    * Get calculation statistics
    */
   getCalculationStatistics(): {

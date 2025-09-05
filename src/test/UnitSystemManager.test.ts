@@ -7,11 +7,34 @@ import { PositionValue } from '../enums/PositionValue';
 import { ScaleUnit } from '../enums/ScaleUnit';
 import { ScaleValue } from '../enums/ScaleValue';
 import {
-  createSizeUnitConfig,
-  createPositionUnitConfig,
-  createScaleUnitConfig,
+  UnitConfigFactory,
+  ISizeUnitConfig,
+  IPositionUnitConfig,
+  IScaleUnitConfig,
 } from '../interfaces/IUnitConfig';
 import { container, TOKENS } from '../container/DiContainer';
+
+// Create factory instance
+const configFactory = new UnitConfigFactory();
+
+// Helper functions for testing
+function createPositionUnitConfig(
+  id: string,
+  name: string,
+  value: PositionValue,
+  options: any
+): IPositionUnitConfig {
+  return configFactory.createPositionUnitConfig(id, name, value, options);
+}
+
+function createScaleUnitConfig(
+  id: string,
+  name: string,
+  value: ScaleValue,
+  options: any
+): IScaleUnitConfig {
+  return configFactory.createScaleUnitConfig(id, name, value, options);
+}
 
 /**
  * Basic Unit Test for UnitSystemManager
@@ -144,10 +167,9 @@ describe('UnitSystemManager', () => {
   }
 
   function createSizeUnitConfiguration(): any {
-    return createSizeUnitConfig('test-size-unit', 'Test Size Unit', SizeValue.FILL, {
+    return configFactory.createSizeUnitConfig('test-size-unit', 'Test Size Unit', SizeValue.FILL, {
       sizeUnit: SizeUnit.FILL,
       dimension: Dimension.WIDTH,
-      baseValue: 100,
     });
   }
 
@@ -363,10 +385,9 @@ describe('UnitSystemManager', () => {
   function createLargeNumberOfUnitConfigurations(): any[] {
     const configs = [];
     for (let i = 0; i < 50; i++) {
-      configs.push(createSizeUnitConfig(`test-unit-${i}`, `Test Unit ${i}`, SizeValue.PIXEL, {
+      configs.push(configFactory.createSizeUnitConfig(`test-unit-${i}`, `Test Unit ${i}`, SizeValue.PIXEL, {
         sizeUnit: SizeUnit.PIXEL,
         dimension: Dimension.WIDTH,
-        baseValue: 100 + i,
       }));
     }
     return configs;
@@ -414,20 +435,17 @@ describe('UnitSystemManager', () => {
 
   function createDifferentConfigurations(): any[] {
     return [
-      createSizeUnitConfig('config-1', 'Config 1', SizeValue.PIXEL, {
+      configFactory.createSizeUnitConfig('config-1', 'Config 1', SizeValue.PIXEL, {
         sizeUnit: SizeUnit.PIXEL,
         dimension: Dimension.WIDTH,
-        baseValue: 100,
       }),
-      createPositionUnitConfig('config-2', 'Config 2', PositionValue.PERCENTAGE, {
-        positionUnit: PositionUnit.PERCENTAGE,
+      configFactory.createPositionUnitConfig('config-2', 'Config 2', PositionValue.PIXEL, {
+        positionUnit: PositionUnit.PIXEL,
         dimension: Dimension.Y,
-        baseValue: 50,
       }),
-      createScaleUnitConfig('config-3', 'Config 3', ScaleValue.FACTOR, {
+      configFactory.createScaleUnitConfig('config-3', 'Config 3', ScaleValue.FACTOR, {
         scaleUnit: ScaleUnit.FACTOR,
-        baseValue: 2.0,
-        maintainAspectRatio: false,
+        dimension: Dimension.WIDTH,
       }),
     ];
   }

@@ -2,7 +2,7 @@ import type { IUnit } from '../interfaces/IUnit';
 import type { UnitContext } from '../interfaces/IUnit';
 import type { ILegacyUnit } from '../interfaces/ILegacyUnit';
 import { UnitType } from '../enums/UnitType';
-import { container, TOKENS } from '../container';
+import { container, TOKENS, resolve } from '../container';
 
 /**
  * Unit Adapter Interface
@@ -160,8 +160,8 @@ export class UnitAdapterFactory implements IUnitAdapterFactory {
   createAdapter(legacyUnit: ILegacyUnit): IUnitAdapter | undefined {
     // Try to resolve from DI container first
     try {
-      const positionAdapterClass = container.resolve(TOKENS.LEGACY_POSITION_ADAPTER);
-      const sizeAdapterClass = container.resolve(TOKENS.LEGACY_SIZE_ADAPTER);
+      const positionAdapterClass = resolve(TOKENS.LEGACY_POSITION_ADAPTER);
+      const sizeAdapterClass = resolve(TOKENS.LEGACY_SIZE_ADAPTER);
 
       // Try position adapter
       const positionAdapter = new positionAdapterClass(

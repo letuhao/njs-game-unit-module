@@ -23,7 +23,7 @@ export class ValidationDecorator implements IUnitDecorator {
   }> = [];
   private validationManager: any;
 
-  constructor(decoratedUnit: IUnit) {
+  constructor(decoratedUnit: IUnit, strictMode?: boolean) {
     this.decoratedUnit = decoratedUnit;
     
     // Resolve validation manager from DI container
@@ -33,13 +33,146 @@ export class ValidationDecorator implements IUnitDecorator {
       // Fallback to basic validation if DI fails
       this.validationManager = null;
     }
+
+    // Set strict mode if provided
+    if (strictMode !== undefined) {
+      this.strictMode = strictMode;
+    }
   }
+
+  /**
+   * Strict mode for validation
+   */
+  private strictMode: boolean = false;
 
   /**
    * Get the decorated unit
    */
   getDecoratedUnit(): IUnit {
     return this.decoratedUnit;
+  }
+
+  /**
+   * Get the unit property (for test compatibility)
+   */
+  get unit(): IUnit {
+    return this.decoratedUnit;
+  }
+
+  /**
+   * Validate input
+   */
+  validateInput(input: any): boolean {
+    try {
+      // Basic input validation
+      if (input === null || input === undefined) {
+        return false;
+      }
+
+      // Validate based on input type
+      if (typeof input === 'object') {
+        return this.validateObjectInput(input);
+      }
+
+      if (typeof input === 'number') {
+        return this.validateNumberInput(input);
+      }
+
+      if (typeof input === 'string') {
+        return this.validateStringInput(input);
+      }
+
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
+   * Validate context
+   */
+  validateContext(context: UnitContext): boolean {
+    try {
+      if (!context || typeof context !== 'object') {
+        return false;
+      }
+
+      // Check for required context properties
+      const requiredProperties = ['parent', 'scene', 'viewport'];
+      for (const prop of requiredProperties) {
+        if (!(prop in context)) {
+          return false;
+        }
+      }
+
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
+   * Validate unit
+   */
+  validateUnit(unit: IUnit): boolean {
+    try {
+      if (!unit || typeof unit !== 'object') {
+        return false;
+      }
+
+      // Check for required unit properties
+      const requiredProperties = ['id', 'name', 'unitType', 'calculate', 'validate'];
+      for (const prop of requiredProperties) {
+        if (!(prop in unit)) {
+          return false;
+        }
+      }
+
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
+   * Wrap unit with validation
+   */
+  wrapUnit(unit: IUnit): IUnit {
+    return new ValidationDecorator(unit) as any;
+  }
+
+  /**
+   * Validate object input
+   */
+  private validateObjectInput(input: any): boolean {
+    if (Array.isArray(input)) {
+      return input.every(item => this.validateInput(item));
+    }
+
+    // Validate object properties
+    for (const key in input) {
+      if (input.hasOwnProperty(key)) {
+        if (!this.validateInput(input[key])) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Validate number input
+   */
+  private validateNumberInput(input: number): boolean {
+    return !isNaN(input) && isFinite(input);
+  }
+
+  /**
+   * Validate string input
+   */
+  private validateStringInput(input: string): boolean {
+    return typeof input === 'string' && input.length > 0;
   }
 
   /**

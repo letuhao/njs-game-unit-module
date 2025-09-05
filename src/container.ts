@@ -1,7 +1,7 @@
 // Minimal DI Container (no external deps)
 export type Token<T> = string & { __brand: T };
 
-const container = new Map<string, any>();
+export const container = new Map<string, any>();
 
 export function bind<T>(token: Token<T>, factory: () => T) {
   container.set(token, { factory, instance: undefined as T | undefined });
@@ -28,6 +28,9 @@ export const TOKENS = {
   SizeCalc: 'ISizeUnitCalculator' as Token<ISizeUnitCalculator>,
   PositionCalc: 'IPositionUnitCalculator' as Token<IPositionUnitCalculator>,
   ScaleCalc: 'IScaleUnitCalculator' as Token<IScaleUnitCalculator>,
+  LEGACY_POSITION_ADAPTER: 'ILegacyPositionAdapter' as Token<any>,
+  LEGACY_SIZE_ADAPTER: 'ILegacySizeAdapter' as Token<any>,
+  MOCK_UNIT: 'IMockUnit' as Token<any>,
 };
 
 // Interfaces (adjust paths/types to your project)

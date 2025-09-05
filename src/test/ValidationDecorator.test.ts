@@ -12,6 +12,7 @@ import { ScaleUnit } from '../enums/ScaleUnit';
 import { IUnit } from '../interfaces/IUnit';
 import { UnitContext } from '../interfaces/IUnit';
 import { container, TOKENS } from '../container/DiContainer';
+import { createMockUnit, createMockContext, createMockValidator } from './test-utils';
 
 // Mock unit for testing
 class MockUnit implements IUnit {
@@ -438,11 +439,4 @@ describe('ValidationDecorator', () => {
     (decorator as any).validationRules = validator.validationRules;
   }
 
-  function createMockUnit(): MockUnit {
-    try {
-      return container.resolve(TOKENS.MOCK_UNIT);
-    } catch (error) {
-      return new MockUnit();
-    }
-  }
 });
