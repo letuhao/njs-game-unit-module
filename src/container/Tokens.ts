@@ -6,11 +6,9 @@
 import type { IUnitAdapter } from '../adapters/IUnitAdapter';
 import type { IUnitAdapterFactory } from '../adapters/IUnitAdapter';
 import type { IUnitAdapterRegistry } from '../adapters/IUnitAdapter';
-import type { ISizeValueCalculationStrategyRegistry } from '../strategies/value/ISizeValueCalculationStrategy';
-import type { IPositionValueCalculationStrategyRegistry } from '../strategies/value/IPositionValueCalculationStrategy';
-import type { IScaleValueCalculationStrategyRegistry } from '../strategies/value/IScaleValueCalculationStrategy';
-import type { StrategyCache } from '../strategies/cache/IStrategyCache';
-import type { IRandomValueNumber } from '../interfaces/IRandomValue';
+import type { IUnitCommand } from '../commands/IUnitCommand';
+import type { IUnitMemento } from '../mementos/IUnitMemento';
+import type { IUnitObserver } from '../observers/IUnitObserver';
 
 /**
  * Core Service Tokens
@@ -26,6 +24,11 @@ export const TOKENS = {
   SIZE_VALUE_STRATEGY_REGISTRY: Symbol('ISizeValueCalculationStrategyRegistry'),
   POSITION_VALUE_STRATEGY_REGISTRY: Symbol('IPositionValueCalculationStrategyRegistry'),
   SCALE_VALUE_STRATEGY_REGISTRY: Symbol('IScaleValueCalculationStrategyRegistry'),
+  SIZE_UNIT_STRATEGY_REGISTRY: Symbol('ISizeUnitStrategyRegistry'),
+  POSITION_UNIT_STRATEGY_REGISTRY: Symbol('IPositionUnitStrategyRegistry'),
+  SCALE_UNIT_STRATEGY_REGISTRY: Symbol('IScaleUnitStrategyRegistry'),
+  MIXED_UNIT_STRATEGY_REGISTRY: Symbol('IMixedUnitStrategyRegistry'),
+  UNIT_GROUP_STRATEGY_REGISTRY: Symbol('IUnitGroupStrategyRegistry'),
 
   // Cache Services
   STRATEGY_CACHE: Symbol('StrategyCache'),
@@ -45,23 +48,56 @@ export const TOKENS = {
   // Strategy Services
   POSITION_STRATEGY: Symbol('PositionStrategy'),
   SIZE_STRATEGY: Symbol('SizeStrategy'),
+  SCALE_STRATEGY: Symbol('ScaleStrategy'),
+  MIXED_UNIT_STRATEGY: Symbol('MixedUnitStrategy'),
 
   // Command Services
-  POSITION_COMMAND: Symbol('PositionCommand'),
-  SIZE_COMMAND: Symbol('SizeCommand'),
-  SCALE_COMMAND: Symbol('ScaleCommand'),
+  BATCH_CALCULATION_COMMAND: Symbol('BatchCalculationCommand'),
+  CALCULATE_POSITION_COMMAND: Symbol('CalculatePositionCommand'),
+  CALCULATE_SIZE_COMMAND: Symbol('CalculateSizeCommand'),
+  CALCULATE_SCALE_COMMAND: Symbol('CalculateScaleCommand'),
+
+  // Composite Services
+  UNIT_GROUP_COMPOSITE: Symbol('UnitGroupComposite'),
+
+  // Decorator Services
+  CACHING_DECORATOR: Symbol('CachingDecorator'),
+  LOGGING_DECORATOR: Symbol('LoggingDecorator'),
+  VALIDATION_DECORATOR: Symbol('ValidationDecorator'),
 
   // Manager Services
-  VALIDATION_MANAGER: Symbol('ValidationManager'),
-  CONFIG_MANAGER: Symbol('ConfigManager'),
-  LOGGER: Symbol('Logger'),
+  COMMAND_MANAGER: Symbol('CommandManager'),
+  OBSERVER_MANAGER: Symbol('ObserverManager'),
   PERFORMANCE_MANAGER: Symbol('PerformanceManager'),
   STRATEGY_MANAGER: Symbol('StrategyManager'),
   UNIT_REGISTRY_MANAGER: Symbol('UnitRegistryManager'),
   UNIT_SYSTEM_MANAGER: Symbol('UnitSystemManager'),
+  VALIDATION_MANAGER: Symbol('ValidationManager'),
+  CONFIG_MANAGER: Symbol('ConfigManager'),
+  LOGGER: Symbol('Logger'),
+
+  // Memento Services
+  UNIT_MEMENTO: Symbol('IUnitMemento'),
+  UNIT_CALCULATION_MEMENTO: Symbol('UnitCalculationMemento'),
+  UNIT_MEMENTO_CARETAKER: Symbol('UnitMementoCaretaker'),
+  UNIT_MEMENTO_MANAGER: Symbol('UnitMementoManager'),
+
+  // Observer Services
+  LOGGING_OBSERVER: Symbol('LoggingObserver'),
+  PERFORMANCE_OBSERVER: Symbol('PerformanceObserver'),
+
+  // Template Services
+  POSITION_CALCULATION_TEMPLATE: Symbol('PositionCalculationTemplate'),
+  SCALE_CALCULATION_TEMPLATE: Symbol('ScaleCalculationTemplate'),
+  SIZE_CALCULATION_TEMPLATE: Symbol('SizeCalculationTemplate'),
+
+  // Monitoring Services
+  PRODUCTION_MONITORING_SYSTEM: Symbol('ProductionMonitoringSystem'),
 
   // Factory Services
   UNIT_CALCULATOR_FACTORY: Symbol('UnitCalculatorFactory'),
+  STRATEGY_FACTORY: Symbol('StrategyFactory'),
+  COMMAND_FACTORY: Symbol('CommandFactory'),
 } as const;
 
 /**
@@ -77,15 +113,29 @@ export type TokenResolver = {
  * Service type mappings
  */
 export type ServiceTypes = {
+  // Adapter Services
   [TOKENS.UNIT_ADAPTER_FACTORY]: IUnitAdapterFactory;
   [TOKENS.UNIT_ADAPTER_REGISTRY]: IUnitAdapterRegistry;
   [TOKENS.LEGACY_POSITION_ADAPTER]: Constructor<IUnitAdapter>;
   [TOKENS.LEGACY_SIZE_ADAPTER]: Constructor<IUnitAdapter>;
-  [TOKENS.SIZE_VALUE_STRATEGY_REGISTRY]: ISizeValueCalculationStrategyRegistry;
-  [TOKENS.POSITION_VALUE_STRATEGY_REGISTRY]: IPositionValueCalculationStrategyRegistry;
-  [TOKENS.SCALE_VALUE_STRATEGY_REGISTRY]: IScaleValueCalculationStrategyRegistry;
-  [TOKENS.STRATEGY_CACHE]: StrategyCache<any, any, any>;
-  [TOKENS.RANDOM_VALUE_NUMBER]: Constructor<IRandomValueNumber>;
+
+  // Strategy Registries
+  [TOKENS.SIZE_VALUE_STRATEGY_REGISTRY]: any;
+  [TOKENS.POSITION_VALUE_STRATEGY_REGISTRY]: any;
+  [TOKENS.SCALE_VALUE_STRATEGY_REGISTRY]: any;
+  [TOKENS.SIZE_UNIT_STRATEGY_REGISTRY]: any;
+  [TOKENS.POSITION_UNIT_STRATEGY_REGISTRY]: any;
+  [TOKENS.SCALE_UNIT_STRATEGY_REGISTRY]: any;
+  [TOKENS.MIXED_UNIT_STRATEGY_REGISTRY]: any;
+  [TOKENS.UNIT_GROUP_STRATEGY_REGISTRY]: any;
+
+  // Cache Services
+  [TOKENS.STRATEGY_CACHE]: any;
+
+  // Random Value Services
+  [TOKENS.RANDOM_VALUE_NUMBER]: Constructor<any>;
+
+  // Calculator Services
   [TOKENS.ENHANCED_SIZE_CALCULATOR]: Constructor<any>;
   [TOKENS.POSITION_CALCULATOR]: Constructor<any>;
   [TOKENS.REFACTORED_POSITION_CALCULATOR]: Constructor<any>;
@@ -93,19 +143,60 @@ export type ServiceTypes = {
   [TOKENS.SCALE_CALCULATOR]: Constructor<any>;
   [TOKENS.REFACTORED_SIZE_CALCULATOR]: Constructor<any>;
   [TOKENS.REFACTORED_SCALE_CALCULATOR]: Constructor<any>;
+
+  // Strategy Services
   [TOKENS.POSITION_STRATEGY]: Constructor<any>;
   [TOKENS.SIZE_STRATEGY]: Constructor<any>;
-  [TOKENS.POSITION_COMMAND]: Constructor<any>;
-  [TOKENS.SIZE_COMMAND]: Constructor<any>;
-  [TOKENS.SCALE_COMMAND]: Constructor<any>;
-  [TOKENS.VALIDATION_MANAGER]: any;
-  [TOKENS.CONFIG_MANAGER]: any;
-  [TOKENS.LOGGER]: any;
+  [TOKENS.SCALE_STRATEGY]: Constructor<any>;
+  [TOKENS.MIXED_UNIT_STRATEGY]: Constructor<any>;
+
+  // Command Services
+  [TOKENS.BATCH_CALCULATION_COMMAND]: Constructor<IUnitCommand>;
+  [TOKENS.CALCULATE_POSITION_COMMAND]: Constructor<IUnitCommand>;
+  [TOKENS.CALCULATE_SIZE_COMMAND]: Constructor<IUnitCommand>;
+  [TOKENS.CALCULATE_SCALE_COMMAND]: Constructor<IUnitCommand>;
+
+  // Composite Services
+  [TOKENS.UNIT_GROUP_COMPOSITE]: Constructor<any>;
+
+  // Decorator Services
+  [TOKENS.CACHING_DECORATOR]: Constructor<any>;
+  [TOKENS.LOGGING_DECORATOR]: Constructor<any>;
+  [TOKENS.VALIDATION_DECORATOR]: Constructor<any>;
+
+  // Manager Services
+  [TOKENS.COMMAND_MANAGER]: any;
+  [TOKENS.OBSERVER_MANAGER]: any;
   [TOKENS.PERFORMANCE_MANAGER]: any;
   [TOKENS.STRATEGY_MANAGER]: any;
   [TOKENS.UNIT_REGISTRY_MANAGER]: any;
   [TOKENS.UNIT_SYSTEM_MANAGER]: any;
-  [TOKENS.UNIT_CALCULATOR_FACTORY]: any;
+  [TOKENS.VALIDATION_MANAGER]: any;
+  [TOKENS.CONFIG_MANAGER]: any;
+  [TOKENS.LOGGER]: any;
+
+  // Memento Services
+  [TOKENS.UNIT_MEMENTO]: Constructor<IUnitMemento>;
+  [TOKENS.UNIT_CALCULATION_MEMENTO]: Constructor<any>;
+  [TOKENS.UNIT_MEMENTO_CARETAKER]: Constructor<any>;
+  [TOKENS.UNIT_MEMENTO_MANAGER]: Constructor<any>;
+
+  // Observer Services
+  [TOKENS.LOGGING_OBSERVER]: Constructor<IUnitObserver>;
+  [TOKENS.PERFORMANCE_OBSERVER]: Constructor<IUnitObserver>;
+
+  // Template Services
+  [TOKENS.POSITION_CALCULATION_TEMPLATE]: any;
+  [TOKENS.SCALE_CALCULATION_TEMPLATE]: any;
+  [TOKENS.SIZE_CALCULATION_TEMPLATE]: any;
+
+  // Monitoring Services
+  [TOKENS.PRODUCTION_MONITORING_SYSTEM]: Constructor<any>;
+
+  // Factory Services
+  [TOKENS.UNIT_CALCULATOR_FACTORY]: Constructor<any>;
+  [TOKENS.STRATEGY_FACTORY]: Constructor<any>;
+  [TOKENS.COMMAND_FACTORY]: Constructor<any>;
 };
 
 /**

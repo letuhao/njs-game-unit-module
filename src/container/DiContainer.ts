@@ -96,10 +96,11 @@ export class DiContainer {
   resolve<T>(token: Token<T>): T {
     const definition = this.services.get(token);
     if (!definition) {
+      const errorMessage = `Service not found for token: ${String(token)}`;
       if (this.options.strictMode) {
-        throw new Error(`Service not found for token: ${String(token)}`);
+        throw new Error(`${errorMessage}. Available tokens: ${this.getRegisteredTokens().map(t => String(t)).join(', ')}`);
       }
-      throw new Error(`Service not found for token: ${String(token)}`);
+      throw new Error(errorMessage);
     }
 
     // Return singleton instance if it exists
@@ -107,18 +108,22 @@ export class DiContainer {
       return this.instances.get(token);
     }
 
-    // Resolve dependencies
-    const dependencies = definition.dependencies?.map(dep => this.resolve(dep)) || [];
+    try {
+      // Resolve dependencies
+      const dependencies = definition.dependencies?.map(dep => this.resolve(dep)) || [];
 
-    // Create instance
-    const instance = definition.factory(...dependencies);
+      // Create instance
+      const instance = definition.factory(...dependencies);
 
-    // Store singleton instance
-    if (definition.singleton) {
-      this.instances.set(token, instance);
+      // Store singleton instance
+      if (definition.singleton) {
+        this.instances.set(token, instance);
+      }
+
+      return instance;
+    } catch (error) {
+      throw new Error(`Failed to resolve service for token ${String(token)}: ${error instanceof Error ? error.message : String(error)}`);
     }
-
-    return instance;
   }
 
   /**
@@ -187,6 +192,62 @@ export class DiContainer {
       transientServices,
       instantiatedServices,
     };
+  }
+
+  /**
+   * Validate all registered services can be resolved
+   */
+  validate(): { valid: boolean; errors: string[] } {
+    const errors: string[] = [];
+    
+    for (const [token, definition] of this.services) {
+      try {
+        // Check if dependencies exist
+        if (definition.dependencies) {
+          for (const dep of definition.dependencies) {
+            if (!this.services.has(dep)) {
+              errors.push(`Service ${String(token)} depends on missing service ${String(dep)}`);
+            }
+          }
+        }
+      } catch (error) {
+        errors.push(`Service ${String(token)} validation failed: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors
+    };
+  }
+
+  /**
+   * Create a child container with inherited services
+   */
+  createChild(): DiContainer {
+    const child = new DiContainer(this.options);
+    
+    // Copy all services to child
+    for (const [token, definition] of this.services) {
+      child.services.set(token, definition);
+    }
+    
+    return child;
+  }
+
+  /**
+   * Get dependency graph for debugging
+   */
+  getDependencyGraph(): Map<string, string[]> {
+    const graph = new Map<string, string[]>();
+    
+    for (const [token, definition] of this.services) {
+      const tokenStr = String(token);
+      const dependencies = definition.dependencies?.map(dep => String(dep)) || [];
+      graph.set(tokenStr, dependencies);
+    }
+    
+    return graph;
   }
 }
 
