@@ -1,62 +1,26 @@
 import type { UnitType } from '../enums/UnitType';
+import type { IIdentifiable } from './identity/IIdentifiable';
+import type { ICalculatable } from './calculation/ICalculatable';
+import type { IValidatable } from './validation/IValidatable';
+import type { IFormattable } from './formatting/IFormattable';
+import type { ICloneable } from './cloning/ICloneable';
+import type { IStateful } from './state/IStateful';
 
 /**
  * Base interface for all unit implementations
- * Provides common functionality for size, position, and scale units
+ * Now uses segregated interfaces to follow Interface Segregation Principle
  */
-export interface IUnit {
-  /**
-   * Unique identifier for the unit
-   */
-  readonly id: string;
-
-  /**
-   * Human-readable name for the unit
-   */
-  readonly name: string;
-
+export interface IUnit extends 
+  IIdentifiable,
+  ICalculatable,
+  IValidatable,
+  IFormattable,
+  ICloneable<IUnit>,
+  IStateful {
   /**
    * Unit type (size, position, scale)
    */
   readonly unitType: UnitType;
-
-  /**
-   * Whether this unit is currently active/enabled
-   */
-  readonly isActive: boolean;
-
-  /**
-   * Calculate the actual value based on context
-   * @param context - Context information for calculation
-   * @returns Calculated numeric value
-   */
-  calculate(context: UnitContext): number;
-
-  /**
-   * Validate if the unit can be used in the given context
-   * @param context - Context to validate against
-   * @returns True if valid, false otherwise
-   */
-  validate(context: UnitContext): boolean;
-
-  /**
-   * Check if the unit is responsive (changes with context)
-   * @returns True if responsive, false if static
-   */
-  isResponsive(): boolean;
-
-  /**
-   * Get a string representation of the unit
-   * @returns String representation
-   */
-  toString(): string;
-
-  /**
-   * Clone the unit with optional modifications
-   * @param overrides - Properties to override in the clone
-   * @returns New unit instance
-   */
-  clone(overrides?: Partial<IUnit>): IUnit;
 }
 
 /**
