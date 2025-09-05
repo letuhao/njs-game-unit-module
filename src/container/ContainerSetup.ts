@@ -34,6 +34,7 @@ import { ProductionMonitoringSystem } from '../monitoring/ProductionMonitoringSy
 import { UnitSystemManagerFactory } from '../factories/UnitSystemManagerFactory';
 import { RefactoredUnitCalculatorFactory } from '../factories/RefactoredUnitCalculatorFactory';
 import { RefactoredUnitSystemManager } from '../managers/RefactoredUnitSystemManager';
+import { DecoratorFactory } from '../decorators/DecoratorFactory';
 import { logger } from '../core/Logger';
 
 /**
@@ -75,6 +76,7 @@ export function setupContainer(): void {
   // Register refactored factory services
   container.registerSingleton(TOKENS.UNIT_SYSTEM_MANAGER_FACTORY, () => new UnitSystemManagerFactory(container));
   container.registerSingleton(TOKENS.REFACTORED_UNIT_CALCULATOR_FACTORY, () => new RefactoredUnitCalculatorFactory(container));
+  container.registerSingleton(TOKENS.DECORATOR_FACTORY, () => new DecoratorFactory(container));
 
   // Register command services
   container.registerClass(TOKENS.BATCH_CALCULATION_COMMAND, BatchCalculationCommand, [TOKENS.LOGGER]);
