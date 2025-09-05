@@ -90,7 +90,7 @@ export interface IUnitComposite extends
  */
 export abstract class BaseUnitComposite implements IUnitComposite {
   private children: IUnit[] = [];
-  private parent?: IUnitComposite;
+  private parent: IUnitComposite | undefined;
   private depth: number = 0;
   private active: boolean = true;
 

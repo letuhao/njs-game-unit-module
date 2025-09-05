@@ -1,4 +1,12 @@
-import type { GameObjects, Scene, Game } from 'phaser';
+// Phaser types are optional - can be installed separately
+// import type { GameObjects, Scene, Game } from 'phaser';
+
+// Define minimal Phaser types for this interface
+type GameObjects = {
+  GameObject: any;
+};
+type Scene = any;
+type Game = any;
 import type { UnitContext } from './IUnit';
 import { DEFAULT_FALLBACK_VALUES } from '../constants';
 
@@ -13,10 +21,10 @@ export interface IPhaserUnitContextCore extends UnitContext {
   game: Game;
 
   /** Current Phaser GameObject (the one being positioned/sized) */
-  currentObject: GameObjects.GameObject;
+  currentObject: GameObjects["GameObject"];
 
   /** Parent Phaser GameObject (container) */
-  phaserParent: GameObjects.GameObject;
+  phaserParent: GameObjects["GameObject"];
 }
 
 /**
@@ -24,7 +32,7 @@ export interface IPhaserUnitContextCore extends UnitContext {
  */
 export interface IPhaserUnitContextTargets {
   /** Target Phaser GameObject (for relative positioning) */
-  target?: GameObjects.GameObject;
+  target?: GameObjects["GameObject"];
 }
 
 /**
@@ -125,7 +133,12 @@ export class PhaserUnitContext implements IPhaserUnitContext {
         y: parent.y || 0,
       };
     }
-    return undefined;
+    return {
+      width: 0,
+      height: 0,
+      x: 0,
+      y: 0,
+    };
   }
 
   get viewport() {

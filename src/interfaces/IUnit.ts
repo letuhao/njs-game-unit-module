@@ -60,9 +60,19 @@ export interface IUnit {
 }
 
 /**
- * Context information for unit calculations
+ * Core context interface - basic context properties
  */
-export interface UnitContext {
+export interface IUnitContextCore {
+  /**
+   * Additional custom context data
+   */
+  [key: string]: unknown;
+}
+
+/**
+ * Parent context interface - parent container information
+ */
+export interface IUnitContextParent {
   /**
    * Parent container dimensions
    */
@@ -72,7 +82,12 @@ export interface UnitContext {
     x: number;
     y: number;
   };
+}
 
+/**
+ * Scene context interface - scene information
+ */
+export interface IUnitContextScene {
   /**
    * Scene dimensions
    */
@@ -80,7 +95,12 @@ export interface UnitContext {
     width: number;
     height: number;
   };
+}
 
+/**
+ * Viewport context interface - viewport information
+ */
+export interface IUnitContextViewport {
   /**
    * Viewport dimensions
    */
@@ -88,7 +108,12 @@ export interface UnitContext {
     width: number;
     height: number;
   };
+}
 
+/**
+ * Breakpoint context interface - breakpoint information
+ */
+export interface IUnitContextBreakpoint {
   /**
    * Current breakpoint information
    */
@@ -97,7 +122,12 @@ export interface UnitContext {
     width: number;
     height: number;
   };
+}
 
+/**
+ * Content context interface - content information
+ */
+export interface IUnitContextContent {
   /**
    * Content dimensions (for content-based units)
    */
@@ -105,9 +135,17 @@ export interface UnitContext {
     width: number;
     height: number;
   };
+}
 
-  /**
-   * Additional custom context data
-   */
-  [key: string]: unknown;
+/**
+ * Complete context information for unit calculations
+ * Combines all context functionality
+ */
+export interface UnitContext extends 
+  IUnitContextCore,
+  IUnitContextParent,
+  IUnitContextScene,
+  IUnitContextViewport,
+  IUnitContextBreakpoint,
+  IUnitContextContent {
 }

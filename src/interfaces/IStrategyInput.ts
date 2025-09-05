@@ -1,9 +1,9 @@
-import type { SizeValue } from '../enums/SizeValue';
-import type { SizeUnit } from '../enums/SizeUnit';
-import type { PositionValue } from '../enums/PositionValue';
-import type { PositionUnit } from '../enums/PositionUnit';
-import type { ScaleValue } from '../enums/ScaleValue';
-import type { ScaleUnit } from '../enums/ScaleUnit';
+import { SizeValue } from '../enums/SizeValue';
+import { SizeUnit } from '../enums/SizeUnit';
+import { PositionValue } from '../enums/PositionValue';
+import { PositionUnit } from '../enums/PositionUnit';
+import { ScaleValue } from '../enums/ScaleValue';
+import { ScaleUnit } from '../enums/ScaleUnit';
 import { Dimension } from '../enums/Dimension';
 import { DEFAULT_FALLBACK_VALUES } from '../constants';
 
@@ -69,11 +69,25 @@ export interface ISizeStrategyInputAdvanced {
 }
 
 /**
+ * Size strategy input validation interface - validation properties
+ */
+export interface ISizeStrategyInputValidation {
+  /** Size validation rules */
+  validationRules?: {
+    minValue?: number;
+    maxValue?: number;
+    allowedUnits?: SizeUnit[];
+    allowedDimensions?: Dimension[];
+  };
+}
+
+/**
  * Complete size strategy input interface
  */
 export interface ISizeStrategyInput extends 
   ISizeStrategyInputCore,
-  ISizeStrategyInputAdvanced {
+  ISizeStrategyInputAdvanced,
+  ISizeStrategyInputValidation {
 }
 
 /**
@@ -118,11 +132,25 @@ export interface IPositionStrategyInputAdvanced {
 }
 
 /**
+ * Position strategy input validation interface - validation properties
+ */
+export interface IPositionStrategyInputValidation {
+  /** Position validation rules */
+  validationRules?: {
+    minValue?: number;
+    maxValue?: number;
+    allowedUnits?: PositionUnit[];
+    allowedAxes?: Dimension[];
+  };
+}
+
+/**
  * Complete position strategy input interface
  */
 export interface IPositionStrategyInput extends 
   IPositionStrategyInputCore,
-  IPositionStrategyInputAdvanced {
+  IPositionStrategyInputAdvanced,
+  IPositionStrategyInputValidation {
 }
 
 /**
@@ -164,11 +192,24 @@ export interface IScaleStrategyInputAdvanced {
 }
 
 /**
+ * Scale strategy input validation interface - validation properties
+ */
+export interface IScaleStrategyInputValidation {
+  /** Scale validation rules */
+  validationRules?: {
+    minValue?: number;
+    maxValue?: number;
+    allowedUnits?: ScaleUnit[];
+  };
+}
+
+/**
  * Complete scale strategy input interface
  */
 export interface IScaleStrategyInput extends 
   IScaleStrategyInputCore,
-  IScaleStrategyInputAdvanced {
+  IScaleStrategyInputAdvanced,
+  IScaleStrategyInputValidation {
 }
 
 /**
@@ -208,11 +249,36 @@ export interface IMixedStrategyInputAdvanced {
 }
 
 /**
+ * Mixed strategy input validation interface - validation properties
+ */
+export interface IMixedStrategyInputValidation {
+  /** Mixed validation rules */
+  validationRules?: {
+    sizeValidation?: {
+      minValue?: number;
+      maxValue?: number;
+      allowedUnits?: SizeUnit[];
+    };
+    positionValidation?: {
+      minValue?: number;
+      maxValue?: number;
+      allowedUnits?: PositionUnit[];
+    };
+    scaleValidation?: {
+      minValue?: number;
+      maxValue?: number;
+      allowedUnits?: ScaleUnit[];
+    };
+  };
+}
+
+/**
  * Complete mixed strategy input interface
  */
 export interface IMixedStrategyInput extends 
   IMixedStrategyInputCore,
-  IMixedStrategyInputAdvanced {
+  IMixedStrategyInputAdvanced,
+  IMixedStrategyInputValidation {
 }
 
 /**
@@ -324,17 +390,17 @@ export function createSizeStrategyInput(
     id: `size-strategy-${Date.now()}`,
     name: options?.name || 'Size Strategy Input',
     type: options?.type || 'size',
-    value: options?.value,
+    value: options?.value || 0,
     dimension: options?.dimension || Dimension.WIDTH,
-    unit: options?.unit,
-    valueType: options?.valueType,
+    unit: options?.unit || SizeUnit.PIXEL,
+    valueType: options?.valueType || SizeValue.FIXED,
     parentSize: options?.parentSize,
     randomValue: options?.randomValue,
     sizeArray: options?.sizeArray,
     sizeObject: options?.sizeObject,
     sizeString: options?.sizeString,
     isValid: options?.isValid ?? true,
-    metadata: options?.metadata,
+    metadata: options?.metadata || {},
   };
 }
 
@@ -348,17 +414,17 @@ export function createPositionStrategyInput(
     id: `position-strategy-${Date.now()}`,
     name: options?.name || 'Position Strategy Input',
     type: options?.type || 'position',
-    value: options?.value,
+    value: options?.value || 0,
     axis: options?.axis || Dimension.X,
-    unit: options?.unit,
-    valueType: options?.valueType,
+    unit: options?.unit || PositionUnit.PIXEL,
+    valueType: options?.valueType || PositionValue.FIXED,
     parentPosition: options?.parentPosition,
     randomValue: options?.randomValue,
     positionArray: options?.positionArray,
     positionObject: options?.positionObject,
     positionString: options?.positionString,
     isValid: options?.isValid ?? true,
-    metadata: options?.metadata,
+    metadata: options?.metadata || {},
   };
 }
 
@@ -372,16 +438,16 @@ export function createScaleStrategyInput(
     id: `scale-strategy-${Date.now()}`,
     name: options?.name || 'Scale Strategy Input',
     type: options?.type || 'scale',
-    value: options?.value,
-    unit: options?.unit,
-    valueType: options?.valueType,
+    value: options?.value || 1,
+    unit: options?.unit || ScaleUnit.FIXED,
+    valueType: options?.valueType || ScaleValue.FIXED,
     parentScale: options?.parentScale,
     randomValue: options?.randomValue,
     scaleArray: options?.scaleArray,
     scaleObject: options?.scaleObject,
     scaleString: options?.scaleString,
     isValid: options?.isValid ?? true,
-    metadata: options?.metadata,
+    metadata: options?.metadata || {},
   };
 }
 
@@ -395,15 +461,15 @@ export function createMixedStrategyInput(
     id: `mixed-strategy-${Date.now()}`,
     name: options?.name || 'Mixed Strategy Input',
     type: options?.type || 'mixed',
-    size: options?.size,
-    position: options?.position,
-    scale: options?.scale,
+    size: options?.size || {},
+    position: options?.position || {},
+    scale: options?.scale || {},
     mixedArray: options?.mixedArray,
     mixedObject: options?.mixedObject,
     theme: options?.theme,
     responsive: options?.responsive,
     isValid: options?.isValid ?? true,
-    metadata: options?.metadata,
+    metadata: options?.metadata || {},
   };
 }
 
