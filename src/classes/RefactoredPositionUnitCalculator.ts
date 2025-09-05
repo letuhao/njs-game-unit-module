@@ -5,13 +5,14 @@ import { Dimension } from '../enums/Dimension';
 import { PositionValue } from '../enums/PositionValue';
 import { UnitType } from '../enums/UnitType';
 import { DEFAULT_FALLBACK_VALUES } from '../constants';
-import { container, TOKENS } from '../container';
+import { container } from '../container/DiContainer';
+import { TOKENS } from '../container/Tokens';
 
 /**
- * PositionUnitCalculator class
- * Implements position unit calculations for responsive positioning
+ * Refactored PositionUnitCalculator class
+ * Uses strategy pattern and DI for better maintainability
  */
-export class PositionUnitCalculator implements IPositionUnit {
+export class RefactoredPositionUnitCalculator implements IPositionUnit {
   public readonly id: string;
   public readonly name: string;
   public readonly unitType: UnitType = UnitType.POSITION;
@@ -22,19 +23,24 @@ export class PositionUnitCalculator implements IPositionUnit {
 
   private alignment?: string;
   private offset: number = 0;
+  private strategyRegistry: any;
 
   constructor(
     id: string,
     name: string,
     positionUnit: PositionUnit,
     axis: Dimension.X | Dimension.Y | Dimension.XY,
-    baseValue: number | PositionValue
+    baseValue: number | PositionValue,
+    strategyRegistry?: any
   ) {
     this.id = id;
     this.name = name;
     this.positionUnit = positionUnit;
     this.axis = axis;
     this.baseValue = baseValue;
+    
+    // Resolve strategy registry from DI container
+    this.strategyRegistry = strategyRegistry || container.resolve(TOKENS.POSITION_VALUE_STRATEGY_REGISTRY);
   }
 
   /**
@@ -45,7 +51,7 @@ export class PositionUnitCalculator implements IPositionUnit {
   }
 
   /**
-   * Calculate position based on context
+   * Calculate position based on context using strategy pattern
    */
   calculatePosition(context: UnitContext): number {
     // First determine the reference point based on PositionUnit (measurement type)
@@ -93,15 +99,36 @@ export class PositionUnitCalculator implements IPositionUnit {
         referencePoint = 0;
     }
 
-    // Then apply the behavior based on PositionValue
+    // Then apply the behavior based on PositionValue using strategy pattern
     return this.applyPositionValue(referencePoint, context);
   }
 
   /**
-   * Apply position value behavior to reference point
+   * Apply position value behavior to reference point using strategy pattern
    */
   private applyPositionValue(referencePoint: number, context: UnitContext): number {
-    // If baseValue is a PositionValue enum, use it for behavior
+    // If baseValue is a PositionValue enum, use strategy pattern
+    if (this.baseValue && Object.values(PositionValue).includes(this.baseValue as PositionValue)) {
+      try {
+        // Try to get strategy from registry
+        const strategy = this.strategyRegistry.getPositionValueStrategy(this.baseValue as PositionValue);
+        if (strategy) {
+          return strategy(context) + this.offset;
+        }
+      } catch (error) {
+        // Fallback to switch statement if strategy not available
+        return this.fallbackPositionValue(referencePoint);
+      }
+    }
+
+    // If baseValue is a number, just return the reference point + offset (direct value)
+    return referencePoint + this.offset;
+  }
+
+  /**
+   * Fallback position value calculation when strategy is not available
+   */
+  private fallbackPositionValue(referencePoint: number): number {
     if (this.baseValue && Object.values(PositionValue).includes(this.baseValue as PositionValue)) {
       switch (this.baseValue as PositionValue) {
         case PositionValue.CENTER:
@@ -118,8 +145,6 @@ export class PositionUnitCalculator implements IPositionUnit {
           return referencePoint + this.offset;
       }
     }
-
-    // If baseValue is a number, just return the reference point + offset (direct value)
     return referencePoint + this.offset;
   }
 
@@ -225,19 +250,20 @@ export class PositionUnitCalculator implements IPositionUnit {
    * Get string representation
    */
   toString(): string {
-    return `PositionUnitCalculator(${this.name}, ${this.positionUnit}, ${this.axis})`;
+    return `RefactoredPositionUnitCalculator(${this.name}, ${this.positionUnit}, ${this.axis})`;
   }
 
   /**
    * Clone the unit with optional modifications
    */
-  clone(overrides?: Partial<IPositionUnit>): PositionUnitCalculator {
-    const cloned = new PositionUnitCalculator(
-      overrides?.id ?? this.id,
-      overrides?.name ?? this.name,
-      overrides?.positionUnit ?? this.positionUnit,
-      overrides?.axis ?? this.axis,
-      overrides?.baseValue ?? this.baseValue
+  clone(overrides?: Partial<IPositionUnit>): RefactoredPositionUnitCalculator {
+    const cloned = new RefactoredPositionUnitCalculator(
+      this.id,
+      this.name,
+      this.positionUnit,
+      this.axis,
+      this.baseValue,
+      this.strategyRegistry
     );
 
     if (this.alignment) cloned.setAlignment(this.alignment);
@@ -245,11 +271,8 @@ export class PositionUnitCalculator implements IPositionUnit {
     return cloned;
   }
 
-  private calculateRandomPosition(context: UnitContext): number {
-    const max =
-      this.axis === Dimension.X
-        ? (context.scene?.width ?? context.viewport?.width ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT)
-        : (context.scene?.height ?? context.viewport?.height ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT);
+  private calculateRandomPosition(): number {
+    const max = DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
     return Math.random() * max + this.offset;
   }
 
@@ -258,7 +281,7 @@ export class PositionUnitCalculator implements IPositionUnit {
    */
   getPositionInfo(): {
     axis: Dimension.X | Dimension.Y | Dimension.XY;
-    alignment?: string;
+    alignment?: string | undefined;
     offset: number;
     isResponsive: boolean;
   } {
