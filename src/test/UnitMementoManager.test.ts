@@ -148,42 +148,46 @@ describe('UnitMementoManager', () => {
 
     it('should get all mementos', () => {
       const mementos = [
-        try { 
-          const m = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
-          (m as any).unitId = 'unit-1';
-          (m as any).input = mockInput;
-          (m as any).context = mockContext;
-          (m as any).result = 100;
-          (m as any).unitType = 'size' as any;
-          (m as any).templateName = 'Template1';
-          (m as any).strategyName = 'Strategy1';
-          (m as any).validatorNames = [];
-          (m as any).performanceMetrics = {};
-          (m as any).isSuccess = true;
-          (m as any).error = undefined;
-          (m as any).timestamp = new Date();
-          m;
-        } catch { 
-          new UnitCalculationMemento(mockInput, mockContext, 100, 'unit-1', 'size' as any, 'Template1', 'Strategy1', [], {}, true, undefined, new Date());
-        },
-        try { 
-          const m = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
-          (m as any).unitId = 'unit-2';
-          (m as any).input = mockInput;
-          (m as any).context = mockContext;
-          (m as any).result = 200;
-          (m as any).unitType = 'position' as any;
-          (m as any).templateName = 'Template2';
-          (m as any).strategyName = 'Strategy2';
-          (m as any).validatorNames = [];
-          (m as any).performanceMetrics = {};
-          (m as any).isSuccess = true;
-          (m as any).error = undefined;
-          (m as any).timestamp = new Date();
-          m;
-        } catch { 
-          new UnitCalculationMemento(mockInput, mockContext, 200, 'unit-2', 'position' as any, 'Template2', 'Strategy2', [], {}, true, undefined, new Date());
-        },
+        (() => {
+          try { 
+            const m = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
+            (m as any).unitId = 'unit-1';
+            (m as any).input = mockInput;
+            (m as any).context = mockContext;
+            (m as any).result = 100;
+            (m as any).unitType = 'size' as any;
+            (m as any).templateName = 'Template1';
+            (m as any).strategyName = 'Strategy1';
+            (m as any).validatorNames = [];
+            (m as any).performanceMetrics = {};
+            (m as any).isSuccess = true;
+            (m as any).error = undefined;
+            (m as any).timestamp = new Date();
+            return m;
+          } catch { 
+            return new UnitCalculationMemento(mockInput, mockContext, 100, 'unit-1', 'size' as any, 'Template1', 'Strategy1', [], {}, true, undefined, new Date());
+          }
+        })(),
+        (() => {
+          try { 
+            const m = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
+            (m as any).unitId = 'unit-2';
+            (m as any).input = mockInput;
+            (m as any).context = mockContext;
+            (m as any).result = 200;
+            (m as any).unitType = 'position' as any;
+            (m as any).templateName = 'Template2';
+            (m as any).strategyName = 'Strategy2';
+            (m as any).validatorNames = [];
+            (m as any).performanceMetrics = {};
+            (m as any).isSuccess = true;
+            (m as any).error = undefined;
+            (m as any).timestamp = new Date();
+            return m;
+          } catch { 
+            return new UnitCalculationMemento(mockInput, mockContext, 200, 'unit-2', 'position' as any, 'Template2', 'Strategy2', [], {}, true, undefined, new Date());
+          }
+        })(),
       ];
 
       mementos.forEach(memento => manager.saveMemento(memento));
@@ -196,24 +200,26 @@ describe('UnitMementoManager', () => {
 
     it('should clear all mementos', () => {
       const mementos = [
-        try { 
-          const m = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
-          (m as any).unitId = 'unit-1';
-          (m as any).input = mockInput;
-          (m as any).context = mockContext;
-          (m as any).result = 100;
-          (m as any).unitType = 'size' as any;
-          (m as any).templateName = 'Template1';
-          (m as any).strategyName = 'Strategy1';
-          (m as any).validatorNames = [];
-          (m as any).performanceMetrics = {};
-          (m as any).isSuccess = true;
-          (m as any).error = undefined;
-          (m as any).timestamp = new Date();
-          m;
-        } catch { 
-          new UnitCalculationMemento(mockInput, mockContext, 100, 'unit-1', 'size' as any, 'Template1', 'Strategy1', [], {}, true, undefined, new Date());
-        },
+        (() => {
+          try { 
+            const m = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
+            (m as any).unitId = 'unit-1';
+            (m as any).input = mockInput;
+            (m as any).context = mockContext;
+            (m as any).result = 100;
+            (m as any).unitType = 'size' as any;
+            (m as any).templateName = 'Template1';
+            (m as any).strategyName = 'Strategy1';
+            (m as any).validatorNames = [];
+            (m as any).performanceMetrics = {};
+            (m as any).isSuccess = true;
+            (m as any).error = undefined;
+            (m as any).timestamp = new Date();
+            return m;
+          } catch { 
+            return new UnitCalculationMemento(mockInput, mockContext, 100, 'unit-1', 'size' as any, 'Template1', 'Strategy1', [], {}, true, undefined, new Date());
+          }
+        })(),
       ];
 
       mementos.forEach(memento => manager.saveMemento(memento));
@@ -227,42 +233,46 @@ describe('UnitMementoManager', () => {
   describe('memento filtering', () => {
     beforeEach(() => {
       const mementos = [
-        try { 
-          const m = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
-          (m as any).unitId = 'size-unit-1';
-          (m as any).input = mockInput;
-          (m as any).context = mockContext;
-          (m as any).result = 100;
-          (m as any).unitType = 'size' as any;
-          (m as any).templateName = 'SizeTemplate';
-          (m as any).strategyName = 'SizeStrategy';
-          (m as any).validatorNames = [];
-          (m as any).performanceMetrics = {};
-          (m as any).isSuccess = true;
-          (m as any).error = undefined;
-          (m as any).timestamp = new Date();
-          m;
-        } catch { 
-          new UnitCalculationMemento(mockInput, mockContext, 100, 'size-unit-1', 'size' as any, 'SizeTemplate', 'SizeStrategy', [], {}, true, undefined, new Date());
-        },
-        try { 
-          const m = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
-          (m as any).unitId = 'position-unit-1';
-          (m as any).input = mockInput;
-          (m as any).context = mockContext;
-          (m as any).result = 200;
-          (m as any).unitType = 'position' as any;
-          (m as any).templateName = 'PositionTemplate';
-          (m as any).strategyName = 'PositionStrategy';
-          (m as any).validatorNames = [];
-          (m as any).performanceMetrics = {};
-          (m as any).isSuccess = true;
-          (m as any).error = undefined;
-          (m as any).timestamp = new Date();
-          m;
-        } catch { 
-          new UnitCalculationMemento(mockInput, mockContext, 200, 'position-unit-1', 'position' as any, 'PositionTemplate', 'PositionStrategy', [], {}, true, undefined, new Date());
-        },
+        (() => {
+          try { 
+            const m = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
+            (m as any).unitId = 'size-unit-1';
+            (m as any).input = mockInput;
+            (m as any).context = mockContext;
+            (m as any).result = 100;
+            (m as any).unitType = 'size' as any;
+            (m as any).templateName = 'SizeTemplate';
+            (m as any).strategyName = 'SizeStrategy';
+            (m as any).validatorNames = [];
+            (m as any).performanceMetrics = {};
+            (m as any).isSuccess = true;
+            (m as any).error = undefined;
+            (m as any).timestamp = new Date();
+            return m;
+          } catch { 
+            return new UnitCalculationMemento(mockInput, mockContext, 100, 'size-unit-1', 'size' as any, 'SizeTemplate', 'SizeStrategy', [], {}, true, undefined, new Date());
+          }
+        })(),
+        (() => {
+          try { 
+            const m = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
+            (m as any).unitId = 'position-unit-1';
+            (m as any).input = mockInput;
+            (m as any).context = mockContext;
+            (m as any).result = 200;
+            (m as any).unitType = 'position' as any;
+            (m as any).templateName = 'PositionTemplate';
+            (m as any).strategyName = 'PositionStrategy';
+            (m as any).validatorNames = [];
+            (m as any).performanceMetrics = {};
+            (m as any).isSuccess = true;
+            (m as any).error = undefined;
+            (m as any).timestamp = new Date();
+            return m;
+          } catch { 
+            return new UnitCalculationMemento(mockInput, mockContext, 200, 'position-unit-1', 'position' as any, 'PositionTemplate', 'PositionStrategy', [], {}, true, undefined, new Date());
+          }
+        })(),
       ];
 
       mementos.forEach(memento => manager.saveMemento(memento));
@@ -312,42 +322,46 @@ describe('UnitMementoManager', () => {
   describe('memento statistics', () => {
     beforeEach(() => {
       const mementos = [
-        try { 
-          const m = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
-          (m as any).unitId = 'unit-1';
-          (m as any).input = mockInput;
-          (m as any).context = mockContext;
-          (m as any).result = 100;
-          (m as any).unitType = 'size' as any;
-          (m as any).templateName = 'Template1';
-          (m as any).strategyName = 'Strategy1';
-          (m as any).validatorNames = [];
-          (m as any).performanceMetrics = { totalTime: 50 };
-          (m as any).isSuccess = true;
-          (m as any).error = undefined;
-          (m as any).timestamp = new Date();
-          m;
-        } catch { 
-          new UnitCalculationMemento(mockInput, mockContext, 100, 'unit-1', 'size' as any, 'Template1', 'Strategy1', [], { totalTime: 50 }, true, undefined, new Date());
-        },
-        try { 
-          const m = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
-          (m as any).unitId = 'unit-2';
-          (m as any).input = mockInput;
-          (m as any).context = mockContext;
-          (m as any).result = 200;
-          (m as any).unitType = 'position' as any;
-          (m as any).templateName = 'Template2';
-          (m as any).strategyName = 'Strategy2';
-          (m as any).validatorNames = [];
-          (m as any).performanceMetrics = { totalTime: 100 };
-          (m as any).isSuccess = true;
-          (m as any).error = undefined;
-          (m as any).timestamp = new Date();
-          m;
-        } catch { 
-          new UnitCalculationMemento(mockInput, mockContext, 200, 'unit-2', 'position' as any, 'Template2', 'Strategy2', [], { totalTime: 100 }, true, undefined, new Date());
-        },
+        (() => {
+          try { 
+            const m = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
+            (m as any).unitId = 'unit-1';
+            (m as any).input = mockInput;
+            (m as any).context = mockContext;
+            (m as any).result = 100;
+            (m as any).unitType = 'size' as any;
+            (m as any).templateName = 'Template1';
+            (m as any).strategyName = 'Strategy1';
+            (m as any).validatorNames = [];
+            (m as any).performanceMetrics = { totalTime: 50 };
+            (m as any).isSuccess = true;
+            (m as any).error = undefined;
+            (m as any).timestamp = new Date();
+            return m;
+          } catch { 
+            return new UnitCalculationMemento(mockInput, mockContext, 100, 'unit-1', 'size' as any, 'Template1', 'Strategy1', [], { totalTime: 50 }, true, undefined, new Date());
+          }
+        })(),
+        (() => {
+          try { 
+            const m = container.resolve(TOKENS.UNIT_CALCULATION_MEMENTO);
+            (m as any).unitId = 'unit-2';
+            (m as any).input = mockInput;
+            (m as any).context = mockContext;
+            (m as any).result = 200;
+            (m as any).unitType = 'position' as any;
+            (m as any).templateName = 'Template2';
+            (m as any).strategyName = 'Strategy2';
+            (m as any).validatorNames = [];
+            (m as any).performanceMetrics = { totalTime: 100 };
+            (m as any).isSuccess = true;
+            (m as any).error = undefined;
+            (m as any).timestamp = new Date();
+            return m;
+          } catch { 
+            return new UnitCalculationMemento(mockInput, mockContext, 200, 'unit-2', 'position' as any, 'Template2', 'Strategy2', [], { totalTime: 100 }, true, undefined, new Date());
+          }
+        })(),
       ];
 
       mementos.forEach(memento => manager.saveMemento(memento));

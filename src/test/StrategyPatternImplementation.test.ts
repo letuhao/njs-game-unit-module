@@ -86,9 +86,15 @@ describe('Strategy Pattern Implementation', () => {
 
     it('should get all strategies', () => {
       const strategies = [
-        try { container.resolve(TOKENS.PIXEL_SIZE_VALUE_STRATEGY) } catch { new PixelSizeValueCalculationStrategy() },
-        try { container.resolve(TOKENS.FILL_SIZE_VALUE_STRATEGY) } catch { new FillSizeValueCalculationStrategy() },
-        try { container.resolve(TOKENS.AUTO_SIZE_VALUE_STRATEGY) } catch { new AutoSizeValueCalculationStrategy() },
+        (() => {
+          try { return container.resolve(TOKENS.PIXEL_SIZE_VALUE_STRATEGY); } catch { return new PixelSizeValueCalculationStrategy(); }
+        })(),
+        (() => {
+          try { return container.resolve(TOKENS.FILL_SIZE_VALUE_STRATEGY); } catch { return new FillSizeValueCalculationStrategy(); }
+        })(),
+        (() => {
+          try { return container.resolve(TOKENS.AUTO_SIZE_VALUE_STRATEGY); } catch { return new AutoSizeValueCalculationStrategy(); }
+        })(),
       ];
 
       strategies.forEach(strategy => registry.registerStrategy(strategy));
@@ -102,8 +108,12 @@ describe('Strategy Pattern Implementation', () => {
 
     it('should clear all strategies', () => {
       const strategies = [
-        try { container.resolve(TOKENS.PIXEL_SIZE_VALUE_STRATEGY) } catch { new PixelSizeValueCalculationStrategy() },
-        try { container.resolve(TOKENS.FILL_SIZE_VALUE_STRATEGY) } catch { new FillSizeValueCalculationStrategy() },
+        (() => {
+          try { return container.resolve(TOKENS.PIXEL_SIZE_VALUE_STRATEGY); } catch { return new PixelSizeValueCalculationStrategy(); }
+        })(),
+        (() => {
+          try { return container.resolve(TOKENS.FILL_SIZE_VALUE_STRATEGY); } catch { return new FillSizeValueCalculationStrategy(); }
+        })(),
       ];
 
       strategies.forEach(strategy => registry.registerStrategy(strategy));
@@ -185,11 +195,21 @@ describe('Strategy Pattern Implementation', () => {
     beforeEach(() => {
       // Register all strategies using DI container
       const strategies = [
-        try { container.resolve(TOKENS.PIXEL_SIZE_VALUE_STRATEGY) } catch { new PixelSizeValueCalculationStrategy() },
-        try { container.resolve(TOKENS.FILL_SIZE_VALUE_STRATEGY) } catch { new FillSizeValueCalculationStrategy() },
-        try { container.resolve(TOKENS.AUTO_SIZE_VALUE_STRATEGY) } catch { new AutoSizeValueCalculationStrategy() },
-        try { container.resolve(TOKENS.PARENT_WIDTH_SIZE_VALUE_STRATEGY) } catch { new ParentWidthSizeValueCalculationStrategy() },
-        try { container.resolve(TOKENS.VIEWPORT_WIDTH_SIZE_VALUE_STRATEGY) } catch { new ViewportWidthSizeValueCalculationStrategy() },
+        (() => {
+          try { return container.resolve(TOKENS.PIXEL_SIZE_VALUE_STRATEGY); } catch { return new PixelSizeValueCalculationStrategy(); }
+        })(),
+        (() => {
+          try { return container.resolve(TOKENS.FILL_SIZE_VALUE_STRATEGY); } catch { return new FillSizeValueCalculationStrategy(); }
+        })(),
+        (() => {
+          try { return container.resolve(TOKENS.AUTO_SIZE_VALUE_STRATEGY); } catch { return new AutoSizeValueCalculationStrategy(); }
+        })(),
+        (() => {
+          try { return container.resolve(TOKENS.PARENT_WIDTH_SIZE_VALUE_STRATEGY); } catch { return new ParentWidthSizeValueCalculationStrategy(); }
+        })(),
+        (() => {
+          try { return container.resolve(TOKENS.VIEWPORT_WIDTH_SIZE_VALUE_STRATEGY); } catch { return new ViewportWidthSizeValueCalculationStrategy(); }
+        })(),
       ];
 
       strategies.forEach(strategy => registry.registerStrategy(strategy));
@@ -235,11 +255,21 @@ describe('Strategy Pattern Implementation', () => {
     beforeEach(() => {
       // Register all strategies using DI container
       const strategies = [
-        try { container.resolve(TOKENS.PIXEL_SIZE_VALUE_STRATEGY) } catch { new PixelSizeValueCalculationStrategy() },
-        try { container.resolve(TOKENS.FILL_SIZE_VALUE_STRATEGY) } catch { new FillSizeValueCalculationStrategy() },
-        try { container.resolve(TOKENS.AUTO_SIZE_VALUE_STRATEGY) } catch { new AutoSizeValueCalculationStrategy() },
-        try { container.resolve(TOKENS.PARENT_WIDTH_SIZE_VALUE_STRATEGY) } catch { new ParentWidthSizeValueCalculationStrategy() },
-        try { container.resolve(TOKENS.VIEWPORT_WIDTH_SIZE_VALUE_STRATEGY) } catch { new ViewportWidthSizeValueCalculationStrategy() },
+        (() => {
+          try { return container.resolve(TOKENS.PIXEL_SIZE_VALUE_STRATEGY); } catch { return new PixelSizeValueCalculationStrategy(); }
+        })(),
+        (() => {
+          try { return container.resolve(TOKENS.FILL_SIZE_VALUE_STRATEGY); } catch { return new FillSizeValueCalculationStrategy(); }
+        })(),
+        (() => {
+          try { return container.resolve(TOKENS.AUTO_SIZE_VALUE_STRATEGY); } catch { return new AutoSizeValueCalculationStrategy(); }
+        })(),
+        (() => {
+          try { return container.resolve(TOKENS.PARENT_WIDTH_SIZE_VALUE_STRATEGY); } catch { return new ParentWidthSizeValueCalculationStrategy(); }
+        })(),
+        (() => {
+          try { return container.resolve(TOKENS.VIEWPORT_WIDTH_SIZE_VALUE_STRATEGY); } catch { return new ViewportWidthSizeValueCalculationStrategy(); }
+        })(),
       ];
 
       strategies.forEach(strategy => registry.registerStrategy(strategy));
@@ -325,11 +355,21 @@ describe('Strategy Pattern Implementation', () => {
     beforeEach(() => {
       // Register all strategies using DI container
       const strategies = [
-        try { container.resolve(TOKENS.PIXEL_SIZE_VALUE_STRATEGY) } catch { new PixelSizeValueCalculationStrategy() },
-        try { container.resolve(TOKENS.FILL_SIZE_VALUE_STRATEGY) } catch { new FillSizeValueCalculationStrategy() },
-        try { container.resolve(TOKENS.AUTO_SIZE_VALUE_STRATEGY) } catch { new AutoSizeValueCalculationStrategy() },
-        try { container.resolve(TOKENS.PARENT_WIDTH_SIZE_VALUE_STRATEGY) } catch { new ParentWidthSizeValueCalculationStrategy() },
-        try { container.resolve(TOKENS.VIEWPORT_WIDTH_SIZE_VALUE_STRATEGY) } catch { new ViewportWidthSizeValueCalculationStrategy() },
+        (() => {
+          try { return container.resolve(TOKENS.PIXEL_SIZE_VALUE_STRATEGY); } catch { return new PixelSizeValueCalculationStrategy(); }
+        })(),
+        (() => {
+          try { return container.resolve(TOKENS.FILL_SIZE_VALUE_STRATEGY); } catch { return new FillSizeValueCalculationStrategy(); }
+        })(),
+        (() => {
+          try { return container.resolve(TOKENS.AUTO_SIZE_VALUE_STRATEGY); } catch { return new AutoSizeValueCalculationStrategy(); }
+        })(),
+        (() => {
+          try { return container.resolve(TOKENS.PARENT_WIDTH_SIZE_VALUE_STRATEGY); } catch { return new ParentWidthSizeValueCalculationStrategy(); }
+        })(),
+        (() => {
+          try { return container.resolve(TOKENS.VIEWPORT_WIDTH_SIZE_VALUE_STRATEGY); } catch { return new ViewportWidthSizeValueCalculationStrategy(); }
+        })(),
       ];
 
       strategies.forEach(strategy => registry.registerStrategy(strategy));
