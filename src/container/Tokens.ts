@@ -37,6 +37,14 @@ export const TOKENS = {
   ENHANCED_SIZE_CALCULATOR: Symbol('EnhancedSizeUnitCalculator'),
   POSITION_CALCULATOR: Symbol('PositionUnitCalculator'),
   REFACTORED_POSITION_CALCULATOR: Symbol('RefactoredPositionUnitCalculator'),
+  SIZE_CALCULATOR: Symbol('SizeUnitCalculator'),
+  SCALE_CALCULATOR: Symbol('ScaleUnitCalculator'),
+  REFACTORED_SIZE_CALCULATOR: Symbol('RefactoredSizeUnitCalculator'),
+  REFACTORED_SCALE_CALCULATOR: Symbol('RefactoredScaleUnitCalculator'),
+
+  // Strategy Services
+  POSITION_STRATEGY: Symbol('PositionStrategy'),
+  SIZE_STRATEGY: Symbol('SizeStrategy'),
 
   // Factory Services
   UNIT_CALCULATOR_FACTORY: Symbol('UnitCalculatorFactory'),
@@ -67,6 +75,12 @@ export type ServiceTypes = {
   [TOKENS.ENHANCED_SIZE_CALCULATOR]: Constructor<any>;
   [TOKENS.POSITION_CALCULATOR]: Constructor<any>;
   [TOKENS.REFACTORED_POSITION_CALCULATOR]: Constructor<any>;
+  [TOKENS.SIZE_CALCULATOR]: Constructor<any>;
+  [TOKENS.SCALE_CALCULATOR]: Constructor<any>;
+  [TOKENS.REFACTORED_SIZE_CALCULATOR]: Constructor<any>;
+  [TOKENS.REFACTORED_SCALE_CALCULATOR]: Constructor<any>;
+  [TOKENS.POSITION_STRATEGY]: Constructor<any>;
+  [TOKENS.SIZE_STRATEGY]: Constructor<any>;
   [TOKENS.UNIT_CALCULATOR_FACTORY]: any;
 };
 

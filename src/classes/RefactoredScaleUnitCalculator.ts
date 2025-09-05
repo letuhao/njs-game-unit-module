@@ -8,10 +8,10 @@ import { container } from '../container/DiContainer';
 import { TOKENS } from '../container/Tokens';
 
 /**
- * ScaleUnitCalculator class
- * Implements scale unit calculations for responsive scaling
+ * Refactored ScaleUnitCalculator class
+ * Uses strategy pattern and DI for better maintainability
  */
-export class ScaleUnitCalculator implements IScaleUnit {
+export class RefactoredScaleUnitCalculator implements IScaleUnit {
   public readonly id: string;
   public readonly name: string;
   public readonly unitType: UnitType = UnitType.SCALE;
@@ -20,18 +20,24 @@ export class ScaleUnitCalculator implements IScaleUnit {
   public readonly maintainAspectRatio: boolean;
   public readonly isActive: boolean = true;
 
+  private strategyRegistry: any;
+
   constructor(
     id: string,
     name: string,
     scaleUnit: ScaleUnit,
     baseValue: number | ScaleValue,
-    maintainAspectRatio: boolean = false
+    maintainAspectRatio: boolean = false,
+    strategyRegistry?: any
   ) {
     this.id = id;
     this.name = name;
     this.scaleUnit = scaleUnit;
     this.baseValue = baseValue;
     this.maintainAspectRatio = maintainAspectRatio;
+    
+    // Resolve strategy registry from DI container
+    this.strategyRegistry = strategyRegistry || container.resolve(TOKENS.SCALE_VALUE_STRATEGY_REGISTRY);
   }
 
   /**
@@ -42,7 +48,7 @@ export class ScaleUnitCalculator implements IScaleUnit {
   }
 
   /**
-   * Calculate scale based on context
+   * Calculate scale based on context using strategy pattern
    */
   calculateScale(context: UnitContext): number {
     // For numeric values, return directly
@@ -52,8 +58,7 @@ export class ScaleUnitCalculator implements IScaleUnit {
 
     // Use strategy pattern for ScaleValue enum
     try {
-      const strategyRegistry = container.resolve(TOKENS.SCALE_VALUE_STRATEGY_REGISTRY);
-      const strategy = strategyRegistry.getScaleValueStrategy(this.baseValue as ScaleValue);
+      const strategy = this.strategyRegistry.getScaleValueStrategy(this.baseValue as ScaleValue);
       if (strategy) {
         return strategy(context);
       }
@@ -126,29 +131,30 @@ export class ScaleUnitCalculator implements IScaleUnit {
    * Get string representation
    */
   toString(): string {
-    return `ScaleUnitCalculator(${this.name}, ${this.scaleUnit})`;
+    return `RefactoredScaleUnitCalculator(${this.name}, ${this.scaleUnit})`;
   }
 
   /**
    * Clone the unit with optional modifications
    */
-  clone(overrides?: Partial<IScaleUnit>): ScaleUnitCalculator {
-    const cloned = new ScaleUnitCalculator(
+  clone(overrides?: Partial<IScaleUnit>): RefactoredScaleUnitCalculator {
+    const cloned = new RefactoredScaleUnitCalculator(
       this.id,
       this.name,
       this.scaleUnit,
       this.baseValue,
-      this.maintainAspectRatio
+      this.maintainAspectRatio,
+      this.strategyRegistry
     );
     return cloned;
   }
 
   // Scale calculation methods
   private calculateFillScale(context: UnitContext): number {
-    if (context.parent && context.content) {
+    if (context.parent) {
       return Math.min(
-        context.parent.width / context.content.width,
-        context.parent.height / context.content.height
+        context.parent.width / (context.content?.width || 1),
+        context.parent.height / (context.content?.height || 1)
       );
     }
     return DEFAULT_FALLBACK_VALUES.SCALE.DEFAULT;

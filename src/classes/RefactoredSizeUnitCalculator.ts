@@ -9,10 +9,10 @@ import { container } from '../container/DiContainer';
 import { TOKENS } from '../container/Tokens';
 
 /**
- * SizeUnitCalculator class
- * Implements size unit calculations for responsive sizing
+ * Refactored SizeUnitCalculator class
+ * Uses strategy pattern and DI for better maintainability
  */
-export class SizeUnitCalculator implements ISizeUnit {
+export class RefactoredSizeUnitCalculator implements ISizeUnit {
   public readonly id: string;
   public readonly name: string;
   public readonly unitType: UnitType = UnitType.SIZE;
@@ -22,13 +22,18 @@ export class SizeUnitCalculator implements ISizeUnit {
   public readonly maintainAspectRatio: boolean;
   public readonly isActive: boolean = true;
 
+  private strategyRegistry: any;
+  private isNumericValue: boolean;
+  private numericValue: number;
+
   constructor(
     id: string,
     name: string,
     sizeUnit: SizeUnit,
     dimension: Dimension.WIDTH | Dimension.HEIGHT | Dimension.BOTH,
     baseValue: number | SizeValue,
-    maintainAspectRatio: boolean = false
+    maintainAspectRatio: boolean = false,
+    strategyRegistry?: any
   ) {
     this.id = id;
     this.name = name;
@@ -36,6 +41,13 @@ export class SizeUnitCalculator implements ISizeUnit {
     this.dimension = dimension;
     this.baseValue = baseValue;
     this.maintainAspectRatio = maintainAspectRatio;
+    
+    // Resolve strategy registry from DI container
+    this.strategyRegistry = strategyRegistry || container.resolve(TOKENS.SIZE_VALUE_STRATEGY_REGISTRY);
+
+    // Pre-compute numeric value for performance
+    this.isNumericValue = typeof baseValue === 'number';
+    this.numericValue = this.isNumericValue ? (baseValue as number) : 0;
   }
 
   /**
@@ -46,18 +58,17 @@ export class SizeUnitCalculator implements ISizeUnit {
   }
 
   /**
-   * Calculate size based on context
+   * Calculate size based on context using strategy pattern
    */
   calculateSize(context: UnitContext): number {
     // For numeric values, return directly
-    if (typeof this.baseValue === 'number') {
-      return this.baseValue;
+    if (this.isNumericValue) {
+      return this.numericValue;
     }
 
     // Use strategy pattern for SizeValue enum
     try {
-      const strategyRegistry = container.resolve(TOKENS.SIZE_VALUE_STRATEGY_REGISTRY);
-      const strategy = strategyRegistry.getSizeValueStrategy(this.baseValue as SizeValue);
+      const strategy = this.strategyRegistry.getSizeValueStrategy(this.baseValue as SizeValue);
       if (strategy) {
         return strategy(context);
       }
@@ -120,14 +131,14 @@ export class SizeUnitCalculator implements ISizeUnit {
    * Check if the unit is responsive
    */
   isResponsive(): boolean {
-    return typeof this.baseValue !== 'number';
+    return !this.isNumericValue;
   }
 
   /**
    * Validate unit in given context
    */
   validate(context: UnitContext): boolean {
-    if (typeof this.baseValue === 'number') {
+    if (this.isNumericValue) {
       return true; // Numeric values are always valid
     }
 
@@ -148,20 +159,21 @@ export class SizeUnitCalculator implements ISizeUnit {
    * Get string representation
    */
   toString(): string {
-    return `SizeUnitCalculator(${this.name}, ${this.sizeUnit}, ${this.dimension})`;
+    return `RefactoredSizeUnitCalculator(${this.name}, ${this.sizeUnit}, ${this.dimension})`;
   }
 
   /**
    * Clone the unit with optional modifications
    */
-  clone(overrides?: Partial<ISizeUnit>): SizeUnitCalculator {
-    const cloned = new SizeUnitCalculator(
+  clone(overrides?: Partial<ISizeUnit>): RefactoredSizeUnitCalculator {
+    const cloned = new RefactoredSizeUnitCalculator(
       this.id,
       this.name,
       this.sizeUnit,
       this.dimension,
       this.baseValue,
-      this.maintainAspectRatio
+      this.maintainAspectRatio,
+      this.strategyRegistry
     );
     return cloned;
   }

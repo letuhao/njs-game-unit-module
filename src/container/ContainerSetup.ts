@@ -5,6 +5,10 @@ import { LegacySizeUnitAdapter } from '../adapters/LegacySizeUnitAdapter';
 import { EnhancedSizeUnitCalculator } from '../classes/EnhancedSizeUnitCalculator';
 import { PositionUnitCalculator } from '../classes/PositionUnitCalculator';
 import { RefactoredPositionUnitCalculator } from '../classes/RefactoredPositionUnitCalculator';
+import { SizeUnitCalculator } from '../classes/SizeUnitCalculator';
+import { ScaleUnitCalculator } from '../classes/ScaleUnitCalculator';
+import { RefactoredSizeUnitCalculator } from '../classes/RefactoredSizeUnitCalculator';
+import { RefactoredScaleUnitCalculator } from '../classes/RefactoredScaleUnitCalculator';
 import { RandomValueNumber } from '../classes/RandomValueNumber';
 
 /**
@@ -21,6 +25,10 @@ export function setupContainer(): void {
   container.registerClass(TOKENS.ENHANCED_SIZE_CALCULATOR, EnhancedSizeUnitCalculator);
   container.registerClass(TOKENS.POSITION_CALCULATOR, PositionUnitCalculator);
   container.registerClass(TOKENS.REFACTORED_POSITION_CALCULATOR, RefactoredPositionUnitCalculator);
+  container.registerClass(TOKENS.SIZE_CALCULATOR, SizeUnitCalculator);
+  container.registerClass(TOKENS.SCALE_CALCULATOR, ScaleUnitCalculator);
+  container.registerClass(TOKENS.REFACTORED_SIZE_CALCULATOR, RefactoredSizeUnitCalculator);
+  container.registerClass(TOKENS.REFACTORED_SCALE_CALCULATOR, RefactoredScaleUnitCalculator);
 
   // Register random value services
   container.registerClass(TOKENS.RANDOM_VALUE_NUMBER, RandomValueNumber);
