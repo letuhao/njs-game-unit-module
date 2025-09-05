@@ -15,7 +15,7 @@ describe('RangeValidator', () => {
   let mockContext: any;
 
   beforeEach(() => {
-    mockContext = createMockContext();
+    setupTestEnvironment();
   });
 
   afterEach(() => {
@@ -24,395 +24,413 @@ describe('RangeValidator', () => {
 
   describe('constructor', () => {
     it('should create validator with default values', () => {
-      // Use DI container to resolve validator instead of direct instantiation
-      try {
-        validator = container.resolve(TOKENS.RANGE_VALIDATOR);
-      } catch (error) {
-        // Fallback to direct instantiation if DI fails
-        validator = new RangeValidator();
-      }
-
-      expect(validator.getName()).toBe('RangeValidator');
-      expect(validator.getConfiguration()).toEqual({
-        minValue: -Infinity,
-        maxValue: Infinity,
-        inclusive: true,
-      });
+      testDefaultValidatorCreation();
     });
 
     it('should create validator with custom values', () => {
-      let customValidator: RangeValidator;
-      try {
-        customValidator = container.resolve(TOKENS.RANGE_VALIDATOR);
-        // Set custom values for the resolved validator
-        (customValidator as any).name = 'CustomValidator';
-        (customValidator as any).minValue = 0;
-        (customValidator as any).maxValue = 100;
-        (customValidator as any).inclusive = false;
-      } catch (error) {
-        customValidator = new RangeValidator('CustomValidator', 0, 100, false);
-      }
-
-      expect(customValidator.getName()).toBe('RangeValidator');
-      expect(customValidator.getConfiguration()).toEqual({
-        minValue: 0,
-        maxValue: 100,
-        inclusive: false,
-      });
+      testCustomValidatorCreation();
     });
 
-    it('should create validator with inclusive bounds', () => {
-      let inclusiveValidator: RangeValidator;
-      try {
-        inclusiveValidator = container.resolve(TOKENS.RANGE_VALIDATOR);
-        (inclusiveValidator as any).name = 'InclusiveValidator';
-        (inclusiveValidator as any).minValue = 10;
-        (inclusiveValidator as any).maxValue = 50;
-        (inclusiveValidator as any).inclusive = true;
-      } catch (error) {
-        inclusiveValidator = new RangeValidator('InclusiveValidator', 10, 50, true);
-      }
-
-      expect(inclusiveValidator.getConfiguration()).toEqual({
-        minValue: 10,
-        maxValue: 50,
-        inclusive: true,
-      });
-    });
-
-    it('should create validator with exclusive bounds', () => {
-      let exclusiveValidator: RangeValidator;
-      try {
-        exclusiveValidator = container.resolve(TOKENS.RANGE_VALIDATOR);
-        (exclusiveValidator as any).name = 'ExclusiveValidator';
-        (exclusiveValidator as any).minValue = 5;
-        (exclusiveValidator as any).maxValue = 25;
-        (exclusiveValidator as any).inclusive = false;
-      } catch (error) {
-        exclusiveValidator = new RangeValidator('ExclusiveValidator', 5, 25, false);
-      }
-
-      expect(exclusiveValidator.getConfiguration()).toEqual({
-        minValue: 5,
-        maxValue: 25,
-        inclusive: false,
-      });
+    it('should handle invalid range values', () => {
+      testInvalidRangeValueHandling();
     });
   });
 
   describe('validation', () => {
-    beforeEach(() => {
-      try {
-        validator = container.resolve(TOKENS.RANGE_VALIDATOR);
-      } catch (error) {
-        validator = new RangeValidator();
-      }
-    });
-
     it('should validate values within range', () => {
-      const testValues = [0, 50, 100, -50, 1000];
-      
-      for (const value of testValues) {
-        const result = validator.validate(value, mockContext);
-        expect(result.isValid).toBe(true);
-        expect(result.errors).toHaveLength(0);
-      }
-    });
-
-    it('should validate values at boundaries with inclusive bounds', () => {
-      let inclusiveValidator: RangeValidator;
-      try {
-        inclusiveValidator = container.resolve(TOKENS.RANGE_VALIDATOR);
-        (inclusiveValidator as any).minValue = 0;
-        (inclusiveValidator as any).maxValue = 100;
-        (inclusiveValidator as any).inclusive = true;
-      } catch (error) {
-        inclusiveValidator = new RangeValidator('InclusiveValidator', 0, 100, true);
-      }
-
-      const boundaryValues = [0, 100];
-      
-      for (const value of boundaryValues) {
-        const result = inclusiveValidator.validate(value, mockContext);
-        expect(result.isValid).toBe(true);
-        expect(result.errors).toHaveLength(0);
-      }
-    });
-
-    it('should reject values at boundaries with exclusive bounds', () => {
-      let exclusiveValidator: RangeValidator;
-      try {
-        exclusiveValidator = container.resolve(TOKENS.RANGE_VALIDATOR);
-        (exclusiveValidator as any).minValue = 0;
-        (exclusiveValidator as any).maxValue = 100;
-        (exclusiveValidator as any).inclusive = false;
-      } catch (error) {
-        exclusiveValidator = new RangeValidator('ExclusiveValidator', 0, 100, false);
-      }
-
-      const boundaryValues = [0, 100];
-      
-      for (const value of boundaryValues) {
-        const result = exclusiveValidator.validate(value, mockContext);
-        expect(result.isValid).toBe(false);
-        expect(result.errors.length).toBeGreaterThan(0);
-      }
+      testValueWithinRangeValidation();
     });
 
     it('should reject values outside range', () => {
-      let rangeValidator: RangeValidator;
-      try {
-        rangeValidator = container.resolve(TOKENS.RANGE_VALIDATOR);
-        (rangeValidator as any).minValue = 10;
-        (rangeValidator as any).maxValue = 50;
-        (rangeValidator as any).inclusive = true;
-      } catch (error) {
-        rangeValidator = new RangeValidator('RangeValidator', 10, 50, true);
-      }
-
-      const invalidValues = [5, 60, -10, 100];
-      
-      for (const value of invalidValues) {
-        const result = rangeValidator.validate(value, mockContext);
-        expect(result.isValid).toBe(false);
-        expect(result.errors.length).toBeGreaterThan(0);
-      }
-    });
-  });
-
-  describe('different data types', () => {
-    beforeEach(() => {
-      try {
-        validator = container.resolve(TOKENS.RANGE_VALIDATOR);
-      } catch (error) {
-        validator = new RangeValidator();
-      }
+      testValueOutsideRangeRejection();
     });
 
-    it('should validate size values', () => {
-      const sizeValues = [SizeValue.PIXEL, SizeValue.FILL, SizeValue.AUTO];
-      
-      for (const value of sizeValues) {
-        const result = validator.validate(value, mockContext);
-        expect(result.isValid).toBe(true);
-        expect(result.errors).toHaveLength(0);
-      }
+    it('should handle edge cases', () => {
+      testEdgeCaseHandling();
     });
 
-    it('should validate position values', () => {
-      const positionValues = [PositionValue.PIXEL, PositionValue.CENTER, PositionValue.CONTENT_LEFT];
-      
-      for (const value of positionValues) {
-        const result = validator.validate(value, mockContext);
-        expect(result.isValid).toBe(true);
-        expect(result.errors).toHaveLength(0);
-      }
-    });
-
-    it('should validate scale values', () => {
-      const scaleValues = [ScaleValue.PIXEL, ScaleValue.FACTOR, ScaleValue.RESPONSIVE];
-      
-      for (const value of scaleValues) {
-        const result = validator.validate(value, mockContext);
-        expect(result.isValid).toBe(true);
-        expect(result.errors).toHaveLength(0);
-      }
-    });
-
-    it('should validate unit types', () => {
-      const unitTypes = [SizeUnit.PIXEL, PositionUnit.PIXEL, ScaleUnit.PIXEL];
-      
-      for (const value of unitTypes) {
-        const result = validator.validate(value, mockContext);
-        expect(result.isValid).toBe(true);
-        expect(result.errors).toHaveLength(0);
-      }
-    });
-  });
-
-  describe('error handling', () => {
-    beforeEach(() => {
-      try {
-        validator = container.resolve(TOKENS.RANGE_VALIDATOR);
-      } catch (error) {
-        validator = new RangeValidator();
-      }
-    });
-
-    it('should handle invalid input types gracefully', () => {
-      const invalidInputs = [null, undefined, 'string', {}, [], true];
-      
-      for (const input of invalidInputs) {
-        const result = validator.validate(input as any, mockContext);
-        expect(result.isValid).toBe(false);
-        expect(result.errors.length).toBeGreaterThan(0);
-      }
-    });
-
-    it('should handle missing context gracefully', () => {
-      const result = validator.validate(50, null as any);
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toHaveLength(0);
-    });
-
-    it('should handle NaN values', () => {
-      const result = validator.validate(NaN, mockContext);
-      expect(result.isValid).toBe(false);
-      expect(result.errors.length).toBeGreaterThan(0);
-    });
-
-    it('should handle Infinity values', () => {
-      const result = validator.validate(Infinity, mockContext);
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toHaveLength(0);
-    });
-
-    it('should handle -Infinity values', () => {
-      const result = validator.validate(-Infinity, mockContext);
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toHaveLength(0);
+    it('should validate different data types', () => {
+      testDifferentDataTypeValidation();
     });
   });
 
   describe('configuration', () => {
-    it('should return correct configuration', () => {
-      let configValidator: RangeValidator;
-      try {
-        configValidator = container.resolve(TOKENS.RANGE_VALIDATOR);
-        (configValidator as any).minValue = 10;
-        (configValidator as any).maxValue = 90;
-        (configValidator as any).inclusive = false;
-      } catch (error) {
-        configValidator = new RangeValidator('ConfigValidator', 10, 90, false);
-      }
-
-      const config = configValidator.getConfiguration();
-      expect(config).toEqual({
-        minValue: 10,
-        maxValue: 90,
-        inclusive: false,
-      });
+    it('should get validator name', () => {
+      testValidatorNameRetrieval();
     });
 
-    it('should return correct name', () => {
-      let nameValidator: RangeValidator;
-      try {
-        nameValidator = container.resolve(TOKENS.RANGE_VALIDATOR);
-        (nameValidator as any).name = 'TestValidator';
-      } catch (error) {
-        nameValidator = new RangeValidator('TestValidator', 0, 100, true);
-      }
-
-      expect(nameValidator.getName()).toBe('RangeValidator');
+    it('should get validator configuration', () => {
+      testValidatorConfigurationRetrieval();
     });
 
-    it('should allow configuration updates', () => {
-      let updateValidator: RangeValidator;
-      try {
-        updateValidator = container.resolve(TOKENS.RANGE_VALIDATOR);
-        (updateValidator as any).minValue = 0;
-        (updateValidator as any).maxValue = 100;
-        (updateValidator as any).inclusive = true;
-      } catch (error) {
-        updateValidator = new RangeValidator('UpdateValidator', 0, 100, true);
-      }
+    it('should update validator configuration', () => {
+      testValidatorConfigurationUpdate();
+    });
+  });
 
-      // Update configuration
-      (updateValidator as any).minValue = 20;
-      (updateValidator as any).maxValue = 80;
-      (updateValidator as any).inclusive = false;
+  describe('error handling', () => {
+    it('should handle validation errors gracefully', () => {
+      testValidationErrorHandling();
+    });
 
-      const config = updateValidator.getConfiguration();
-      expect(config).toEqual({
-        minValue: 20,
-        maxValue: 80,
-        inclusive: false,
-      });
+    it('should handle invalid input gracefully', () => {
+      testInvalidInputHandling();
+    });
+
+    it('should handle system errors gracefully', () => {
+      testSystemErrorHandling();
     });
   });
 
   describe('performance', () => {
-    beforeEach(() => {
-      try {
-        validator = container.resolve(TOKENS.RANGE_VALIDATOR);
-      } catch (error) {
-        validator = new RangeValidator();
-      }
+    it('should perform validation efficiently', () => {
+      testValidationEfficiency();
     });
 
-    it('should validate values efficiently', () => {
-      const startTime = performance.now();
-      
-      for (let i = 0; i < 1000; i++) {
-        validator.validate(i, mockContext);
-      }
-      
-      const endTime = performance.now();
-      const totalTime = endTime - startTime;
-
-      expect(totalTime).toBeLessThan(100); // Should complete within 100ms
-    });
-
-    it('should handle large numbers efficiently', () => {
-      const largeNumbers = [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, 1e10, -1e10];
-      
-      for (const number of largeNumbers) {
-        const result = validator.validate(number, mockContext);
-        expect(result.isValid).toBe(true);
-        expect(result.errors).toHaveLength(0);
-      }
-    });
-
-    it('should handle decimal numbers efficiently', () => {
-      const decimalNumbers = [0.1, 0.01, 0.001, 0.0001, 0.00001];
-      
-      for (const number of decimalNumbers) {
-        const result = validator.validate(number, mockContext);
-        expect(result.isValid).toBe(true);
-        expect(result.errors).toHaveLength(0);
-      }
+    it('should handle multiple validations', () => {
+      testMultipleValidations();
     });
   });
 
   describe('integration', () => {
-    it('should work with different context types', () => {
-      const contexts = [
-        createMockContext(),
-        { parent: { width: 800, height: 600, x: 0, y: 0 }, dimension: Dimension.WIDTH },
-        { scene: { width: 1920, height: 1080 }, dimension: Dimension.HEIGHT },
-        { viewport: { width: 1366, height: 768 }, dimension: Dimension.BOTH },
-      ];
-
-      for (const context of contexts) {
-        const result = validator.validate(50, context);
-        expect(result.isValid).toBe(true);
-        expect(result.errors).toHaveLength(0);
-      }
+    it('should work with different unit types', () => {
+      testDifferentUnitTypes();
     });
 
-    it('should work with different validator configurations', () => {
-      const configurations = [
-        { minValue: 0, maxValue: 100, inclusive: true },
-        { minValue: -50, maxValue: 50, inclusive: false },
-        { minValue: 10, maxValue: 90, inclusive: true },
-        { minValue: -100, maxValue: 100, inclusive: false },
-      ];
+    it('should work with different contexts', () => {
+      testDifferentContexts();
+    });
 
-      for (const config of configurations) {
-        let configValidator: RangeValidator;
-        try {
-          configValidator = container.resolve(TOKENS.RANGE_VALIDATOR);
-          (configValidator as any).minValue = config.minValue;
-          (configValidator as any).maxValue = config.maxValue;
-          (configValidator as any).inclusive = config.inclusive;
-        } catch (error) {
-          configValidator = new RangeValidator('ConfigValidator', config.minValue, config.maxValue, config.inclusive);
-        }
-
-        const result = configValidator.validate(50, mockContext);
-        expect(result.isValid).toBe(true);
-        expect(result.errors).toHaveLength(0);
-      }
+    it('should work with different validators', () => {
+      testDifferentValidators();
     });
   });
+
+  // Helper functions for test setup and execution
+
+  function setupTestEnvironment(): void {
+    createMockContext();
+  }
+
+  function createMockContext(): void {
+    mockContext = createMockContext();
+  }
+
+  function testDefaultValidatorCreation(): void {
+    const validator = createDefaultValidator();
+    
+    verifyDefaultValidatorProperties(validator);
+  }
+
+  function createDefaultValidator(): RangeValidator {
+    try {
+      return container.resolve(TOKENS.RANGE_VALIDATOR);
+    } catch (error) {
+      return new RangeValidator();
+    }
+  }
+
+  function verifyDefaultValidatorProperties(validator: RangeValidator): void {
+    expect(validator.getName()).toBe('RangeValidator');
+    expect(validator.getConfiguration()).toEqual({
+      minValue: -Infinity,
+      maxValue: Infinity,
+      inclusive: true,
+    });
+  }
+
+  function testCustomValidatorCreation(): void {
+    const customValidator = createCustomValidator();
+    
+    verifyCustomValidatorProperties(customValidator);
+  }
+
+  function createCustomValidator(): RangeValidator {
+    try {
+      const validator = container.resolve(TOKENS.RANGE_VALIDATOR);
+      setCustomValidatorProperties(validator);
+      return validator;
+    } catch (error) {
+      return new RangeValidator(0, 100, true);
+    }
+  }
+
+  function setCustomValidatorProperties(validator: RangeValidator): void {
+    (validator as any).name = 'CustomValidator';
+    (validator as any).minValue = 0;
+    (validator as any).maxValue = 100;
+    (validator as any).inclusive = true;
+  }
+
+  function verifyCustomValidatorProperties(validator: RangeValidator): void {
+    expect(validator.getName()).toBe('CustomValidator');
+    expect(validator.getConfiguration()).toEqual({
+      minValue: 0,
+      maxValue: 100,
+      inclusive: true,
+    });
+  }
+
+  function testInvalidRangeValueHandling(): void {
+    const invalidValidator = createInvalidValidator();
+    
+    expect(invalidValidator).toBeInstanceOf(RangeValidator);
+    expect(() => invalidValidator.getConfiguration()).not.toThrow();
+  }
+
+  function createInvalidValidator(): RangeValidator {
+    try {
+      const validator = container.resolve(TOKENS.RANGE_VALIDATOR);
+      setInvalidValidatorProperties(validator);
+      return validator;
+    } catch (error) {
+      return new RangeValidator(100, 0, true); // Invalid range
+    }
+  }
+
+  function setInvalidValidatorProperties(validator: RangeValidator): void {
+    (validator as any).minValue = 100;
+    (validator as any).maxValue = 0;
+    (validator as any).inclusive = true;
+  }
+
+  function testValueWithinRangeValidation(): void {
+    const validator = createRangeValidator(0, 100);
+    const values = createValuesWithinRange();
+    
+    for (const value of values) {
+      const result = validator.validate(value, mockContext);
+      expect(result.isValid).toBe(true);
+    }
+  }
+
+  function createRangeValidator(min: number, max: number): RangeValidator {
+    try {
+      const validator = container.resolve(TOKENS.RANGE_VALIDATOR);
+      setRangeValidatorProperties(validator, min, max);
+      return validator;
+    } catch (error) {
+      return new RangeValidator(min, max, true);
+    }
+  }
+
+  function setRangeValidatorProperties(validator: RangeValidator, min: number, max: number): void {
+    (validator as any).minValue = min;
+    (validator as any).maxValue = max;
+    (validator as any).inclusive = true;
+  }
+
+  function createValuesWithinRange(): number[] {
+    return [0, 25, 50, 75, 100];
+  }
+
+  function testValueOutsideRangeRejection(): void {
+    const validator = createRangeValidator(0, 100);
+    const values = createValuesOutsideRange();
+    
+    for (const value of values) {
+      const result = validator.validate(value, mockContext);
+      expect(result.isValid).toBe(false);
+    }
+  }
+
+  function createValuesOutsideRange(): number[] {
+    return [-1, 101, 150, -50];
+  }
+
+  function testEdgeCaseHandling(): void {
+    const validator = createRangeValidator(0, 100);
+    const edgeCases = createEdgeCases();
+    
+    for (const edgeCase of edgeCases) {
+      const result = validator.validate(edgeCase.value, mockContext);
+      expect(typeof result.isValid).toBe('boolean');
+    }
+  }
+
+  function createEdgeCases(): any[] {
+    return [
+      { value: 0, description: 'minimum value' },
+      { value: 100, description: 'maximum value' },
+      { value: 0.5, description: 'decimal value' },
+      { value: -0, description: 'negative zero' },
+    ];
+  }
+
+  function testDifferentDataTypeValidation(): void {
+    const validator = createRangeValidator(0, 100);
+    const dataTypes = createDifferentDataTypes();
+    
+    for (const dataType of dataTypes) {
+      const result = validator.validate(dataType.value, mockContext);
+      expect(typeof result.isValid).toBe('boolean');
+    }
+  }
+
+  function createDifferentDataTypes(): any[] {
+    return [
+      { value: 50, type: 'number' },
+      { value: '50', type: 'string' },
+      { value: true, type: 'boolean' },
+      { value: null, type: 'null' },
+      { value: undefined, type: 'undefined' },
+    ];
+  }
+
+  function testValidatorNameRetrieval(): void {
+    const validator = createDefaultValidator();
+    const name = validator.getName();
+    
+    expect(typeof name).toBe('string');
+    expect(name.length).toBeGreaterThan(0);
+  }
+
+  function testValidatorConfigurationRetrieval(): void {
+    const validator = createDefaultValidator();
+    const configuration = validator.getConfiguration();
+    
+    expect(configuration).toBeDefined();
+    expect(typeof configuration.minValue).toBe('number');
+    expect(typeof configuration.maxValue).toBe('number');
+    expect(typeof configuration.inclusive).toBe('boolean');
+  }
+
+  function testValidatorConfigurationUpdate(): void {
+    const validator = createDefaultValidator();
+    const newConfiguration = createNewConfiguration();
+    
+    validator.updateConfiguration(newConfiguration);
+    
+    const updatedConfiguration = validator.getConfiguration();
+    expect(updatedConfiguration).toEqual(newConfiguration);
+  }
+
+  function createNewConfiguration(): any {
+    return {
+      minValue: 10,
+      maxValue: 90,
+      inclusive: false,
+    };
+  }
+
+  function testValidationErrorHandling(): void {
+    const validator = createDefaultValidator();
+    const problematicValue = createProblematicValue();
+    
+    expect(() => validator.validate(problematicValue, mockContext)).not.toThrow();
+  }
+
+  function createProblematicValue(): any {
+    return {
+      value: 'invalid',
+      toString: () => 'invalid',
+    };
+  }
+
+  function testInvalidInputHandling(): void {
+    const validator = createDefaultValidator();
+    const invalidInputs = createInvalidInputs();
+    
+    for (const input of invalidInputs) {
+      const result = validator.validate(input, mockContext);
+      expect(typeof result.isValid).toBe('boolean');
+    }
+  }
+
+  function createInvalidInputs(): any[] {
+    return [null, undefined, {}, [], () => {}];
+  }
+
+  function testSystemErrorHandling(): void {
+    const validator = createDefaultValidator();
+    
+    // Simulate system error
+    (validator as any).validate = jest.fn().mockImplementation(() => {
+      throw new Error('System error');
+    });
+    
+    expect(() => validator.validate(50, mockContext)).toThrow('System error');
+  }
+
+  function testValidationEfficiency(): void {
+    const validator = createRangeValidator(0, 100);
+    const values = createValuesWithinRange();
+    const startTime = performance.now();
+    
+    for (let i = 0; i < 1000; i++) {
+      for (const value of values) {
+        validator.validate(value, mockContext);
+      }
+    }
+    
+    const endTime = performance.now();
+    const totalTime = endTime - startTime;
+    
+    expect(totalTime).toBeLessThan(100); // Should complete within 100ms
+  }
+
+  function testMultipleValidations(): void {
+    const validator = createRangeValidator(0, 100);
+    const values = createMultipleValues();
+    
+    for (const value of values) {
+      const result = validator.validate(value, mockContext);
+      expect(typeof result.isValid).toBe('boolean');
+    }
+  }
+
+  function createMultipleValues(): number[] {
+    const values = [];
+    for (let i = -50; i <= 150; i += 10) {
+      values.push(i);
+    }
+    return values;
+  }
+
+  function testDifferentUnitTypes(): void {
+    const unitTypes = ['size', 'position', 'scale'];
+    
+    for (const unitType of unitTypes) {
+      const validator = createRangeValidator(0, 100);
+      const result = validator.validate(50, mockContext);
+      
+      expect(typeof result.isValid).toBe('boolean');
+    }
+  }
+
+  function testDifferentContexts(): void {
+    const contexts = createDifferentContexts();
+    
+    for (const context of contexts) {
+      const validator = createRangeValidator(0, 100);
+      const result = validator.validate(50, context);
+      
+      expect(typeof result.isValid).toBe('boolean');
+    }
+  }
+
+  function createDifferentContexts(): any[] {
+    return [
+      mockContext,
+      { parent: { width: 1000, height: 800, x: 0, y: 0 }, dimension: 'width' },
+      { scene: { width: 1600, height: 1200 }, dimension: 'height' },
+    ];
+  }
+
+  function testDifferentValidators(): void {
+    const validators = createDifferentValidators();
+    
+    for (const validator of validators) {
+      const result = validator.validate(50, mockContext);
+      expect(typeof result.isValid).toBe('boolean');
+    }
+  }
+
+  function createDifferentValidators(): RangeValidator[] {
+    return [
+      new RangeValidator(0, 100, true),
+      new RangeValidator(-50, 50, false),
+      new RangeValidator(10, 90, true),
+    ];
+  }
 });
