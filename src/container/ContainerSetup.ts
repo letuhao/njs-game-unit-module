@@ -14,6 +14,10 @@ import { CalculatePositionCommand } from '../commands/CalculatePositionCommand';
 import { CalculateSizeCommand } from '../commands/CalculateSizeCommand';
 import { ValidationManager } from '../managers/ValidationManager';
 import { ConfigManager } from '../managers/ConfigManager';
+import { PerformanceManager } from '../managers/PerformanceManager';
+import { StrategyManager } from '../managers/StrategyManager';
+import { UnitRegistryManager } from '../managers/UnitRegistryManager';
+import { UnitSystemManager } from '../managers/UnitSystemManager';
 import { logger } from '../core/Logger';
 
 /**
@@ -46,6 +50,10 @@ export function setupContainer(): void {
   container.registerSingleton(TOKENS.VALIDATION_MANAGER, () => new ValidationManager());
   container.registerSingleton(TOKENS.CONFIG_MANAGER, () => new ConfigManager());
   container.registerSingleton(TOKENS.LOGGER, () => logger);
+  container.registerSingleton(TOKENS.PERFORMANCE_MANAGER, () => new PerformanceManager());
+  container.registerSingleton(TOKENS.STRATEGY_MANAGER, () => new StrategyManager());
+  container.registerSingleton(TOKENS.UNIT_REGISTRY_MANAGER, () => new UnitRegistryManager());
+  container.registerSingleton(TOKENS.UNIT_SYSTEM_MANAGER, () => new UnitSystemManager());
 
   // Register strategy registries (these will be resolved from existing registries)
   container.registerSingleton(TOKENS.SIZE_VALUE_STRATEGY_REGISTRY, () => {

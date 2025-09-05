@@ -55,6 +55,10 @@ export const TOKENS = {
   VALIDATION_MANAGER: Symbol('ValidationManager'),
   CONFIG_MANAGER: Symbol('ConfigManager'),
   LOGGER: Symbol('Logger'),
+  PERFORMANCE_MANAGER: Symbol('PerformanceManager'),
+  STRATEGY_MANAGER: Symbol('StrategyManager'),
+  UNIT_REGISTRY_MANAGER: Symbol('UnitRegistryManager'),
+  UNIT_SYSTEM_MANAGER: Symbol('UnitSystemManager'),
 
   // Factory Services
   UNIT_CALCULATOR_FACTORY: Symbol('UnitCalculatorFactory'),
@@ -97,6 +101,10 @@ export type ServiceTypes = {
   [TOKENS.VALIDATION_MANAGER]: any;
   [TOKENS.CONFIG_MANAGER]: any;
   [TOKENS.LOGGER]: any;
+  [TOKENS.PERFORMANCE_MANAGER]: any;
+  [TOKENS.STRATEGY_MANAGER]: any;
+  [TOKENS.UNIT_REGISTRY_MANAGER]: any;
+  [TOKENS.UNIT_SYSTEM_MANAGER]: any;
   [TOKENS.UNIT_CALCULATOR_FACTORY]: any;
 };
 

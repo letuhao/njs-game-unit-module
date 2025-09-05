@@ -1,288 +1,91 @@
-import { logger } from '../core/Logger';
+import type { IPerformanceManager } from './IPerformanceManager';
+import { container } from '../container/DiContainer';
+import { TOKENS } from '../container/Tokens';
 import { DEFAULT_FALLBACK_VALUES } from '../constants';
 
 /**
- * Core performance manager interface - basic performance operations
- */
-export interface IPerformanceManagerCore {
-  /** Start measuring an operation */
-  startMeasurement(operationId: string): void;
-
-  /** End measuring an operation and return duration */
-  endMeasurement(operationId: string): number;
-
-  /** Record a measurement for an operation */
-  recordMeasurement(operationId: string, duration: number): void;
-}
-
-/**
- * Performance metrics interface - metrics and statistics
- */
-export interface IPerformanceManagerMetrics {
-  /** Get comprehensive performance metrics */
-  getPerformanceMetrics(): {
-    totalOperations: number;
-    averageExecutionTime: number;
-    memoryUsage: number;
-    errorRate: number;
-    slowestOperations: Array<{ operationId: string; duration: number }>;
-  };
-
-  /** Get the slowest operations */
-  getSlowestOperations(count?: number): Array<{ operationId: string; duration: number }>;
-
-  /** Get statistics for a specific operation */
-  getOperationStatistics(operationId: string): {
-    count: number;
-    averageTime: number;
-    minTime: number;
-    maxTime: number;
-    totalTime: number;
-  };
-}
-
-/**
- * Memory monitoring interface - memory operations
- */
-export interface IPerformanceManagerMemory {
-  /** Get current memory usage */
-  getMemoryUsage(): number;
-
-  /** Get memory limit */
-  getMemoryLimit(): number;
-
-  /** Set memory limit */
-  setMemoryLimit(limit: number): void;
-}
-
-/**
- * Performance analysis interface - analysis and alerts
- */
-export interface IPerformanceManagerAnalysis {
-  /** Set performance threshold */
-  setPerformanceThreshold(threshold: number): void;
-
-  /** Get performance threshold */
-  getPerformanceThreshold(): number;
-
-  /** Check if performance is acceptable */
-  isPerformanceAcceptable(): boolean;
-}
-
-/**
- * Performance cleanup interface - cleanup operations
- */
-export interface IPerformanceManagerCleanup {
-  /** Clear all performance data */
-  clearPerformanceData(): void;
-
-  /** Get the size of performance data */
-  getPerformanceDataSize(): number;
-}
-
-/**
- * Complete performance manager interface
- * Combines all performance manager functionality
- */
-export interface IPerformanceManager extends 
-  IPerformanceManagerCore,
-  IPerformanceManagerMetrics,
-  IPerformanceManagerMemory,
-  IPerformanceManagerAnalysis,
-  IPerformanceManagerCleanup {
-}
-
-/**
  * Performance Manager Implementation
- * Concrete implementation of performance management
+ * Concrete implementation of performance management using DI
  */
 export class PerformanceManager implements IPerformanceManager {
   private operationHistory: Map<string, number[]> = new Map();
   private activeMeasurements: Map<string, number> = new Map();
-  private readonly logger: typeof logger = logger;
+  private logger: any;
 
   private performanceThreshold: number = DEFAULT_FALLBACK_VALUES.PERFORMANCE.ERROR_THRESHOLD;
   private memoryLimit: number = DEFAULT_FALLBACK_VALUES.PERFORMANCE.DEFAULT_MEMORY_LIMIT;
   private totalOperations: number = 0;
   private totalErrors: number = 0;
 
+  constructor() {
+    // Resolve logger from DI container
+    try {
+      this.logger = container.resolve(TOKENS.LOGGER);
+    } catch (error) {
+      this.logger = console; // Fallback to console
+    }
+  }
+
   /**
    * Start measuring an operation
    */
   public startMeasurement(operationId: string): void {
-    this.logger.debug('PerformanceManager', 'startMeasurement', 'Starting measurement', {
+    const startTime = performance.now();
+    this.activeMeasurements.set(operationId, startTime);
+    
+    this.logger.debug('PerformanceManager', 'startMeasurement', 'Started measurement', {
       operationId,
+      startTime,
     });
-
-    if (this.activeMeasurements.has(operationId)) {
-      this.logger.warn('PerformanceManager', 'startMeasurement', 'Measurement already active', {
-        operationId,
-      });
-      return;
-    }
-
-    this.activeMeasurements.set(operationId, performance.now());
   }
 
   /**
-   * End measuring an operation and return duration
+   * End measuring an operation
    */
   public endMeasurement(operationId: string): number {
+    const endTime = performance.now();
     const startTime = this.activeMeasurements.get(operationId);
-
+    
     if (startTime === undefined) {
-      this.logger.warn('PerformanceManager', 'endMeasurement', 'No active measurement found', {
+      this.logger.warn('PerformanceManager', 'endMeasurement', 'No start time found for operation', {
         operationId,
       });
       return 0;
     }
 
-    const duration = performance.now() - startTime;
+    const duration = endTime - startTime;
     this.activeMeasurements.delete(operationId);
-
-    this.recordMeasurement(operationId, duration);
-
-    this.logger.debug('PerformanceManager', 'endMeasurement', 'Measurement completed', {
+    
+    // Store in history
+    if (!this.operationHistory.has(operationId)) {
+      this.operationHistory.set(operationId, []);
+    }
+    this.operationHistory.get(operationId)!.push(duration);
+    
+    this.totalOperations++;
+    
+    this.logger.debug('PerformanceManager', 'endMeasurement', 'Ended measurement', {
       operationId,
       duration,
+      totalOperations: this.totalOperations,
     });
 
     return duration;
   }
 
   /**
-   * Record a measurement for an operation
+   * Get performance statistics for an operation
    */
-  public recordMeasurement(operationId: string, duration: number): void {
-    this.totalOperations++;
-
-    // Store in operation history
-    if (!this.operationHistory.has(operationId)) {
-      this.operationHistory.set(operationId, []);
-    }
-
-    const history = this.operationHistory.get(operationId)!;
-    history.push(duration);
-
-    // Keep only last 100 measurements per operation
-    if (history.length > 100) {
-      history.shift();
-    }
-
-    // Check performance threshold
-    if (duration > this.performanceThreshold) {
-      this.logger.warn(
-        'PerformanceManager',
-        'recordMeasurement',
-        'Operation exceeded performance threshold',
-        {
-          operationId,
-          duration,
-          threshold: this.performanceThreshold,
-        }
-      );
-    }
-
-    this.logger.debug('PerformanceManager', 'recordMeasurement', 'Measurement recorded', {
-      operationId,
-      duration,
-      totalOperations: this.totalOperations,
-    });
-  }
-
-  /**
-   * Get comprehensive performance metrics
-   */
-  public getPerformanceMetrics(): {
-    totalOperations: number;
-    averageExecutionTime: number;
-    memoryUsage: number;
-    errorRate: number;
-    slowestOperations: Array<{ operationId: string; duration: number }>;
-  } {
-    const allDurations: number[] = [];
-    this.operationHistory.forEach(durations => {
-      allDurations.push(...durations);
-    });
-
-    const averageExecutionTime =
-      allDurations.length > 0
-        ? allDurations.reduce((sum, duration) => sum + duration, 0) / allDurations.length
-        : 0;
-
-    const errorRate =
-      this.totalOperations > 0 ? (this.totalErrors / this.totalOperations) * 100 : 0;
-
-    const slowestOperations = this.getSlowestOperations(5);
-
-    return {
-      totalOperations: this.totalOperations,
-      averageExecutionTime,
-      memoryUsage: this.getMemoryUsage(),
-      errorRate,
-      slowestOperations,
-    };
-  }
-
-  /**
-   * Get current memory usage
-   */
-  public getMemoryUsage(): number {
-    // In a browser environment, we can use performance.memory if available
-    if ('memory' in performance) {
-      return (performance as any).memory.usedJSHeapSize;
-    }
-
-    // Fallback to a simple estimation
-    return this.operationHistory.size * 100; // Rough estimation
-  }
-
-  /**
-   * Get memory limit
-   */
-  public getMemoryLimit(): number {
-    return this.memoryLimit;
-  }
-
-  /**
-   * Set memory limit
-   */
-  public setMemoryLimit(limit: number): void {
-    this.memoryLimit = limit;
-    this.logger.info('PerformanceManager', 'setMemoryLimit', 'Memory limit updated', { limit });
-  }
-
-  /**
-   * Get the slowest operations
-   */
-  public getSlowestOperations(
-    count: number = 10
-  ): Array<{ operationId: string; duration: number }> {
-    const operations: Array<{ operationId: string; duration: number }> = [];
-
-    this.operationHistory.forEach((durations, operationId) => {
-      if (durations.length > 0) {
-        const maxDuration = Math.max(...durations);
-        operations.push({ operationId, duration: maxDuration });
-      }
-    });
-
-    return operations.sort((a, b) => b.duration - a.duration).slice(0, count);
-  }
-
-  /**
-   * Get statistics for a specific operation
-   */
-  public getOperationStatistics(operationId: string): {
+  public getOperationStats(operationId: string): {
     count: number;
     averageTime: number;
     minTime: number;
     maxTime: number;
     totalTime: number;
   } {
-    const durations = this.operationHistory.get(operationId) || [];
-
-    if (durations.length === 0) {
+    const times = this.operationHistory.get(operationId) || [];
+    
+    if (times.length === 0) {
       return {
         count: 0,
         averageTime: 0,
@@ -292,13 +95,13 @@ export class PerformanceManager implements IPerformanceManager {
       };
     }
 
-    const totalTime = durations.reduce((sum, duration) => sum + duration, 0);
-    const averageTime = totalTime / durations.length;
-    const minTime = Math.min(...durations);
-    const maxTime = Math.max(...durations);
+    const totalTime = times.reduce((sum, time) => sum + time, 0);
+    const averageTime = totalTime / times.length;
+    const minTime = Math.min(...times);
+    const maxTime = Math.max(...times);
 
     return {
-      count: durations.length,
+      count: times.length,
       averageTime,
       minTime,
       maxTime,
@@ -307,71 +110,189 @@ export class PerformanceManager implements IPerformanceManager {
   }
 
   /**
+   * Get overall performance statistics
+   */
+  public getOverallStats(): {
+    totalOperations: number;
+    totalErrors: number;
+    errorRate: number;
+    averageOperationTime: number;
+    memoryUsage: number;
+    activeMeasurements: number;
+  } {
+    const allTimes: number[] = [];
+    for (const times of this.operationHistory.values()) {
+      allTimes.push(...times);
+    }
+
+    const totalTime = allTimes.reduce((sum, time) => sum + time, 0);
+    const averageOperationTime = allTimes.length > 0 ? totalTime / allTimes.length : 0;
+    const errorRate = this.totalOperations > 0 ? (this.totalErrors / this.totalOperations) * 100 : 0;
+
+    return {
+      totalOperations: this.totalOperations,
+      totalErrors: this.totalErrors,
+      errorRate,
+      averageOperationTime,
+      memoryUsage: this.getMemoryUsage(),
+      activeMeasurements: this.activeMeasurements.size,
+    };
+  }
+
+  /**
+   * Check if performance is within acceptable limits
+   */
+  public isPerformanceAcceptable(operationId: string): boolean {
+    const stats = this.getOperationStats(operationId);
+    return stats.averageTime <= this.performanceThreshold;
+  }
+
+  /**
+   * Record an error
+   */
+  public recordError(operationId: string, error: Error): void {
+    this.totalErrors++;
+    
+    this.logger.error('PerformanceManager', 'recordError', 'Performance error recorded', {
+      operationId,
+      error: error.message,
+      totalErrors: this.totalErrors,
+    });
+  }
+
+  /**
    * Set performance threshold
    */
   public setPerformanceThreshold(threshold: number): void {
     this.performanceThreshold = threshold;
-    this.logger.info(
-      'PerformanceManager',
-      'setPerformanceThreshold',
-      'Performance threshold updated',
-      { threshold }
-    );
+    
+    this.logger.debug('PerformanceManager', 'setPerformanceThreshold', 'Performance threshold updated', {
+      threshold,
+    });
   }
 
   /**
-   * Get performance threshold
+   * Set memory limit
    */
-  public getPerformanceThreshold(): number {
-    return this.performanceThreshold;
+  public setMemoryLimit(limit: number): void {
+    this.memoryLimit = limit;
+    
+    this.logger.debug('PerformanceManager', 'setMemoryLimit', 'Memory limit updated', {
+      limit,
+    });
   }
 
   /**
-   * Check if performance is acceptable
+   * Clear performance history
    */
-  public isPerformanceAcceptable(): boolean {
-    const metrics = this.getPerformanceMetrics();
-    return metrics.averageExecutionTime <= this.performanceThreshold && metrics.errorRate <= 5;
-  }
-
-  /**
-   * Clear all performance data
-   */
-  public clearPerformanceData(): void {
-    const operationCount = this.operationHistory.size;
-    const measurementCount = this.totalOperations;
-
+  public clearHistory(): void {
     this.operationHistory.clear();
     this.activeMeasurements.clear();
     this.totalOperations = 0;
     this.totalErrors = 0;
-
-    this.logger.info('PerformanceManager', 'clearPerformanceData', 'Performance data cleared', {
-      operationCount,
-      measurementCount,
-    });
+    
+    this.logger.debug('PerformanceManager', 'clearHistory', 'Performance history cleared');
   }
 
   /**
-   * Get the size of performance data
+   * Get memory usage (simplified)
    */
-  public getPerformanceDataSize(): number {
-    let totalMeasurements = 0;
-    this.operationHistory.forEach(durations => {
-      totalMeasurements += durations.length;
-    });
-
-    return totalMeasurements;
+  private getMemoryUsage(): number {
+    // Simplified memory usage calculation
+    // In a real implementation, this would use performance.memory or similar
+    return this.operationHistory.size * 100; // Approximate bytes per operation
   }
 
   /**
-   * Record an error for error rate calculation
+   * Get performance report
    */
-  public recordError(): void {
-    this.totalErrors++;
-    this.logger.debug('PerformanceManager', 'recordError', 'Error recorded', {
+  public getPerformanceReport(): {
+    overall: {
+      totalOperations: number;
+      totalErrors: number;
+      errorRate: number;
+      averageOperationTime: number;
+      memoryUsage: number;
+      activeMeasurements: number;
+    };
+    operations: Record<string, {
+      count: number;
+      averageTime: number;
+      minTime: number;
+      maxTime: number;
+      totalTime: number;
+    }>;
+    thresholds: {
+      performanceThreshold: number;
+      memoryLimit: number;
+    };
+  } {
+    const overall = this.getOverallStats();
+    const operations: Record<string, any> = {};
+    
+    for (const [operationId] of this.operationHistory) {
+      operations[operationId] = this.getOperationStats(operationId);
+    }
+
+    return {
+      overall,
+      operations,
+      thresholds: {
+        performanceThreshold: this.performanceThreshold,
+        memoryLimit: this.memoryLimit,
+      },
+    };
+  }
+
+  /**
+   * Export performance data
+   */
+  public exportData(): {
+    operationHistory: Record<string, number[]>;
+    totalOperations: number;
+    totalErrors: number;
+    performanceThreshold: number;
+    memoryLimit: number;
+    timestamp: string;
+  } {
+    const operationHistory: Record<string, number[]> = {};
+    for (const [operationId, times] of this.operationHistory) {
+      operationHistory[operationId] = [...times];
+    }
+
+    return {
+      operationHistory,
+      totalOperations: this.totalOperations,
       totalErrors: this.totalErrors,
-      errorRate: this.totalOperations > 0 ? (this.totalErrors / this.totalOperations) * 100 : 0,
+      performanceThreshold: this.performanceThreshold,
+      memoryLimit: this.memoryLimit,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Import performance data
+   */
+  public importData(data: {
+    operationHistory: Record<string, number[]>;
+    totalOperations: number;
+    totalErrors: number;
+    performanceThreshold: number;
+    memoryLimit: number;
+  }): void {
+    this.operationHistory.clear();
+    for (const [operationId, times] of Object.entries(data.operationHistory)) {
+      this.operationHistory.set(operationId, [...times]);
+    }
+
+    this.totalOperations = data.totalOperations;
+    this.totalErrors = data.totalErrors;
+    this.performanceThreshold = data.performanceThreshold;
+    this.memoryLimit = data.memoryLimit;
+
+    this.logger.debug('PerformanceManager', 'importData', 'Performance data imported', {
+      operationCount: Object.keys(data.operationHistory).length,
+      totalOperations: data.totalOperations,
     });
   }
 }

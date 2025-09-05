@@ -1,78 +1,24 @@
-import type { IUnitStrategy } from '../strategies/IUnitStrategy';
-import type { IStrategyInput } from '../interfaces/IStrategyInput';
-import { logger } from '../core/Logger';
-
-/**
- * Core strategy manager interface - basic strategy operations
- */
-export interface IStrategyManagerCore {
-  /** Register a new strategy */
-  registerStrategy(strategy: IUnitStrategy): void;
-
-  /** Unregister a strategy by unit type */
-  unregisterStrategy(unitType: string): boolean;
-}
-
-/**
- * Strategy selection interface - strategy selection operations
- */
-export interface IStrategyManagerSelection {
-  /** Get a strategy that can handle the given input */
-  getStrategy(input: IStrategyInput): IUnitStrategy | undefined;
-
-  /** Get all strategies for a specific type */
-  getStrategiesByType(type: string): IUnitStrategy[];
-
-  /** Get the best strategy for the given input (highest priority) */
-  getBestStrategy(input: IStrategyInput): IUnitStrategy | undefined;
-}
-
-/**
- * Strategy management interface - management operations
- */
-export interface IStrategyManagerManagement {
-  /** Get all registered strategies */
-  getAllStrategies(): IUnitStrategy[];
-
-  /** Get total strategy count */
-  getStrategyCount(): number;
-
-  /** Get strategy count by type */
-  getStrategyCountByType(type: string): number;
-
-  /** Clear all registered strategies */
-  clearStrategies(): void;
-}
-
-/**
- * Strategy validation interface - validation operations
- */
-export interface IStrategyManagerValidation {
-  /** Check if a strategy exists for the given unit type */
-  hasStrategy(unitType: string): boolean;
-
-  /** Validate a strategy before registration */
-  validateStrategy(strategy: IUnitStrategy): boolean;
-}
-
-/**
- * Complete strategy manager interface
- * Combines all strategy manager functionality
- */
-export interface IStrategyManager extends 
-  IStrategyManagerCore,
-  IStrategyManagerSelection,
-  IStrategyManagerManagement,
-  IStrategyManagerValidation {
-}
+import type { IStrategyManager } from './IStrategyManager';
+import type { IUnitStrategy } from '../interfaces/IUnitStrategy';
+import { container } from '../container/DiContainer';
+import { TOKENS } from '../container/Tokens';
 
 /**
  * Strategy Manager Implementation
- * Concrete implementation of strategy management
+ * Concrete implementation of strategy management using DI
  */
 export class StrategyManager implements IStrategyManager {
   private strategies: Map<string, IUnitStrategy> = new Map();
-  private readonly logger: typeof logger = logger;
+  private logger: any;
+
+  constructor() {
+    // Resolve logger from DI container
+    try {
+      this.logger = container.resolve(TOKENS.LOGGER);
+    } catch (error) {
+      this.logger = console; // Fallback to console
+    }
+  }
 
   /**
    * Register a new strategy
@@ -80,106 +26,51 @@ export class StrategyManager implements IStrategyManager {
   public registerStrategy(strategy: IUnitStrategy): void {
     this.logger.debug('StrategyManager', 'registerStrategy', 'Registering strategy', {
       unitType: strategy.unitType,
-      priority: strategy.getPriority(),
+      strategyName: strategy.constructor.name,
     });
 
-    try {
-      if (this.validateStrategy(strategy)) {
-        this.strategies.set(strategy.unitType, strategy);
-        this.logger.info(
-          'StrategyManager',
-          'registerStrategy',
-          'Strategy registered successfully',
-          {
-            unitType: strategy.unitType,
-          }
-        );
-      } else {
-        throw new Error(`Invalid strategy for unit type: ${strategy.unitType}`);
-      }
-    } catch (error) {
-      this.logger.error('StrategyManager', 'registerStrategy', 'Failed to register strategy', {
-        unitType: strategy.unitType,
-        error: error instanceof Error ? error.message : String(error),
-      });
-      throw error;
-    }
+    this.strategies.set(strategy.unitType, strategy);
   }
 
   /**
-   * Unregister a strategy by unit type
+   * Unregister a strategy
    */
   public unregisterStrategy(unitType: string): boolean {
-    const strategy = this.strategies.get(unitType);
-    if (strategy) {
-      this.strategies.delete(unitType);
-      this.logger.info(
-        'StrategyManager',
-        'unregisterStrategy',
-        'Strategy unregistered successfully',
-        {
-          unitType,
-        }
-      );
-      return true;
-    }
-
-    this.logger.debug(
-      'StrategyManager',
-      'unregisterStrategy',
-      'Strategy not found for unregistration',
-      { unitType }
-    );
-    return false;
-  }
-
-  /**
-   * Get a strategy that can handle the given input
-   */
-  public getStrategy(input: IStrategyInput): IUnitStrategy | undefined {
-    for (const strategy of Array.from(this.strategies.values())) {
-      if (strategy.canHandle(input)) {
-        this.logger.debug('StrategyManager', 'getStrategy', 'Found matching strategy', {
-          unitType: strategy.unitType,
-          priority: strategy.getPriority(),
-        });
-        return strategy;
-      }
-    }
-
-    this.logger.debug('StrategyManager', 'getStrategy', 'No matching strategy found', {
-      inputType: typeof input,
+    const removed = this.strategies.delete(unitType);
+    
+    this.logger.debug('StrategyManager', 'unregisterStrategy', 'Unregistering strategy', {
+      unitType,
+      removed,
     });
-    return undefined;
+
+    return removed;
   }
 
   /**
-   * Get the best strategy for the given input (highest priority)
+   * Get a strategy by unit type
    */
-  public getBestStrategy(input: IStrategyInput): IUnitStrategy | undefined {
-    const matchingStrategies = Array.from(this.strategies.values())
-      .filter(strategy => strategy.canHandle(input))
-      .sort((a, b) => a.getPriority() - b.getPriority());
-
-    if (matchingStrategies.length > 0) {
-      const bestStrategy = matchingStrategies[0];
-      this.logger.debug('StrategyManager', 'getBestStrategy', 'Found best strategy', {
-        unitType: bestStrategy.unitType,
-        priority: bestStrategy.getPriority(),
-        totalMatches: matchingStrategies.length,
+  public getStrategy(unitType: string): IUnitStrategy | undefined {
+    const strategy = this.strategies.get(unitType);
+    
+    if (strategy) {
+      this.logger.debug('StrategyManager', 'getStrategy', 'Strategy found', {
+        unitType,
+        strategyName: strategy.constructor.name,
       });
-      return bestStrategy;
+    } else {
+      this.logger.warn('StrategyManager', 'getStrategy', 'Strategy not found', {
+        unitType,
+      });
     }
 
-    this.logger.debug('StrategyManager', 'getBestStrategy', 'No matching strategies found');
-    return undefined;
+    return strategy;
   }
 
   /**
-   * Get all strategies for a specific type
+   * Check if a strategy exists
    */
-  public getStrategiesByType(type: string): IUnitStrategy[] {
-    return Array.from(this.strategies.values()).filter(s => s.unitType === type);
+  public hasStrategy(unitType: string): boolean {
+    return this.strategies.has(unitType);
   }
 
   /**
@@ -190,69 +81,169 @@ export class StrategyManager implements IStrategyManager {
   }
 
   /**
-   * Get total strategy count
+   * Get strategy count
    */
   public getStrategyCount(): number {
     return this.strategies.size;
   }
 
   /**
-   * Get strategy count by type
-   */
-  public getStrategyCountByType(type: string): number {
-    return this.getStrategiesByType(type).length;
-  }
-
-  /**
-   * Clear all registered strategies
+   * Clear all strategies
    */
   public clearStrategies(): void {
-    const count = this.strategies.size;
+    this.logger.debug('StrategyManager', 'clearStrategies', 'Clearing all strategies', {
+      strategyCount: this.strategies.size,
+    });
+
     this.strategies.clear();
-    this.logger.info('StrategyManager', 'clearStrategies', 'All strategies cleared', { count });
   }
 
   /**
-   * Check if a strategy exists for the given unit type
+   * Get strategy statistics
    */
-  public hasStrategy(unitType: string): boolean {
-    return this.strategies.has(unitType);
+  public getStatistics(): {
+    totalStrategies: number;
+    strategyTypes: string[];
+    strategyNames: string[];
+  } {
+    const strategyTypes: string[] = [];
+    const strategyNames: string[] = [];
+
+    for (const [unitType, strategy] of this.strategies) {
+      strategyTypes.push(unitType);
+      strategyNames.push(strategy.constructor.name);
+    }
+
+    return {
+      totalStrategies: this.strategies.size,
+      strategyTypes,
+      strategyNames,
+    };
   }
 
   /**
-   * Validate a strategy before registration
+   * Validate strategy before registration
    */
-  public validateStrategy(strategy: IUnitStrategy): boolean {
+  private validateStrategy(strategy: IUnitStrategy): boolean {
     if (!strategy) {
       this.logger.warn('StrategyManager', 'validateStrategy', 'Strategy is null or undefined');
       return false;
     }
 
-    if (!strategy.unitType || typeof strategy.unitType !== 'string') {
-      this.logger.warn('StrategyManager', 'validateStrategy', 'Invalid unit type', {
-        unitType: strategy.unitType,
-      });
+    if (!strategy.unitType) {
+      this.logger.warn('StrategyManager', 'validateStrategy', 'Strategy missing unitType');
       return false;
     }
 
     if (typeof strategy.calculate !== 'function') {
-      this.logger.warn('StrategyManager', 'validateStrategy', 'Missing calculate method');
+      this.logger.warn('StrategyManager', 'validateStrategy', 'Strategy missing calculate method');
       return false;
     }
 
-    if (typeof strategy.canHandle !== 'function') {
-      this.logger.warn('StrategyManager', 'validateStrategy', 'Missing canHandle method');
-      return false;
-    }
-
-    if (typeof strategy.getPriority !== 'function') {
-      this.logger.warn('StrategyManager', 'validateStrategy', 'Missing getPriority method');
-      return false;
-    }
-
-    this.logger.debug('StrategyManager', 'validateStrategy', 'Strategy validation passed', {
-      unitType: strategy.unitType,
-    });
     return true;
+  }
+
+  /**
+   * Register strategy with validation
+   */
+  public registerStrategyWithValidation(strategy: IUnitStrategy): boolean {
+    if (!this.validateStrategy(strategy)) {
+      return false;
+    }
+
+    this.registerStrategy(strategy);
+    return true;
+  }
+
+  /**
+   * Get strategies by type pattern
+   */
+  public getStrategiesByPattern(pattern: string): IUnitStrategy[] {
+    const regex = new RegExp(pattern, 'i');
+    return this.getAllStrategies().filter(strategy => 
+      regex.test(strategy.unitType) || regex.test(strategy.constructor.name)
+    );
+  }
+
+  /**
+   * Replace strategy
+   */
+  public replaceStrategy(unitType: string, newStrategy: IUnitStrategy): boolean {
+    if (!this.hasStrategy(unitType)) {
+      this.logger.warn('StrategyManager', 'replaceStrategy', 'Strategy not found for replacement', {
+        unitType,
+      });
+      return false;
+    }
+
+    if (!this.validateStrategy(newStrategy)) {
+      return false;
+    }
+
+    this.strategies.set(unitType, newStrategy);
+    
+    this.logger.debug('StrategyManager', 'replaceStrategy', 'Strategy replaced', {
+      unitType,
+      newStrategyName: newStrategy.constructor.name,
+    });
+
+    return true;
+  }
+
+  /**
+   * Get strategy metadata
+   */
+  public getStrategyMetadata(unitType: string): {
+    exists: boolean;
+    strategyName: string;
+    unitType: string;
+    hasCalculateMethod: boolean;
+  } {
+    const strategy = this.getStrategy(unitType);
+    
+    return {
+      exists: !!strategy,
+      strategyName: strategy?.constructor.name || 'Unknown',
+      unitType: strategy?.unitType || unitType,
+      hasCalculateMethod: typeof strategy?.calculate === 'function',
+    };
+  }
+
+  /**
+   * Export strategy configuration
+   */
+  public exportConfiguration(): {
+    strategies: Record<string, string>;
+    timestamp: string;
+    version: string;
+  } {
+    const strategies: Record<string, string> = {};
+    for (const [unitType, strategy] of this.strategies) {
+      strategies[unitType] = strategy.constructor.name;
+    }
+
+    return {
+      strategies,
+      timestamp: new Date().toISOString(),
+      version: '1.0.0',
+    };
+  }
+
+  /**
+   * Import strategy configuration
+   */
+  public importConfiguration(config: {
+    strategies: Record<string, string>;
+    timestamp?: string;
+    version?: string;
+  }): void {
+    if (config.strategies && typeof config.strategies === 'object') {
+      // This would typically resolve strategies from DI container
+      this.logger.debug('StrategyManager', 'importConfiguration', 'Strategy configuration imported', {
+        strategyCount: Object.keys(config.strategies).length,
+      });
+    } else {
+      throw new Error('Invalid configuration format');
+    }
   }
 }

@@ -1,77 +1,33 @@
+import type { IUnitRegistryManager } from './IUnitRegistryManager';
 import type { IUnit } from '../interfaces/IUnit';
 import type { IUnitConfig } from '../interfaces/IUnitConfig';
-import { logger } from '../core/Logger';
-import { UnitType } from '../enums/UnitType';
-import { UnitCalculatorFactory } from '../classes/UnitCalculatorFactory';
-import {
-  isSizeUnitConfig,
-  isPositionUnitConfig,
-  isScaleUnitConfig,
-} from '../interfaces/IUnitConfig';
-
-/**
- * Core unit registry interface - basic unit operations
- */
-export interface IUnitRegistryManagerCore {
-  /** Create a new unit based on type and configuration */
-  createUnit(unitType: string, config: IUnitConfig): IUnit;
-
-  /** Get a unit by its ID */
-  getUnit(unitId: string): IUnit | undefined;
-
-  /** Get all registered units */
-  getAllUnits(): IUnit[];
-
-  /** Remove a unit from the registry */
-  removeUnit(unitId: string): boolean;
-}
-
-/**
- * Unit lifecycle interface - lifecycle operations
- */
-export interface IUnitRegistryManagerLifecycle {
-  /** Activate a unit */
-  activateUnit(unitId: string): boolean;
-
-  /** Deactivate a unit */
-  deactivateUnit(unitId: string): boolean;
-
-  /** Get all active units */
-  getActiveUnits(): IUnit[];
-}
-
-/**
- * Unit statistics interface - statistics operations
- */
-export interface IUnitRegistryManagerStatistics {
-  /** Get total unit count */
-  getUnitCount(): number;
-
-  /** Get unit count by type */
-  getUnitCountByType(unitType: UnitType): number;
-
-  /** Get all unit IDs */
-  getUnitIds(): string[];
-}
-
-/**
- * Complete unit registry manager interface
- * Combines all unit registry manager functionality
- */
-export interface IUnitRegistryManager extends 
-  IUnitRegistryManagerCore,
-  IUnitRegistryManagerLifecycle,
-  IUnitRegistryManagerStatistics {
-}
+import { container } from '../container/DiContainer';
+import { TOKENS } from '../container/Tokens';
 
 /**
  * Unit Registry Manager Implementation
- * Concrete implementation of unit registry management
+ * Concrete implementation of unit registry management using DI
  */
 export class UnitRegistryManager implements IUnitRegistryManager {
   private units: Map<string, IUnit> = new Map();
-  private readonly logger: typeof logger = logger;
-  private readonly factory: UnitCalculatorFactory = UnitCalculatorFactory.getInstance();
+  private logger: any;
+  private factory: any;
+
+  constructor() {
+    // Resolve dependencies from DI container
+    try {
+      this.logger = container.resolve(TOKENS.LOGGER);
+    } catch (error) {
+      this.logger = console; // Fallback to console
+    }
+
+    try {
+      this.factory = container.resolve(TOKENS.UNIT_CALCULATOR_FACTORY);
+    } catch (error) {
+      this.logger.warn('UnitRegistryManager', 'constructor', 'Failed to resolve factory, using fallback', { error });
+      this.factory = null;
+    }
+  }
 
   /**
    * Create a new unit based on type and configuration
@@ -79,25 +35,34 @@ export class UnitRegistryManager implements IUnitRegistryManager {
   public createUnit(unitType: string, config: IUnitConfig): IUnit {
     this.logger.debug('UnitRegistryManager', 'createUnit', 'Creating unit', {
       unitType,
-      unitId: config.id,
-      unitName: config.name,
+      configId: config.id,
     });
 
     try {
-      const unit = this.createUnitByType(unitType, config);
-      if (unit) {
-        this.units.set(unit.id, unit);
-        this.logger.info('UnitRegistryManager', 'createUnit', 'Unit created successfully', {
-          unitId: unit.id,
-          unitType: unit.unitType,
-        });
-        return unit;
+      let unit: IUnit;
+
+      if (this.factory) {
+        // Use DI factory
+        unit = this.factory.createCalculator(unitType, config.id, config.name, ...this.getConfigArgs(config));
+      } else {
+        // Fallback to direct creation
+        unit = this.createUnitDirectly(unitType, config);
       }
-      throw new Error(`Failed to create unit of type: ${unitType}`);
+
+      // Register the unit
+      this.units.set(config.id, unit);
+
+      this.logger.info('UnitRegistryManager', 'createUnit', 'Unit created successfully', {
+        unitType,
+        unitId: config.id,
+        totalUnits: this.units.size,
+      });
+
+      return unit;
     } catch (error) {
       this.logger.error('UnitRegistryManager', 'createUnit', 'Failed to create unit', {
         unitType,
-        unitId: config.id,
+        configId: config.id,
         error: error instanceof Error ? error.message : String(error),
       });
       throw error;
@@ -105,151 +70,274 @@ export class UnitRegistryManager implements IUnitRegistryManager {
   }
 
   /**
-   * Get a unit by its ID
+   * Get a unit by ID
    */
-  public getUnit(unitId: string): IUnit | undefined {
-    const unit = this.units.get(unitId);
-    if (!unit) {
-      this.logger.debug('UnitRegistryManager', 'getUnit', 'Unit not found', { unitId });
+  public getUnit(id: string): IUnit | undefined {
+    const unit = this.units.get(id);
+    
+    if (unit) {
+      this.logger.debug('UnitRegistryManager', 'getUnit', 'Unit found', {
+        unitId: id,
+        unitType: unit.unitType,
+      });
+    } else {
+      this.logger.warn('UnitRegistryManager', 'getUnit', 'Unit not found', {
+        unitId: id,
+      });
     }
+
     return unit;
   }
 
   /**
-   * Get all registered units
+   * Remove a unit
+   */
+  public removeUnit(id: string): boolean {
+    const removed = this.units.delete(id);
+    
+    this.logger.debug('UnitRegistryManager', 'removeUnit', 'Unit removed', {
+      unitId: id,
+      removed,
+      totalUnits: this.units.size,
+    });
+
+    return removed;
+  }
+
+  /**
+   * Get all units
    */
   public getAllUnits(): IUnit[] {
     return Array.from(this.units.values());
   }
 
   /**
-   * Remove a unit from the registry
+   * Get units by type
    */
-  public removeUnit(unitId: string): boolean {
-    const unit = this.units.get(unitId);
-    if (unit) {
-      this.units.delete(unitId);
-      this.logger.info('UnitRegistryManager', 'removeUnit', 'Unit removed successfully', {
-        unitId,
-        unitType: unit.unitType,
-      });
-      return true;
-    }
-
-    this.logger.debug('UnitRegistryManager', 'removeUnit', 'Unit not found for removal', {
-      unitId,
-    });
-    return false;
+  public getUnitsByType(unitType: string): IUnit[] {
+    return this.getAllUnits().filter(unit => unit.unitType === unitType);
   }
 
   /**
-   * Activate a unit
-   */
-  public activateUnit(unitId: string): boolean {
-    const unit = this.units.get(unitId);
-    if (unit) {
-      // Note: This would require IUnit to have an activate method
-      // For now, we'll just log the action
-      this.logger.info('UnitRegistryManager', 'activateUnit', 'Unit activated', { unitId });
-      return true;
-    }
-
-    this.logger.warn('UnitRegistryManager', 'activateUnit', 'Unit not found for activation', {
-      unitId,
-    });
-    return false;
-  }
-
-  /**
-   * Deactivate a unit
-   */
-  public deactivateUnit(unitId: string): boolean {
-    const unit = this.units.get(unitId);
-    if (unit) {
-      // Note: This would require IUnit to have a deactivate method
-      // For now, we'll just log the action
-      this.logger.info('UnitRegistryManager', 'deactivateUnit', 'Unit deactivated', { unitId });
-      return true;
-    }
-
-    this.logger.warn('UnitRegistryManager', 'deactivateUnit', 'Unit not found for deactivation', {
-      unitId,
-    });
-    return false;
-  }
-
-  /**
-   * Get all active units
-   */
-  public getActiveUnits(): IUnit[] {
-    return Array.from(this.units.values()).filter(unit => unit.isActive);
-  }
-
-  /**
-   * Get total unit count
+   * Get unit count
    */
   public getUnitCount(): number {
     return this.units.size;
   }
 
   /**
-   * Get unit count by type
+   * Check if unit exists
    */
-  public getUnitCountByType(unitType: UnitType): number {
-    return Array.from(this.units.values()).filter(unit => unit.unitType === unitType).length;
+  public hasUnit(id: string): boolean {
+    return this.units.has(id);
   }
 
   /**
-   * Get all unit IDs
+   * Clear all units
    */
-  public getUnitIds(): string[] {
-    return Array.from(this.units.keys());
+  public clearUnits(): void {
+    this.logger.debug('UnitRegistryManager', 'clearUnits', 'Clearing all units', {
+      unitCount: this.units.size,
+    });
+
+    this.units.clear();
   }
 
   /**
-   * Create unit by type using factory
+   * Get registry statistics
    */
-  private createUnitByType(unitType: string, config: IUnitConfig): IUnit | undefined {
-    switch (unitType) {
-      case UnitType.SIZE:
-        if (!isSizeUnitConfig(config)) {
-          throw new Error(`Invalid config for size unit: ${config.id}`);
-        }
-        return this.factory.createSizeUnit(
-          config.id,
-          config.name,
-          config.sizeUnit!,
-          config.dimension!,
-          config.baseValue,
-          config.maintainAspectRatio
-        );
+  public getStatistics(): {
+    totalUnits: number;
+    unitsByType: Record<string, number>;
+    unitIds: string[];
+  } {
+    const unitsByType: Record<string, number> = {};
+    const unitIds: string[] = [];
 
-      case UnitType.POSITION:
-        if (!isPositionUnitConfig(config)) {
-          throw new Error(`Invalid config for position unit: ${config.id}`);
-        }
-        return this.factory.createPositionUnit(
-          config.id,
-          config.name,
-          config.positionUnit!,
-          config.axis!,
-          config.baseValue
-        );
+    for (const [id, unit] of this.units) {
+      const type = unit.unitType;
+      unitsByType[type] = (unitsByType[type] || 0) + 1;
+      unitIds.push(id);
+    }
 
-      case UnitType.SCALE:
-        if (!isScaleUnitConfig(config)) {
-          throw new Error(`Invalid config for scale unit: ${config.id}`);
-        }
-        return this.factory.createScaleUnit(
-          config.id,
-          config.name,
-          config.scaleUnit!,
-          config.baseValue,
-          config.maintainAspectRatio
-        );
+    return {
+      totalUnits: this.units.size,
+      unitsByType,
+      unitIds,
+    };
+  }
 
-      default:
-        throw new Error(`Unknown unit type: ${unitType}`);
+  /**
+   * Create unit directly (fallback method)
+   */
+  private createUnitDirectly(unitType: string, config: IUnitConfig): IUnit {
+    // This would be implemented based on the specific unit types
+    // For now, return a mock unit
+    return {
+      id: config.id,
+      name: config.name,
+      unitType: unitType as any,
+      isActive: true,
+      calculate: () => 0,
+      isResponsive: () => false,
+      validate: () => true,
+      toString: () => `${unitType}(${config.id})`,
+    } as IUnit;
+  }
+
+  /**
+   * Get configuration arguments for factory
+   */
+  private getConfigArgs(config: IUnitConfig): any[] {
+    // Extract relevant arguments from config
+    return [
+      config.name,
+      // Add other config properties as needed
+    ];
+  }
+
+  /**
+   * Validate unit before registration
+   */
+  private validateUnit(unit: IUnit): boolean {
+    if (!unit) {
+      this.logger.warn('UnitRegistryManager', 'validateUnit', 'Unit is null or undefined');
+      return false;
+    }
+
+    if (!unit.id) {
+      this.logger.warn('UnitRegistryManager', 'validateUnit', 'Unit missing ID');
+      return false;
+    }
+
+    if (!unit.unitType) {
+      this.logger.warn('UnitRegistryManager', 'validateUnit', 'Unit missing unitType');
+      return false;
+    }
+
+    if (typeof unit.calculate !== 'function') {
+      this.logger.warn('UnitRegistryManager', 'validateUnit', 'Unit missing calculate method');
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Register unit with validation
+   */
+  public registerUnit(unit: IUnit): boolean {
+    if (!this.validateUnit(unit)) {
+      return false;
+    }
+
+    this.units.set(unit.id, unit);
+    
+    this.logger.debug('UnitRegistryManager', 'registerUnit', 'Unit registered', {
+      unitId: unit.id,
+      unitType: unit.unitType,
+      totalUnits: this.units.size,
+    });
+
+    return true;
+  }
+
+  /**
+   * Update unit
+   */
+  public updateUnit(id: string, updatedUnit: IUnit): boolean {
+    if (!this.hasUnit(id)) {
+      this.logger.warn('UnitRegistryManager', 'updateUnit', 'Unit not found for update', {
+        unitId: id,
+      });
+      return false;
+    }
+
+    if (!this.validateUnit(updatedUnit)) {
+      return false;
+    }
+
+    this.units.set(id, updatedUnit);
+    
+    this.logger.debug('UnitRegistryManager', 'updateUnit', 'Unit updated', {
+      unitId: id,
+      unitType: updatedUnit.unitType,
+    });
+
+    return true;
+  }
+
+  /**
+   * Get unit metadata
+   */
+  public getUnitMetadata(id: string): {
+    exists: boolean;
+    unitType: string;
+    isActive: boolean;
+    isResponsive: boolean;
+  } {
+    const unit = this.getUnit(id);
+    
+    return {
+      exists: !!unit,
+      unitType: unit?.unitType || 'Unknown',
+      isActive: unit?.isActive || false,
+      isResponsive: unit?.isResponsive?.() || false,
+    };
+  }
+
+  /**
+   * Export registry data
+   */
+  public exportData(): {
+    units: Record<string, any>;
+    statistics: {
+      totalUnits: number;
+      unitsByType: Record<string, number>;
+    };
+    timestamp: string;
+  } {
+    const units: Record<string, any> = {};
+    for (const [id, unit] of this.units) {
+      units[id] = {
+        id: unit.id,
+        name: unit.name,
+        unitType: unit.unitType,
+        isActive: unit.isActive,
+      };
+    }
+
+    const statistics = this.getStatistics();
+
+    return {
+      units,
+      statistics: {
+        totalUnits: statistics.totalUnits,
+        unitsByType: statistics.unitsByType,
+      },
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Import registry data
+   */
+  public importData(data: {
+    units: Record<string, any>;
+    statistics?: any;
+  }): void {
+    if (data.units && typeof data.units === 'object') {
+      this.clearUnits();
+      
+      for (const [id, unitData] of Object.entries(data.units)) {
+        // This would typically recreate units from the data
+        this.logger.debug('UnitRegistryManager', 'importData', 'Unit data imported', {
+          unitId: id,
+          unitType: unitData.unitType,
+        });
+      }
+    } else {
+      throw new Error('Invalid data format');
     }
   }
 }

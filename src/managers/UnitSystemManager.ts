@@ -1,146 +1,74 @@
-import type { IUnit } from '../interfaces/IUnit';
-import type { UnitContext } from '../interfaces/IUnit';
-import type { IUnitStrategy } from '../strategies/IUnitStrategy';
-import type { IUnitCommand } from '../commands/IUnitCommand';
-import type { IUnitObserver } from '../observers/IUnitObserver';
-import type { IUnitValidator } from '../validators/IUnitValidator';
-import type { IUnitConfig } from '../interfaces/IUnitConfig';
-
-// Import focused managers
-import { UnitRegistryManager, IUnitRegistryManager } from './UnitRegistryManager';
-import { StrategyManager, IStrategyManager } from './StrategyManager';
-import { CommandManager, ICommandManager } from './CommandManager';
-import { ObserverManager, IObserverManager } from './ObserverManager';
-import { ValidationManager, IValidationManager } from './ValidationManager';
-import { PerformanceManager, IPerformanceManager } from './PerformanceManager';
-
-import { logger } from '../core/Logger';
-
-/**
- * Core unit system manager interface - basic system operations
- */
-export interface IUnitSystemManagerCore {
-  /** Initialize the unit system */
-  initialize(): void;
-
-  /** Shutdown the unit system */
-  shutdown(): void;
-}
-
-/**
- * System status interface - status and monitoring
- */
-export interface IUnitSystemManagerStatus {
-  /** Get system status */
-  getSystemStatus(): {
-    isInitialized: boolean;
-    totalUnits: number;
-    activeStrategies: number;
-    registeredObservers: number;
-    validationErrors: number;
-  };
-
-  /** Get performance metrics */
-  getPerformanceMetrics(): {
-    totalCalculations: number;
-    averageCalculationTime: number;
-    memoryUsage: number;
-    errorRate: number;
-  };
-}
-
-/**
- * System configuration interface - configuration operations
- */
-export interface IUnitSystemManagerConfiguration {
-  /** Update system configuration */
-  updateConfiguration(config: Record<string, unknown>): void;
-
-  /** Get current configuration */
-  getConfiguration(): Record<string, unknown>;
-
-  /** Reset to default configuration */
-  resetToDefaults(): void;
-}
-
-/**
- * Manager access interface - manager access operations
- */
-export interface IUnitSystemManagerAccess {
-  /** Get unit registry manager */
-  getUnitRegistryManager(): IUnitRegistryManager;
-
-  /** Get strategy manager */
-  getStrategyManager(): IStrategyManager;
-
-  /** Get command manager */
-  getCommandManager(): ICommandManager;
-
-  /** Get observer manager */
-  getObserverManager(): IObserverManager;
-
-  /** Get validation manager */
-  getValidationManager(): IValidationManager;
-
-  /** Get performance manager */
-  getPerformanceManager(): IPerformanceManager;
-}
-
-/**
- * Complete unit system manager interface
- * Combines all unit system manager functionality
- */
-export interface IUnitSystemManager extends 
-  IUnitSystemManagerCore,
-  IUnitSystemManagerStatus,
-  IUnitSystemManagerConfiguration,
-  IUnitSystemManagerAccess {
-}
+import type { IUnitSystemManager } from './IUnitSystemManager';
+import type { IUnitRegistryManager } from './IUnitRegistryManager';
+import type { IStrategyManager } from './IStrategyManager';
+import type { ICommandManager } from './CommandManager';
+import type { IObserverManager } from './IObserverManager';
+import type { IValidationManager } from './ValidationManager';
+import type { IPerformanceManager } from './IPerformanceManager';
+import { container } from '../container/DiContainer';
+import { TOKENS } from '../container/Tokens';
 
 /**
  * Unit System Manager Implementation
- * Refactored to use focused managers for better separation of concerns
+ * Concrete implementation of unit system management using DI
  */
 export class UnitSystemManager implements IUnitSystemManager {
-  // Focused managers
-  private readonly unitRegistryManager: UnitRegistryManager;
-  private readonly strategyManager: StrategyManager;
-  private readonly commandManager: CommandManager;
-  private readonly observerManager: ObserverManager;
-  private readonly validationManager: ValidationManager;
-  private readonly performanceManager: PerformanceManager;
-
-  private readonly logger: typeof logger = logger;
+  private unitRegistryManager: IUnitRegistryManager;
+  private strategyManager: IStrategyManager;
+  private commandManager: ICommandManager;
+  private observerManager: IObserverManager;
+  private validationManager: IValidationManager;
+  private performanceManager: IPerformanceManager;
+  private logger: any;
   private isInitialized: boolean = false;
   private configuration: Record<string, unknown> = {};
 
   constructor() {
-    // Initialize focused managers
-    this.unitRegistryManager = new UnitRegistryManager();
-    this.strategyManager = new StrategyManager();
-    this.commandManager = new CommandManager();
-    this.observerManager = new ObserverManager();
-    this.validationManager = new ValidationManager();
-    this.performanceManager = new PerformanceManager();
+    // Resolve logger from DI container
+    try {
+      this.logger = container.resolve(TOKENS.LOGGER);
+    } catch (error) {
+      this.logger = console; // Fallback to console
+    }
+
+    // Resolve managers from DI container
+    try {
+      this.unitRegistryManager = container.resolve(TOKENS.UNIT_REGISTRY_MANAGER);
+      this.strategyManager = container.resolve(TOKENS.STRATEGY_MANAGER);
+      this.commandManager = container.resolve(TOKENS.COMMAND_MANAGER);
+      this.observerManager = container.resolve(TOKENS.OBSERVER_MANAGER);
+      this.validationManager = container.resolve(TOKENS.VALIDATION_MANAGER);
+      this.performanceManager = container.resolve(TOKENS.PERFORMANCE_MANAGER);
+    } catch (error) {
+      this.logger.warn('UnitSystemManager', 'constructor', 'Failed to resolve managers from DI, using fallback', { error });
+      // Fallback to direct instantiation
+      this.unitRegistryManager = new (require('./UnitRegistryManager').UnitRegistryManager)();
+      this.strategyManager = new (require('./StrategyManager').StrategyManager)();
+      this.commandManager = new (require('./CommandManager').CommandManager)();
+      this.observerManager = new (require('./ObserverManager').ObserverManager)();
+      this.validationManager = new (require('./ValidationManager').ValidationManager)();
+      this.performanceManager = new (require('./PerformanceManager').PerformanceManager)();
+    }
   }
 
   /**
    * Initialize the unit system
    */
-  public initialize(): void {
+  public async initialize(): Promise<void> {
+    if (this.isInitialized) {
+      this.logger.warn('UnitSystemManager', 'initialize', 'System already initialized');
+      return;
+    }
+
     this.logger.info('UnitSystemManager', 'initialize', 'Initializing unit system');
 
     try {
       // Initialize all managers
-      this.performanceManager.startMeasurement('system_initialization');
-
-      // Set up default configuration
-      this.resetToDefaults();
-
-      this.logger.info('UnitSystemManager', 'initialize', 'Unit system initialized successfully');
+      await this.initializeManagers();
+      
       this.isInitialized = true;
-
-      this.performanceManager.endMeasurement('system_initialization');
+      
+      this.logger.info('UnitSystemManager', 'initialize', 'Unit system initialized successfully');
     } catch (error) {
       this.logger.error('UnitSystemManager', 'initialize', 'Failed to initialize unit system', {
         error: error instanceof Error ? error.message : String(error),
@@ -150,113 +78,50 @@ export class UnitSystemManager implements IUnitSystemManager {
   }
 
   /**
+   * Initialize all managers
+   */
+  private async initializeManagers(): Promise<void> {
+    // Initialize each manager
+    this.logger.debug('UnitSystemManager', 'initializeManagers', 'Initializing managers');
+    
+    // Managers are already instantiated, just log their status
+    this.logger.debug('UnitSystemManager', 'initializeManagers', 'Managers initialized', {
+      unitRegistryManager: !!this.unitRegistryManager,
+      strategyManager: !!this.strategyManager,
+      commandManager: !!this.commandManager,
+      observerManager: !!this.observerManager,
+      validationManager: !!this.validationManager,
+      performanceManager: !!this.performanceManager,
+    });
+  }
+
+  /**
    * Shutdown the unit system
    */
-  public shutdown(): void {
+  public async shutdown(): Promise<void> {
+    if (!this.isInitialized) {
+      this.logger.warn('UnitSystemManager', 'shutdown', 'System not initialized');
+      return;
+    }
+
     this.logger.info('UnitSystemManager', 'shutdown', 'Shutting down unit system');
 
     try {
-      this.performanceManager.startMeasurement('system_shutdown');
-
-      // Clear all data
-      this.unitRegistryManager.getAllUnits().forEach(unit => {
-        this.unitRegistryManager.removeUnit(unit.id);
-      });
-
+      // Clear all managers
+      this.unitRegistryManager.clearUnits();
       this.strategyManager.clearStrategies();
-      this.commandManager.clearCommandHistory();
       this.observerManager.clearObservers();
-      this.validationManager.clearValidators();
-      this.performanceManager.clearPerformanceData();
-
+      this.performanceManager.clearHistory();
+      
       this.isInitialized = false;
-
-      this.performanceManager.endMeasurement('system_shutdown');
+      
       this.logger.info('UnitSystemManager', 'shutdown', 'Unit system shut down successfully');
     } catch (error) {
-      this.logger.error('UnitSystemManager', 'shutdown', 'Failed to shut down unit system', {
+      this.logger.error('UnitSystemManager', 'shutdown', 'Failed to shutdown unit system', {
         error: error instanceof Error ? error.message : String(error),
       });
       throw error;
     }
-  }
-
-  /**
-   * Get system status
-   */
-  public getSystemStatus(): {
-    isInitialized: boolean;
-    totalUnits: number;
-    activeStrategies: number;
-    registeredObservers: number;
-    validationErrors: number;
-  } {
-    return {
-      isInitialized: this.isInitialized,
-      totalUnits: this.unitRegistryManager.getUnitCount(),
-      activeStrategies: this.strategyManager.getStrategyCount(),
-      registeredObservers: this.observerManager.getObserverCount(),
-      validationErrors: this.validationManager.getErrorCount(),
-    };
-  }
-
-  /**
-   * Get performance metrics
-   */
-  public getPerformanceMetrics(): {
-    totalCalculations: number;
-    averageCalculationTime: number;
-    memoryUsage: number;
-    errorRate: number;
-  } {
-    const metrics = this.performanceManager.getPerformanceMetrics();
-    return {
-      totalCalculations: metrics.totalOperations,
-      averageCalculationTime: metrics.averageExecutionTime,
-      memoryUsage: metrics.memoryUsage,
-      errorRate: metrics.errorRate,
-    };
-  }
-
-  /**
-   * Update system configuration
-   */
-  public updateConfiguration(config: Record<string, unknown>): void {
-    this.logger.info('UnitSystemManager', 'updateConfiguration', 'Updating system configuration', {
-      configKeys: Object.keys(config),
-    });
-
-    this.configuration = { ...this.configuration, ...config };
-
-    // Apply configuration to managers
-    if ('performanceThreshold' in config) {
-      this.performanceManager.setPerformanceThreshold(config.performanceThreshold as number);
-    }
-
-    if ('memoryLimit' in config) {
-      this.performanceManager.setMemoryLimit(config.memoryLimit as number);
-    }
-  }
-
-  /**
-   * Get current configuration
-   */
-  public getConfiguration(): Record<string, unknown> {
-    return { ...this.configuration };
-  }
-
-  /**
-   * Reset to default configuration
-   */
-  public resetToDefaults(): void {
-    this.logger.info('UnitSystemManager', 'resetToDefaults', 'Resetting to default configuration');
-
-    this.configuration = {
-      performanceThreshold: 100,
-      memoryLimit: 1000,
-      maxValidationErrors: 10,
-      enablePerformanceMonitoring: true,
-    };
   }
 
   /**
@@ -301,70 +166,146 @@ export class UnitSystemManager implements IUnitSystemManager {
     return this.performanceManager;
   }
 
-  // Convenience methods that delegate to appropriate managers
+  /**
+   * Check if system is initialized
+   */
+  public isSystemInitialized(): boolean {
+    return this.isInitialized;
+  }
 
   /**
-   * Create a unit (delegates to UnitRegistryManager)
+   * Get system configuration
    */
-  public createUnit(unitType: string, config: IUnitConfig): IUnit {
-    this.performanceManager.startMeasurement('create_unit');
+  public getConfiguration(): Record<string, unknown> {
+    return { ...this.configuration };
+  }
+
+  /**
+   * Set system configuration
+   */
+  public setConfiguration(config: Record<string, unknown>): void {
+    this.configuration = { ...config };
+    
+    this.logger.debug('UnitSystemManager', 'setConfiguration', 'Configuration updated', {
+      configKeys: Object.keys(config),
+    });
+  }
+
+  /**
+   * Get system status
+   */
+  public getSystemStatus(): {
+    initialized: boolean;
+    managers: {
+      unitRegistry: boolean;
+      strategy: boolean;
+      command: boolean;
+      observer: boolean;
+      validation: boolean;
+      performance: boolean;
+    };
+    statistics: {
+      totalUnits: number;
+      totalStrategies: number;
+      totalObservers: number;
+      totalOperations: number;
+    };
+  } {
+    return {
+      initialized: this.isInitialized,
+      managers: {
+        unitRegistry: !!this.unitRegistryManager,
+        strategy: !!this.strategyManager,
+        command: !!this.commandManager,
+        observer: !!this.observerManager,
+        validation: !!this.validationManager,
+        performance: !!this.performanceManager,
+      },
+      statistics: {
+        totalUnits: this.unitRegistryManager.getUnitCount(),
+        totalStrategies: this.strategyManager.getStrategyCount(),
+        totalObservers: this.observerManager.getObserverCount(),
+        totalOperations: this.performanceManager.getOverallStats().totalOperations,
+      },
+    };
+  }
+
+  /**
+   * Get system health
+   */
+  public getSystemHealth(): {
+    healthy: boolean;
+    issues: string[];
+    performance: {
+      averageOperationTime: number;
+      errorRate: number;
+      memoryUsage: number;
+    };
+  } {
+    const issues: string[] = [];
+    const performance = this.performanceManager.getOverallStats();
+
+    // Check for issues
+    if (!this.isInitialized) {
+      issues.push('System not initialized');
+    }
+
+    if (performance.errorRate > 10) {
+      issues.push(`High error rate: ${performance.errorRate.toFixed(2)}%`);
+    }
+
+    if (performance.averageOperationTime > 1000) {
+      issues.push(`Slow operations: ${performance.averageOperationTime.toFixed(2)}ms average`);
+    }
+
+    if (performance.memoryUsage > 1000000) {
+      issues.push(`High memory usage: ${performance.memoryUsage} bytes`);
+    }
+
+    return {
+      healthy: issues.length === 0,
+      issues,
+      performance: {
+        averageOperationTime: performance.averageOperationTime,
+        errorRate: performance.errorRate,
+        memoryUsage: performance.memoryUsage,
+      },
+    };
+  }
+
+  /**
+   * Reset system
+   */
+  public async reset(): Promise<void> {
+    this.logger.info('UnitSystemManager', 'reset', 'Resetting unit system');
 
     try {
-      const unit = this.unitRegistryManager.createUnit(unitType, config);
-      this.observerManager.notifyUnitCreated(unit.id, unit.unitType);
-
-      this.performanceManager.endMeasurement('create_unit');
-      return unit;
+      await this.shutdown();
+      await this.initialize();
+      
+      this.logger.info('UnitSystemManager', 'reset', 'Unit system reset successfully');
     } catch (error) {
-      this.performanceManager.recordError();
-      this.performanceManager.endMeasurement('create_unit');
+      this.logger.error('UnitSystemManager', 'reset', 'Failed to reset unit system', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       throw error;
     }
   }
 
   /**
-   * Get a unit (delegates to UnitRegistryManager)
+   * Export system data
    */
-  public getUnit(unitId: string): IUnit | undefined {
-    return this.unitRegistryManager.getUnit(unitId);
-  }
-
-  /**
-   * Remove a unit (delegates to UnitRegistryManager)
-   */
-  public removeUnit(unitId: string): boolean {
-    const removed = this.unitRegistryManager.removeUnit(unitId);
-    if (removed) {
-      this.observerManager.notifyUnitDestroyed(unitId);
-    }
-    return removed;
-  }
-
-  /**
-   * Register a strategy (delegates to StrategyManager)
-   */
-  public registerStrategy(strategy: IUnitStrategy): void {
-    this.strategyManager.registerStrategy(strategy);
-  }
-
-  /**
-   * Execute a command (delegates to CommandManager)
-   */
-  public executeCommand(command: IUnitCommand, context: UnitContext): number {
-    return this.commandManager.executeCommand(command, context);
-  }
-
-  /**
-   * Add an observer (delegates to ObserverManager)
-   */
-  public addObserver(observer: IUnitObserver): void {
-    this.observerManager.addObserver(observer);
-  }
-
-  /**
-   * Add a validator (delegates to ValidationManager)
-   */
-  public addValidator(validator: IUnitValidator): void {
-    this.validationManager.addValidator(validator);
+  public exportSystemData(): {
+    configuration: Record<string, unknown>;
+    status: any;
+    health: any;
+    timestamp: string;
+  } {
+    return {
+      configuration: this.getConfiguration(),
+      status: this.getSystemStatus(),
+      health: this.getSystemHealth(),
+      timestamp: new Date().toISOString(),
+    };
   }
 }
