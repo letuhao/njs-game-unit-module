@@ -165,7 +165,7 @@ describe('Strategy Pattern Implementation', () => {
     registerMultipleStrategies(strategies);
     
     const input = createTestInput();
-    const bestStrategy = registry.findBestStrategy(input, mockContext);
+    const bestStrategy = registry.findBestStrategy(input, mockContext, Dimension.WIDTH);
     
     expect(bestStrategy).toBeDefined();
     expect(typeof bestStrategy.calculate).toBe('function');
@@ -205,7 +205,7 @@ describe('Strategy Pattern Implementation', () => {
     const strategy = createPixelSizeValueCalculationStrategy();
     const input = createPixelTestInput();
     
-    const result = strategy.calculate(input, mockContext);
+    const result = strategy.calculate(input, mockContext, Dimension.WIDTH);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -223,7 +223,7 @@ describe('Strategy Pattern Implementation', () => {
     const strategy = createFillSizeValueCalculationStrategy();
     const input = createFillTestInput();
     
-    const result = strategy.calculate(input, mockContext);
+    const result = strategy.calculate(input, mockContext, Dimension.WIDTH);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -249,7 +249,7 @@ describe('Strategy Pattern Implementation', () => {
     const strategy = createAutoSizeValueCalculationStrategy();
     const input = createAutoTestInput();
     
-    const result = strategy.calculate(input, mockContext);
+    const result = strategy.calculate(input, mockContext, Dimension.WIDTH);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -275,7 +275,7 @@ describe('Strategy Pattern Implementation', () => {
     const strategy = createParentWidthSizeValueCalculationStrategy();
     const input = createParentWidthTestInput();
     
-    const result = strategy.calculate(input, mockContext);
+    const result = strategy.calculate(input, mockContext, Dimension.WIDTH);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -301,7 +301,7 @@ describe('Strategy Pattern Implementation', () => {
     const strategy = createViewportWidthSizeValueCalculationStrategy();
     const input = createViewportWidthTestInput();
     
-    const result = strategy.calculate(input, mockContext);
+    const result = strategy.calculate(input, mockContext, Dimension.WIDTH);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -347,7 +347,7 @@ describe('Strategy Pattern Implementation', () => {
     const strategy = createPixelSizeValueCalculationStrategy();
     const invalidInput = createInvalidInput();
     
-    expect(() => strategy.calculate(invalidInput, mockContext)).not.toThrow();
+    expect(() => strategy.calculate(invalidInput, mockContext, Dimension.WIDTH)).not.toThrow();
   }
 
   function createInvalidInput(): any {
@@ -364,7 +364,7 @@ describe('Strategy Pattern Implementation', () => {
     const startTime = performance.now();
     
     for (let i = 0; i < 1000; i++) {
-      strategy.calculate(input, mockContext);
+      strategy.calculate(input, mockContext, Dimension.WIDTH);
     }
     
     const endTime = performance.now();

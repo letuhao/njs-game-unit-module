@@ -24,11 +24,10 @@ export function createUnitValidationInput(
     id: options?.id || `unit-validation-${Date.now()}`,
     unit,
     unitType,
-    dimension: options?.dimension,
     validateRecursively: options?.validateRecursively || false,
     isValid: options?.isValid ?? true,
     metadata: options?.metadata || {},
-    ...options,
+    ...(options?.dimension !== undefined && { dimension: options.dimension }),
   };
 }
 
@@ -45,13 +44,12 @@ export function createValueValidationInput(
     unitType: options?.unitType || SizeUnit.PIXEL,
     valueType: options?.valueType || SizeValue.PIXEL,
     dimension: options?.dimension || Dimension.WIDTH,
-    validationType: options?.validationType || ValidationType.RANGE,
-    minValue: options?.minValue,
-    maxValue: options?.maxValue,
-    constraints: options?.constraints,
+    validationType: options?.validationType || ValidationType.VALUE,
     isValid: options?.isValid ?? true,
     metadata: options?.metadata || {},
-    ...options,
+    ...(options?.minValue !== undefined && { minValue: options.minValue }),
+    ...(options?.maxValue !== undefined && { maxValue: options.maxValue }),
+    ...(options?.constraints !== undefined && { constraints: options.constraints }),
   };
 }
 
@@ -67,10 +65,9 @@ export function createContextValidationInput(
     context,
     requiredProperties: options?.requiredProperties || [],
     optionalProperties: options?.optionalProperties || [],
-    dimension: options?.dimension,
     validateNested: options?.validateNested || false,
     isValid: options?.isValid ?? true,
     metadata: options?.metadata || {},
-    ...options,
+    ...(options?.dimension !== undefined && { dimension: options.dimension }),
   };
 }

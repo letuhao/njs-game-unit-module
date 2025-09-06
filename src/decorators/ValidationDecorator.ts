@@ -1,6 +1,8 @@
-import type { IUnitDecorator } from './IUnitDecorator';
+import type { IUnitDecorator } from '../interfaces/IUnitDecorator';
 import type { IUnit } from '../interfaces/IUnit';
 import type { UnitContext } from '../interfaces/IUnit';
+import { BaseUnitDecorator } from '../interfaces/IUnitDecorator';
+import { UnitType } from '../enums/UnitType';
 import { container } from '../container/DiContainer';
 import { TOKENS } from '../container/Tokens';
 
@@ -8,8 +10,7 @@ import { TOKENS } from '../container/Tokens';
  * Validation Decorator
  * Adds validation functionality to units using DI
  */
-export class ValidationDecorator implements IUnitDecorator {
-  private readonly decoratedUnit: IUnit;
+export class ValidationDecorator extends BaseUnitDecorator {
   private validationRules: Array<{
     name: string;
     validator: (unit: IUnit, context: UnitContext) => boolean;
@@ -23,8 +24,13 @@ export class ValidationDecorator implements IUnitDecorator {
   }> = [];
   private validationManager: any;
 
-  constructor(decoratedUnit: IUnit, strictMode?: boolean) {
-    this.decoratedUnit = decoratedUnit;
+  constructor(wrappedUnit: IUnit, strictMode?: boolean) {
+    super(
+      `validation-${wrappedUnit.id}`,
+      `Validation Decorator for ${wrappedUnit.name}`,
+      wrappedUnit.unitType,
+      wrappedUnit
+    );
     
     // Resolve validation manager from DI container
     try {
@@ -49,14 +55,14 @@ export class ValidationDecorator implements IUnitDecorator {
    * Get the decorated unit
    */
   getDecoratedUnit(): IUnit {
-    return this.decoratedUnit;
+    return this.wrappedUnit;
   }
 
   /**
    * Get the unit property (for test compatibility)
    */
   get unit(): IUnit {
-    return this.decoratedUnit;
+    return this.wrappedUnit;
   }
 
   /**
@@ -185,7 +191,7 @@ export class ValidationDecorator implements IUnitDecorator {
     }
 
     // Perform calculation
-    const result = this.decoratedUnit.calculate(context);
+    const result = this.wrappedUnit.calculate(context);
 
     // Validate result
     this.validateResult(result, context);
@@ -197,14 +203,14 @@ export class ValidationDecorator implements IUnitDecorator {
    * Check if responsive with validation
    */
   isResponsive(): boolean {
-    return this.decoratedUnit.isResponsive();
+    return this.wrappedUnit.isResponsive();
   }
 
   /**
    * Get active state with validation
    */
   get isActive(): boolean {
-    return this.decoratedUnit.isActive;
+    return this.wrappedUnit.isActive;
   }
 
   /**
@@ -217,7 +223,7 @@ export class ValidationDecorator implements IUnitDecorator {
     // Use validation manager if available
     if (this.validationManager) {
       try {
-        return this.validationManager.validateUnit(this.decoratedUnit, context);
+        return this.validationManager.validateUnit(this.wrappedUnit, context);
       } catch (error) {
         this.addValidationError('validation_manager', `Validation manager error: ${error}`, context);
       }
@@ -234,13 +240,13 @@ export class ValidationDecorator implements IUnitDecorator {
     let isValid = true;
 
     // Check if unit is active
-    if (!this.decoratedUnit.isActive) {
+    if (!this.wrappedUnit.isActive) {
       this.addValidationError('unit_inactive', 'Unit is not active', context);
       isValid = false;
     }
 
     // Check if unit can be calculated
-    if (typeof this.decoratedUnit.calculate !== 'function') {
+    if (typeof this.wrappedUnit.calculate !== 'function') {
       this.addValidationError('invalid_calculate', 'Unit does not have calculate method', context);
       isValid = false;
     }
@@ -344,16 +350,44 @@ export class ValidationDecorator implements IUnitDecorator {
    * Get string representation
    */
   toString(): string {
-    return `ValidationDecorator(${this.decoratedUnit.toString()})`;
+    return `ValidationDecorator(${this.wrappedUnit.toString()})`;
   }
 
   /**
    * Clone the decorator
    */
   clone(): ValidationDecorator {
-    const cloned = new ValidationDecorator(this.decoratedUnit);
+    const cloned = new ValidationDecorator(this.wrappedUnit);
     cloned.validationRules = [...this.validationRules];
     return cloned;
+  }
+
+  // Override performCalculation to add validation
+  protected performCalculation(context: UnitContext): number {
+    // Validate before calculation
+    if (!this.validateDecorator(context)) {
+      throw new Error('Validation failed before calculation');
+    }
+    
+    // Perform calculation using wrapped unit
+    return this.wrappedUnit.calculate(context);
+  }
+
+  // Override validateDecorator to add validation rules
+  protected validateDecorator(context: UnitContext): boolean {
+    // Run all validation rules
+    for (const rule of this.validationRules) {
+      try {
+        if (!rule.validator(this.wrappedUnit, context)) {
+          this.addValidationError(rule.name, rule.message, context);
+          return false;
+        }
+      } catch (error) {
+        this.addValidationError(rule.name, `Validation error: ${error instanceof Error ? error.message : String(error)}`, context);
+        return false;
+      }
+    }
+    return true;
   }
 
   /**

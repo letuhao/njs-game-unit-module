@@ -270,4 +270,11 @@ export abstract class BaseUnitComposite implements IUnitComposite {
   private isUnitComposite(unit: IUnit): unit is IUnitComposite {
     return 'addChild' in unit && 'removeChild' in unit;
   }
+
+  /**
+   * Format the composite unit as a string
+   */
+  public format(format: string): string {
+    return `${this.name} (${this.children.length} children)`;
+  }
 }

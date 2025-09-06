@@ -141,8 +141,8 @@ export class ScaleUnitStrategy implements IUnitStrategy {
    * Calculate scale from ScaleUnit enum
    */
   private calculateScaleUnit(input: ScaleUnit, context: UnitContext): number {
-    const calculator = this.factory.createScaleUnit('dynamic', 'dynamic-scale', input, 1);
-    return calculator.calculateScale(context);
+    const calculator = this.factory.createScaleCalculator('dynamic', 'dynamic-scale', input, 1);
+    return calculator.calculate(context);
   }
 
   /**
@@ -169,8 +169,8 @@ export class ScaleUnitStrategy implements IUnitStrategy {
 
     const parentWidth = context.parent.width || DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
     const parentHeight = context.parent.height || DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
-    const contentWidth = context.content?.width || DEFAULT_FALLBACK_VALUES.SIZE.CONTENT;
-    const contentHeight = context.content?.height || DEFAULT_FALLBACK_VALUES.SIZE.CONTENT;
+    const contentWidth = context.content?.width || DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
+    const contentHeight = context.content?.height || DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
 
     const scaleX = parentWidth / contentWidth;
     const scaleY = parentHeight / contentHeight;
@@ -186,8 +186,8 @@ export class ScaleUnitStrategy implements IUnitStrategy {
 
     const parentWidth = context.parent.width || DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
     const parentHeight = context.parent.height || DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
-    const contentWidth = context.content?.width || DEFAULT_FALLBACK_VALUES.SIZE.CONTENT;
-    const contentHeight = context.content?.height || DEFAULT_FALLBACK_VALUES.SIZE.CONTENT;
+    const contentWidth = context.content?.width || DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
+    const contentHeight = context.content?.height || DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
 
     const scaleX = parentWidth / contentWidth;
     const scaleY = parentHeight / contentHeight;
@@ -199,13 +199,13 @@ export class ScaleUnitStrategy implements IUnitStrategy {
    * Calculate using calculator for complex cases
    */
   private calculateWithCalculator(input: ScaleValue, context: UnitContext): number {
-    const calculator = this.factory.createScaleUnit(
+    const calculator = this.factory.createScaleCalculator(
       'dynamic',
       'dynamic-scale',
       ScaleUnit.FACTOR,
       input
     );
-    return calculator.calculateScale(context);
+    return calculator.calculate(context);
   }
 
   /**

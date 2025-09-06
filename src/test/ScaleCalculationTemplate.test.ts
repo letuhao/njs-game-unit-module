@@ -1,6 +1,6 @@
 import { describe, beforeEach, afterEach, it, expect, jest } from '@jest/globals';
 import { ScaleCalculationTemplate } from '../templates/ScaleCalculationTemplate';
-import { createMockContext } from './setup';
+import { createMockContext } from './test-utils';
 import { TemplateInputType } from '../enums/TemplateInputType';
 import { ScaleUnit } from '../enums/ScaleUnit';
 import { ScaleValue } from '../enums/ScaleValue';
@@ -10,11 +10,11 @@ import { container, TOKENS } from '../container/DiContainer';
 
 // Concrete implementation for testing
 class TestScaleCalculationTemplate extends ScaleCalculationTemplate {
-  protected getSupportedInputs(): string[] {
+  public getSupportedInputs(): string[] {
     return ['scale', 'IScaleTemplateInput'];
   }
 
-  protected getCalculationSteps(): string[] {
+  public getCalculationSteps(): string[] {
     return ['validation', 'preprocessing', 'calculation', 'postprocessing'];
   }
 
@@ -162,13 +162,13 @@ describe('ScaleCalculationTemplate', () => {
   }
 
   function createValidScaleInput(): ITemplateInput {
-    return createScaleTemplateInput({
-      type: TemplateInputType.SCALE,
-      scaleUnit: ScaleUnit.FACTOR,
-      scaleValue: ScaleValue.FACTOR,
-      baseValue: 1.5,
-      maintainAspectRatio: true,
-    });
+    return createScaleTemplateInput(
+      'test-scale-input',
+      1.5,
+      ScaleValue.FACTOR,
+      ScaleUnit.FACTOR,
+      true
+    );
   }
 
   function testInvalidInputRejection(): void {
@@ -181,20 +181,20 @@ describe('ScaleCalculationTemplate', () => {
 
   function createInvalidInputs(): ITemplateInput[] {
     return [
-      createScaleTemplateInput({
-        type: TemplateInputType.SIZE,
-        scaleUnit: ScaleUnit.FACTOR,
-        scaleValue: ScaleValue.FACTOR,
-        baseValue: 1.5,
-        maintainAspectRatio: true,
-      }),
-      createScaleTemplateInput({
-        type: TemplateInputType.POSITION,
-        scaleUnit: ScaleUnit.FACTOR,
-        scaleValue: ScaleValue.FACTOR,
-        baseValue: 1.5,
-        maintainAspectRatio: true,
-      }),
+      createScaleTemplateInput(
+        'invalid-size',
+        1.5,
+        ScaleValue.FACTOR,
+        ScaleUnit.FACTOR,
+        true
+      ),
+      createScaleTemplateInput(
+        'invalid-position',
+        1.5,
+        ScaleValue.FACTOR,
+        ScaleUnit.FACTOR,
+        true
+      ),
     ];
   }
 
@@ -214,13 +214,13 @@ describe('ScaleCalculationTemplate', () => {
   }
 
   function createInputWithType(inputType: TemplateInputType): ITemplateInput {
-    return createScaleTemplateInput({
-      type: inputType,
-      scaleUnit: ScaleUnit.FACTOR,
-      scaleValue: ScaleValue.FACTOR,
-      baseValue: 1.5,
-      maintainAspectRatio: true,
-    });
+    return createScaleTemplateInput(
+      `test-${inputType}`,
+      1.5,
+      ScaleValue.FACTOR,
+      ScaleUnit.FACTOR,
+      true
+    );
   }
 
   function testCalculationStepExecution(): void {

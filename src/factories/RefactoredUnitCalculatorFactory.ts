@@ -79,7 +79,7 @@ export class RefactoredUnitCalculatorFactory implements IRefactoredUnitCalculato
   ): IUnit {
     try {
       // Resolve from injected container
-      const SizeCalculatorClass = this.container.resolve(TOKENS.SIZE_CALCULATOR);
+      const SizeCalculatorClass = this.container.resolve(TOKENS.SIZE_CALCULATOR) as any;
       const calculator = new SizeCalculatorClass(
         id,
         name,
@@ -107,7 +107,7 @@ export class RefactoredUnitCalculatorFactory implements IRefactoredUnitCalculato
   ): IUnit {
     try {
       // Resolve from injected container
-      const PositionCalculatorClass = this.container.resolve(TOKENS.POSITION_CALCULATOR);
+      const PositionCalculatorClass = this.container.resolve(TOKENS.POSITION_CALCULATOR) as any;
       const calculator = new PositionCalculatorClass(
         id,
         name,
@@ -134,7 +134,7 @@ export class RefactoredUnitCalculatorFactory implements IRefactoredUnitCalculato
   ): IUnit {
     try {
       // Resolve from injected container
-      const ScaleCalculatorClass = this.container.resolve(TOKENS.SCALE_CALCULATOR);
+      const ScaleCalculatorClass = this.container.resolve(TOKENS.SCALE_CALCULATOR) as any;
       const calculator = new ScaleCalculatorClass(
         id,
         name,
@@ -160,11 +160,11 @@ export class RefactoredUnitCalculatorFactory implements IRefactoredUnitCalculato
   ): IUnit {
     switch (unitType) {
       case UnitType.SIZE:
-        return this.createSizeCalculator(id, name, ...args);
+        return this.createSizeCalculator(id, name, args[0], args[1], args[2], args[3]);
       case UnitType.POSITION:
-        return this.createPositionCalculator(id, name, ...args);
+        return this.createPositionCalculator(id, name, args[0], args[1], args[2]);
       case UnitType.SCALE:
-        return this.createScaleCalculator(id, name, ...args);
+        return this.createScaleCalculator(id, name, args[0], args[1], args[2]);
       default:
         throw new Error(`Unsupported unit type: ${unitType}`);
     }
@@ -231,7 +231,7 @@ export class RefactoredUnitCalculatorFactory implements IRefactoredUnitCalculato
     const calculatorIds: string[] = [];
 
     for (const [id, calculator] of this.calculators) {
-      const type = UnitType[calculator.unitType] || 'UNKNOWN';
+      const type = calculator.unitType || 'UNKNOWN';
       calculatorsByType[type] = (calculatorsByType[type] || 0) + 1;
       calculatorIds.push(id);
     }

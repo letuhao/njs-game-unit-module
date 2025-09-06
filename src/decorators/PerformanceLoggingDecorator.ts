@@ -1,7 +1,9 @@
-import type { IUnitDecorator } from './IUnitDecorator';
+import type { IUnitDecorator } from '../interfaces/IUnitDecorator';
 import type { IUnit } from '../interfaces/IUnit';
 import type { UnitContext } from '../interfaces/IUnit';
 import type { DiContainer } from '../container/DiContainer';
+import { BaseUnitDecorator } from '../interfaces/IUnitDecorator';
+import { UnitType } from '../enums/UnitType';
 import { TOKENS } from '../container/Tokens';
 
 /**
@@ -9,8 +11,7 @@ import { TOKENS } from '../container/Tokens';
  * Adds performance monitoring and logging to any unit
  * Follows Single Responsibility Principle - only handles performance concerns
  */
-export class PerformanceLoggingDecorator implements IUnitDecorator {
-  private readonly decoratedUnit: IUnit;
+export class PerformanceLoggingDecorator extends BaseUnitDecorator {
   private logger: any;
   private performanceManager: any;
   private performanceMetrics: {
@@ -32,7 +33,7 @@ export class PerformanceLoggingDecorator implements IUnitDecorator {
   };
 
   constructor(
-    decoratedUnit: IUnit,
+    wrappedUnit: IUnit,
     private container: DiContainer,
     private options: {
       logThreshold?: number; // Log if operation takes longer than this (ms)
@@ -40,7 +41,12 @@ export class PerformanceLoggingDecorator implements IUnitDecorator {
       logSlowOperations?: boolean;
     } = {}
   ) {
-    this.decoratedUnit = decoratedUnit;
+    super(
+      `performance-logging-${wrappedUnit.id}`,
+      `Performance Logging Decorator for ${wrappedUnit.name}`,
+      wrappedUnit.unitType,
+      wrappedUnit
+    );
     
     // Resolve dependencies from DI container
     try {
@@ -60,19 +66,20 @@ export class PerformanceLoggingDecorator implements IUnitDecorator {
    * Get the decorated unit
    */
   getDecoratedUnit(): IUnit {
-    return this.decoratedUnit;
+    return this.wrappedUnit;
   }
 
   /**
    * Calculate with performance monitoring
    */
-  calculate(context: UnitContext): number {
+  // Override performCalculation to add performance monitoring
+  protected performCalculation(context: UnitContext): number {
     const startTime = performance.now();
     const startMemory = this.getMemoryUsage();
     
     try {
       // Perform calculation
-      const result = this.decoratedUnit.calculate(context);
+      const result = this.wrappedUnit.calculate(context);
       
       // Record performance metrics
       this.recordPerformance(startTime, startMemory, false);
@@ -85,67 +92,14 @@ export class PerformanceLoggingDecorator implements IUnitDecorator {
     }
   }
 
-  /**
-   * Check if responsive with performance monitoring
-   */
-  isResponsive(): boolean {
-    const startTime = performance.now();
-    
-    try {
-      const result = this.decoratedUnit.isResponsive();
-      this.recordPerformance(startTime, 0, false, 'isResponsive');
-      return result;
-    } catch (error) {
-      this.recordPerformance(startTime, 0, true, 'isResponsive');
-      throw error;
-    }
+  // Override validateDecorator to add performance validation
+  protected validateDecorator(context: UnitContext): boolean {
+    return true; // PerformanceLoggingDecorator doesn't add validation constraints
   }
 
-  /**
-   * Get active state with performance monitoring
-   */
-  get isActive(): boolean {
-    const startTime = performance.now();
-    
-    try {
-      const result = this.decoratedUnit.isActive;
-      this.recordPerformance(startTime, 0, false, 'isActive');
-      return result;
-    } catch (error) {
-      this.recordPerformance(startTime, 0, true, 'isActive');
-      throw error;
-    }
-  }
 
-  /**
-   * Validate with performance monitoring
-   */
-  validate(context: UnitContext): boolean {
-    const startTime = performance.now();
-    
-    try {
-      const result = this.decoratedUnit.validate(context);
-      this.recordPerformance(startTime, 0, false, 'validate');
-      return result;
-    } catch (error) {
-      this.recordPerformance(startTime, 0, true, 'validate');
-      throw error;
-    }
-  }
 
-  /**
-   * Get string representation
-   */
-  toString(): string {
-    return `PerformanceLoggingDecorator(${this.decoratedUnit.toString()})`;
-  }
 
-  /**
-   * Clone the decorator
-   */
-  clone(): PerformanceLoggingDecorator {
-    return new PerformanceLoggingDecorator(this.decoratedUnit, this.container, this.options);
-  }
 
   /**
    * Get performance metrics
@@ -175,7 +129,15 @@ export class PerformanceLoggingDecorator implements IUnitDecorator {
   getPerformanceReport(): {
     unitId: string;
     unitType: string;
-    metrics: typeof this.performanceMetrics;
+    metrics: {
+      totalCalls: number;
+      totalTime: number;
+      averageTime: number;
+      minTime: number;
+      maxTime: number;
+      errorCount: number;
+      lastCallTime: Date | null;
+    };
     health: 'excellent' | 'good' | 'fair' | 'poor';
     recommendations: string[];
   } {
@@ -204,8 +166,8 @@ export class PerformanceLoggingDecorator implements IUnitDecorator {
     }
 
     return {
-      unitId: this.decoratedUnit.id,
-      unitType: this.decoratedUnit.unitType,
+      unitId: this.wrappedUnit.id,
+      unitType: this.wrappedUnit.unitType,
       metrics: this.performanceMetrics,
       health,
       recommendations
@@ -241,7 +203,7 @@ export class PerformanceLoggingDecorator implements IUnitDecorator {
     // Log slow operations
     if (this.options.logSlowOperations && duration > (this.options.logThreshold || 50)) {
       this.log('warn', `Slow operation detected: ${operation}`, {
-        unitId: this.decoratedUnit.id,
+        unitId: this.wrappedUnit.id,
         operation,
         duration: `${duration.toFixed(2)}ms`,
         threshold: `${this.options.logThreshold || 50}ms`
@@ -250,7 +212,7 @@ export class PerformanceLoggingDecorator implements IUnitDecorator {
 
     // Log performance metrics
     this.log('debug', `Performance recorded: ${operation}`, {
-      unitId: this.decoratedUnit.id,
+      unitId: this.wrappedUnit.id,
       operation,
       duration: `${duration.toFixed(2)}ms`,
       memoryDelta: `${memoryDelta.toFixed(2)}MB`,
@@ -261,7 +223,7 @@ export class PerformanceLoggingDecorator implements IUnitDecorator {
     if (this.performanceManager && this.options.trackMetrics !== false) {
       try {
         this.performanceManager.recordOperation({
-          unitId: this.decoratedUnit.id,
+          unitId: this.wrappedUnit.id,
           operation,
           duration,
           memoryDelta,
@@ -270,7 +232,7 @@ export class PerformanceLoggingDecorator implements IUnitDecorator {
         });
       } catch (error) {
         this.log('warn', 'Failed to record performance metrics', {
-          unitId: this.decoratedUnit.id,
+          unitId: this.wrappedUnit.id,
           error: error instanceof Error ? error.message : String(error)
         });
       }
@@ -281,8 +243,8 @@ export class PerformanceLoggingDecorator implements IUnitDecorator {
    * Get current memory usage
    */
   private getMemoryUsage(): number {
-    if (typeof performance !== 'undefined' && performance.memory) {
-      return performance.memory.usedJSHeapSize / 1024 / 1024; // Convert to MB
+    if (typeof performance !== 'undefined' && (performance as any).memory) {
+      return (performance as any).memory.usedJSHeapSize / 1024 / 1024; // Convert to MB
     }
     return 0;
   }
@@ -296,8 +258,8 @@ export class PerformanceLoggingDecorator implements IUnitDecorator {
         timestamp: new Date().toISOString(),
         level,
         message,
-        unitId: this.decoratedUnit.id,
-        unitType: this.decoratedUnit.unitType,
+        unitId: this.wrappedUnit.id,
+        unitType: this.wrappedUnit.unitType,
         ...meta
       });
     } else if (this.logger && typeof this.logger.log === 'function') {
@@ -305,5 +267,33 @@ export class PerformanceLoggingDecorator implements IUnitDecorator {
     } else {
       console.log(`[${level.toUpperCase()}] ${message}`, meta);
     }
+  }
+
+  /**
+   * Get the wrapped unit
+   */
+  getWrappedUnit(): IUnit {
+    return this.wrappedUnit;
+  }
+
+  /**
+   * Get the decorator type
+   */
+  getDecoratorType(): string {
+    return 'PerformanceLoggingDecorator';
+  }
+
+  /**
+   * Check if the decorator is enabled
+   */
+  isEnabled(): boolean {
+    return this.enabled;
+  }
+
+  /**
+   * Enable or disable the decorator
+   */
+  setEnabled(enabled: boolean): void {
+    this.enabled = enabled;
   }
 }

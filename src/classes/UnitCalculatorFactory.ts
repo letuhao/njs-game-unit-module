@@ -1,5 +1,9 @@
 import type { IUnit } from '../interfaces/IUnit';
 import { UnitType } from '../enums/UnitType';
+import { SizeUnit } from '../enums/SizeUnit';
+import { Dimension } from '../enums/Dimension';
+import { PositionUnit } from '../enums/PositionUnit';
+import { ScaleUnit } from '../enums/ScaleUnit';
 import { container } from '../container/DiContainer';
 import { TOKENS } from '../container/Tokens';
 
@@ -36,7 +40,7 @@ export class UnitCalculatorFactory {
   ): IUnit {
     try {
       // Try to resolve from DI container first
-      const SizeCalculatorClass = container.resolve(TOKENS.SIZE_CALCULATOR);
+      const SizeCalculatorClass = container.resolve(TOKENS.SIZE_CALCULATOR) as any;
       const calculator = new SizeCalculatorClass(
         id,
         name,
@@ -65,7 +69,7 @@ export class UnitCalculatorFactory {
   ): IUnit {
     try {
       // Try to resolve from DI container first
-      const PositionCalculatorClass = container.resolve(TOKENS.POSITION_CALCULATOR);
+      const PositionCalculatorClass = container.resolve(TOKENS.POSITION_CALCULATOR) as any;
       const calculator = new PositionCalculatorClass(
         id,
         name,
@@ -93,7 +97,7 @@ export class UnitCalculatorFactory {
   ): IUnit {
     try {
       // Try to resolve from DI container first
-      const ScaleCalculatorClass = container.resolve(TOKENS.SCALE_CALCULATOR);
+      const ScaleCalculatorClass = container.resolve(TOKENS.SCALE_CALCULATOR) as any;
       const calculator = new ScaleCalculatorClass(
         id,
         name,
@@ -120,11 +124,11 @@ export class UnitCalculatorFactory {
   ): IUnit {
     switch (unitType) {
       case UnitType.SIZE:
-        return this.createSizeCalculator(id, name, ...args);
+        return this.createSizeCalculator(id, name, ...(args as [SizeUnit, Dimension, number | any, boolean]));
       case UnitType.POSITION:
-        return this.createPositionCalculator(id, name, ...args);
+        return this.createPositionCalculator(id, name, ...(args as [PositionUnit, any, number | any]));
       case UnitType.SCALE:
-        return this.createScaleCalculator(id, name, ...args);
+        return this.createScaleCalculator(id, name, ...(args as [ScaleUnit, number | any, boolean]));
       default:
         throw new Error(`Unsupported unit type: ${unitType}`);
     }
@@ -191,7 +195,7 @@ export class UnitCalculatorFactory {
     const calculatorIds: string[] = [];
 
     for (const [id, calculator] of this.calculators) {
-      const type = UnitType[calculator.unitType] || 'UNKNOWN';
+      const type = calculator.unitType || 'UNKNOWN';
       calculatorsByType[type] = (calculatorsByType[type] || 0) + 1;
       calculatorIds.push(id);
     }

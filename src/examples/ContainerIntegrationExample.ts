@@ -19,7 +19,7 @@ export class ResponsiveContainer {
   public y: number;
   public width: number;
   public height: number;
-  public parent?: ResponsiveContainer;
+  public parent: ResponsiveContainer | undefined;
   public children: ResponsiveContainer[] = [];
   public scene: any;
 

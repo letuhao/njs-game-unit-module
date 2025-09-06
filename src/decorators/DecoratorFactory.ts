@@ -1,4 +1,4 @@
-import type { IUnitDecorator } from './IUnitDecorator';
+import type { IUnitDecorator } from '../interfaces/IUnitDecorator';
 import type { IUnit } from '../interfaces/IUnit';
 import type { DiContainer } from '../container/DiContainer';
 import { EnhancedLoggingDecorator } from './EnhancedLoggingDecorator';

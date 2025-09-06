@@ -52,17 +52,6 @@ export class UnitMementoCaretaker implements IUnitMementoCaretaker {
     this.updateCaretakerStatistics();
   }
 
-  /**
-   * Get the latest memento for a unit
-   */
-  public getLatestMemento(unitId: string): IUnitMemento | undefined {
-    const unitMementos = this.mementos.get(unitId);
-    if (!unitMementos || unitMementos.length === 0) {
-      return undefined;
-    }
-
-    return unitMementos[unitMementos.length - 1];
-  }
 
   /**
    * Get all mementos for a unit
@@ -83,87 +72,14 @@ export class UnitMementoCaretaker implements IUnitMementoCaretaker {
     return unitMementos[index];
   }
 
-  /**
-   * Restore a unit to a specific memento
-   */
-  public restoreToMemento(unitId: string, memento: IUnitMemento): boolean {
-    try {
-      // Save current state to undo stack
-      const currentMemento = this.getLatestMemento(unitId);
-      if (currentMemento) {
-        this.addToUndoStack(unitId, currentMemento);
-      }
 
-      // Restore to the specified memento
-      const restored = memento.restore();
-      if (restored) {
-        // Add to redo stack
-        this.addToRedoStack(unitId, memento);
-        this.caretakerStatistics.totalUndos++;
-      }
-
-      return restored;
-    } catch (error) {
-      return false;
-    }
-  }
-
-  /**
-   * Undo the last operation for a unit
-   */
-  public undo(unitId: string): boolean {
-    const undoStack = this.undoStack.get(unitId);
-    if (!undoStack || undoStack.length === 0) {
-      return false;
-    }
-
-    try {
-      const memento = undoStack.pop()!;
-      const restored = memento.restore();
-      
-      if (restored) {
-        // Move to redo stack
-        this.addToRedoStack(unitId, memento);
-        this.caretakerStatistics.totalUndos++;
-      }
-
-      return restored;
-    } catch (error) {
-      return false;
-    }
-  }
-
-  /**
-   * Redo the last undone operation for a unit
-   */
-  public redo(unitId: string): boolean {
-    const redoStack = this.redoStack.get(unitId);
-    if (!redoStack || redoStack.length === 0) {
-      return false;
-    }
-
-    try {
-      const memento = redoStack.pop()!;
-      const restored = memento.restore();
-      
-      if (restored) {
-        // Move back to undo stack
-        this.addToUndoStack(unitId, memento);
-        this.caretakerStatistics.totalRedos++;
-      }
-
-      return restored;
-    } catch (error) {
-      return false;
-    }
-  }
 
   /**
    * Check if undo is available for a unit
    */
   public canUndo(unitId: string): boolean {
     const undoStack = this.undoStack.get(unitId);
-    return undoStack && undoStack.length > 0;
+    return !!(undoStack && undoStack.length > 0);
   }
 
   /**
@@ -171,17 +87,126 @@ export class UnitMementoCaretaker implements IUnitMementoCaretaker {
    */
   public canRedo(unitId: string): boolean {
     const redoStack = this.redoStack.get(unitId);
-    return redoStack && redoStack.length > 0;
+    return !!(redoStack && redoStack.length > 0);
   }
 
   /**
-   * Clear all mementos for a unit
+   * Clear all mementos
    */
-  public clearMementos(unitId: string): void {
+  public clearMementos(): void {
+    this.mementos.clear();
+    this.undoStack.clear();
+    this.redoStack.clear();
+    this.updateCaretakerStatistics();
+  }
+
+  /**
+   * Get a memento by unit ID
+   * @param unitId - The unit ID
+   * @returns The memento or undefined if not found
+   */
+  public getMemento(unitId: string): IUnitMemento | undefined {
+    const unitMementos = this.mementos.get(unitId);
+    return unitMementos && unitMementos.length > 0 ? unitMementos[unitMementos.length - 1] : undefined;
+  }
+
+  /**
+   * Get the latest memento for a unit
+   * @param unitId - The unit ID
+   * @returns The latest memento or undefined if not found
+   */
+  public getLatestMemento(unitId: string): IUnitMemento | undefined {
+    return this.getMemento(unitId);
+  }
+
+  /**
+   * Remove a memento
+   * @param unitId - The unit ID
+   * @returns True if removed, false otherwise
+   */
+  public removeMemento(unitId: string): boolean {
+    const hadMementos = this.mementos.has(unitId);
     this.mementos.delete(unitId);
     this.undoStack.delete(unitId);
     this.redoStack.delete(unitId);
     this.updateCaretakerStatistics();
+    return hadMementos;
+  }
+
+  /**
+   * Get all mementos
+   * @returns Array of all mementos
+   */
+  public getAllMementos(): IUnitMemento[] {
+    const allMementos: IUnitMemento[] = [];
+    for (const mementos of this.mementos.values()) {
+      allMementos.push(...mementos);
+    }
+    return allMementos;
+  }
+
+  /**
+   * Restore to a specific memento
+   * @param unitId - The unit ID
+   * @param memento - The memento to restore to
+   * @returns The restored state
+   */
+  public restoreToMemento(unitId: string, memento: IUnitMemento): any {
+    return memento.restore();
+  }
+
+  /**
+   * Undo the last operation for a unit
+   * @param unitId - The unit ID
+   * @returns The undone state or undefined if no undo available
+   */
+  public undo(unitId: string): any | undefined {
+    const undoStack = this.undoStack.get(unitId);
+    if (!undoStack || undoStack.length === 0) {
+      return undefined;
+    }
+
+    const memento = undoStack.pop();
+    if (memento) {
+      // Move to redo stack
+      const redoStack = this.redoStack.get(unitId) || [];
+      redoStack.push(memento);
+      this.redoStack.set(unitId, redoStack);
+
+      this.caretakerStatistics.totalUndos++;
+      this.updateCaretakerStatistics();
+
+      return memento.restore();
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Redo the last undone operation for a unit
+   * @param unitId - The unit ID
+   * @returns The redone state or undefined if no redo available
+   */
+  public redo(unitId: string): any | undefined {
+    const redoStack = this.redoStack.get(unitId);
+    if (!redoStack || redoStack.length === 0) {
+      return undefined;
+    }
+
+    const memento = redoStack.pop();
+    if (memento) {
+      // Move back to undo stack
+      const undoStack = this.undoStack.get(unitId) || [];
+      undoStack.push(memento);
+      this.undoStack.set(unitId, undoStack);
+
+      this.caretakerStatistics.totalRedos++;
+      this.updateCaretakerStatistics();
+
+      return memento.restore();
+    }
+
+    return undefined;
   }
 
   /**
@@ -213,6 +238,44 @@ export class UnitMementoCaretaker implements IUnitMementoCaretaker {
    */
   public getTotalMementoCount(): number {
     return this.caretakerStatistics.totalMementos;
+  }
+
+  /**
+   * Add a memento
+   * @param memento - The memento to add
+   */
+  public addMemento(memento: IUnitMemento): void {
+    this.saveMemento(memento);
+  }
+
+  /**
+   * Update a memento
+   * @param memento - The memento to update
+   */
+  public updateMemento(memento: IUnitMemento): void {
+    this.saveMemento(memento);
+  }
+
+  /**
+   * Find mementos by criteria
+   * @param criteria - The search criteria
+   * @returns Array of matching mementos
+   */
+  public findMementosByCriteria(criteria: any): IUnitMemento[] {
+    const allMementos = this.getAllMementos();
+    return allMementos.filter(memento => {
+      // Simple criteria matching - can be enhanced based on specific needs
+      if (criteria.unitId && memento.unitId !== criteria.unitId) {
+        return false;
+      }
+      if (criteria.unitType && memento.unitType !== criteria.unitType) {
+        return false;
+      }
+      if (criteria.strategyName && memento.strategyName !== criteria.strategyName) {
+        return false;
+      }
+      return true;
+    });
   }
 
   /**

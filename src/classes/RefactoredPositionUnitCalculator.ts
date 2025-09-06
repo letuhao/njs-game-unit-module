@@ -23,8 +23,8 @@ export class RefactoredPositionUnitCalculator implements IPositionUnit {
   public readonly baseValue: number | PositionValue;
   public readonly isActive: boolean = true;
 
-  private minPosition?: number;
-  private maxPosition?: number;
+  private minPosition: number | undefined;
+  private maxPosition: number | undefined;
   private performanceMetrics = {
     totalCalculations: 0,
     averageCalculationTime: 0,
@@ -221,14 +221,14 @@ export class RefactoredPositionUnitCalculator implements IPositionUnit {
    * Set position constraints
    */
   public setPositionConstraints(minPosition?: number, maxPosition?: number): void {
-    this.minPosition = minPosition;
-    this.maxPosition = maxPosition;
+    this.minPosition = minPosition ?? undefined;
+    this.maxPosition = maxPosition ?? undefined;
   }
 
   /**
    * Get position constraints
    */
-  public getPositionConstraints(): { minPosition?: number; maxPosition?: number } {
+  public getPositionConstraints(): { minPosition?: number | undefined; maxPosition?: number | undefined } {
     return {
       minPosition: this.minPosition,
       maxPosition: this.maxPosition,
@@ -256,6 +256,56 @@ export class RefactoredPositionUnitCalculator implements IPositionUnit {
     return `RefactoredPositionUnitCalculator(${this.id})`;
   }
 
+  /**
+   * Format the calculator with a specific format
+   */
+  public format(format: string): string {
+    switch (format) {
+      case 'json':
+        return JSON.stringify({
+          id: this.id,
+          name: this.name,
+          unitType: this.unitType,
+          positionUnit: this.positionUnit,
+          axis: this.axis
+        });
+      case 'px':
+        return `${this.baseValue}px`;
+      case 'detailed':
+        return `RefactoredPositionUnitCalculator(id: ${this.id}, name: ${this.name}, unit: ${this.positionUnit}, axis: ${this.axis})`;
+      default:
+        return this.toString();
+    }
+  }
+
+  /**
+   * Get alignment
+   */
+  public getAlignment(): string | undefined {
+    return undefined; // Default implementation
+  }
+
+  /**
+   * Set alignment
+   */
+  public setAlignment(alignment: string): void {
+    // Default implementation - no-op
+  }
+
+  /**
+   * Get offset
+   */
+  public getOffset(): number {
+    return 0; // Default implementation
+  }
+
+  /**
+   * Set offset
+   */
+  public setOffset(offset: number): void {
+    // Default implementation - no-op
+  }
+
 
   /**
    * Apply position constraints
@@ -280,7 +330,7 @@ export class RefactoredPositionUnitCalculator implements IPositionUnit {
       return this.baseValue;
     }
     
-    return DEFAULT_FALLBACK_VALUES.POSITION;
+    return DEFAULT_FALLBACK_VALUES.POSITION.DEFAULT;
   }
 
   /**

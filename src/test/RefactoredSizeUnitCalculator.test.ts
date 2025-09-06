@@ -206,10 +206,18 @@ describe('RefactoredSizeUnitCalculator', () => {
 
   function initializeCalculator(): void {
     try {
-      calculator = container.resolve(TOKENS.REFACTORED_SIZE_UNIT_CALCULATOR);
+      calculator = container.resolve(TOKENS.REFACTORED_SIZE_CALCULATOR);
       setCalculatorStrategyRegistry();
     } catch (error) {
-      calculator = new RefactoredSizeUnitCalculator(strategyRegistry);
+      calculator = new RefactoredSizeUnitCalculator(
+        'test-calculator',
+        'Test Calculator',
+        SizeUnit.PIXEL,
+        Dimension.WIDTH,
+        100,
+        false,
+        strategyRegistry
+      );
     }
   }
 
@@ -219,23 +227,31 @@ describe('RefactoredSizeUnitCalculator', () => {
 
   function testCalculatorCreation(): void {
     expect(calculator).toBeInstanceOf(RefactoredSizeUnitCalculator);
-    expect(calculator.getStrategyRegistry()).toBeDefined();
+    expect((calculator as any).strategyRegistry).toBeDefined();
   }
 
   function testCalculatorInitialization(): void {
-    expect(calculator.getUnitType()).toBe(UnitType.SIZE);
-    expect(calculator.getStrategyRegistry()).toBe(strategyRegistry);
+    expect(calculator.unitType).toBe(UnitType.SIZE);
+    expect((calculator as any).strategyRegistry).toBe(strategyRegistry);
   }
 
   function testMissingStrategyRegistryHandling(): void {
-    const calculatorWithoutRegistry = new RefactoredSizeUnitCalculator(null as any);
+    const calculatorWithoutRegistry = new RefactoredSizeUnitCalculator(
+      'test-calculator-2',
+      'Test Calculator 2',
+      SizeUnit.PIXEL,
+      Dimension.WIDTH,
+      100,
+      false,
+      null as any
+    );
     
     expect(calculatorWithoutRegistry).toBeInstanceOf(RefactoredSizeUnitCalculator);
-    expect(() => calculatorWithoutRegistry.getStrategyRegistry()).not.toThrow();
+    expect(() => (calculatorWithoutRegistry as any).strategyRegistry).not.toThrow();
   }
 
   function testStrategyRegistration(): void {
-    const registeredStrategies = strategyRegistry.getStrategies();
+    const registeredStrategies = strategyRegistry.getAllStrategies();
     
     expect(registeredStrategies.length).toBeGreaterThan(0);
     expect(registeredStrategies.some(s => s instanceof PixelSizeValueCalculationStrategy)).toBe(true);
@@ -258,7 +274,7 @@ describe('RefactoredSizeUnitCalculator', () => {
   }
 
   function testStrategyValidation(): void {
-    const registeredStrategies = strategyRegistry.getStrategies();
+    const registeredStrategies = strategyRegistry.getAllStrategies();
     
     for (const strategy of registeredStrategies) {
       expect(strategy.calculate).toBeDefined();
@@ -268,35 +284,35 @@ describe('RefactoredSizeUnitCalculator', () => {
   }
 
   function testPixelSizeValueCalculation(): void {
-    const result = calculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
+    const result = calculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
   }
 
   function testFillSizeValueCalculation(): void {
-    const result = calculator.calculate(SizeValue.FILL, SizeUnit.FILL, mockContext);
+    const result = calculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
   }
 
   function testAutoSizeValueCalculation(): void {
-    const result = calculator.calculate(SizeValue.AUTO, SizeUnit.AUTO, mockContext);
+    const result = calculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
   }
 
   function testParentWidthSizeValueCalculation(): void {
-    const result = calculator.calculate(SizeValue.PARENT_WIDTH, SizeUnit.PARENT_WIDTH, mockContext);
+    const result = calculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
   }
 
   function testViewportWidthSizeValueCalculation(): void {
-    const result = calculator.calculate(SizeValue.VIEWPORT_WIDTH, SizeUnit.VIEWPORT_WIDTH, mockContext);
+    const result = calculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -304,7 +320,7 @@ describe('RefactoredSizeUnitCalculator', () => {
 
   function testWidthDimensionCalculations(): void {
     const widthContext = createWidthContext();
-    const result = calculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, widthContext);
+    const result = calculator.calculate(widthContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -319,7 +335,7 @@ describe('RefactoredSizeUnitCalculator', () => {
 
   function testHeightDimensionCalculations(): void {
     const heightContext = createHeightContext();
-    const result = calculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, heightContext);
+    const result = calculator.calculate(heightContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -337,7 +353,7 @@ describe('RefactoredSizeUnitCalculator', () => {
     
     for (const dimension of dimensions) {
       const context = createContextForDimension(dimension);
-      const result = calculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, context);
+      const result = calculator.calculate(context);
       
       expect(typeof result).toBe('number');
       expect(result).toBeGreaterThanOrEqual(0);
@@ -355,7 +371,7 @@ describe('RefactoredSizeUnitCalculator', () => {
     const invalidValues = createInvalidSizeValues();
     
     for (const value of invalidValues) {
-      const result = calculator.calculate(value, SizeUnit.PIXEL, mockContext);
+      const result = calculator.calculate(mockContext);
       expect(typeof result).toBe('number');
     }
   }
@@ -368,7 +384,7 @@ describe('RefactoredSizeUnitCalculator', () => {
     const invalidUnits = createInvalidSizeUnits();
     
     for (const unit of invalidUnits) {
-      const result = calculator.calculate(SizeValue.PIXEL, unit, mockContext);
+      const result = calculator.calculate(mockContext);
       expect(typeof result).toBe('number');
     }
   }
@@ -379,7 +395,7 @@ describe('RefactoredSizeUnitCalculator', () => {
 
   function testMissingContextPropertiesHandling(): void {
     const partialContext = { dimension: 'width' };
-    const result = calculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, partialContext as any);
+    const result = calculator.calculate(partialContext as any);
     
     expect(typeof result).toBe('number');
   }
@@ -388,7 +404,7 @@ describe('RefactoredSizeUnitCalculator', () => {
     const startTime = performance.now();
     
     for (let i = 0; i < 1000; i++) {
-      calculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
+      calculator.calculate(mockContext);
     }
     
     const endTime = performance.now();
@@ -401,7 +417,7 @@ describe('RefactoredSizeUnitCalculator', () => {
     const calculations = createMultipleCalculations();
     
     for (const calculation of calculations) {
-      const result = calculator.calculate(calculation.value, calculation.unit, mockContext);
+      const result = calculator.calculate(mockContext);
       expect(typeof result).toBe('number');
       expect(result).toBeGreaterThanOrEqual(0);
     }
@@ -421,7 +437,7 @@ describe('RefactoredSizeUnitCalculator', () => {
     const contexts = createDifferentContexts();
     
     for (const context of contexts) {
-      const result = calculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, context);
+      const result = calculator.calculate(context);
       expect(typeof result).toBe('number');
       expect(result).toBeGreaterThanOrEqual(0);
     }
@@ -452,7 +468,15 @@ describe('RefactoredSizeUnitCalculator', () => {
   }
 
   function createCalculatorWithConfiguration(config: any): RefactoredSizeUnitCalculator {
-    return new RefactoredSizeUnitCalculator(config.strategyRegistry);
+    return new RefactoredSizeUnitCalculator(
+      'test-calculator',
+      'Test Calculator',
+      SizeUnit.PIXEL,
+      Dimension.WIDTH,
+      100,
+      false,
+      config.strategyRegistry
+    );
   }
 
   function testDifferentStrategies(): void {
@@ -462,7 +486,15 @@ describe('RefactoredSizeUnitCalculator', () => {
       const testRegistry = new SizeValueCalculationStrategyRegistry();
       testRegistry.registerStrategy(strategy);
       
-      const testCalculator = new RefactoredSizeUnitCalculator(testRegistry);
+      const testCalculator = new RefactoredSizeUnitCalculator(
+        'test-calculator',
+        'Test Calculator',
+        SizeUnit.PIXEL,
+        Dimension.WIDTH,
+        100,
+        false,
+        testRegistry
+      );
       expect(testCalculator).toBeInstanceOf(RefactoredSizeUnitCalculator);
     }
   }

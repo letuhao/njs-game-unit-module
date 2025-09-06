@@ -1,4 +1,4 @@
-import { BaseUnitComposite } from './IUnitComposite';
+import { BaseUnitComposite } from '../interfaces/IUnitComposite';
 import type { IUnit } from '../interfaces/IUnit';
 import type { UnitContext } from '../interfaces/IUnit';
 import { UnitType } from '../enums/UnitType';
@@ -13,7 +13,7 @@ import { CalculationStrategy } from '../enums/CalculationStrategy';
  */
 export class UnitGroupComposite extends BaseUnitComposite {
   private calculationStrategy: CalculationStrategy = CalculationStrategy.SUM;
-  private customCalculator?: (results: number[]) => number;
+  private customCalculator: ((results: number[]) => number) | undefined;
 
   constructor(
     id: string,
@@ -21,38 +21,25 @@ export class UnitGroupComposite extends BaseUnitComposite {
     baseValue: number = 0,
     calculationStrategy: CalculationStrategy = CalculationStrategy.SUM
   ) {
-    super(id, name, baseValue);
+    super(id, name, UnitType.COMPOSITE, baseValue);
     this.calculationStrategy = calculationStrategy;
   }
 
-  /**
-   * Get the composite ID
-   */
-  get id(): string {
-    return this.compositeId;
-  }
-
-  /**
-   * Get the composite name
-   */
-  get name(): string {
-    return this.compositeName;
-  }
 
   /**
    * Add a unit to the composite
    */
   addUnit(unit: IUnit): void {
-    this.units.push(unit);
+    this.addChild(unit);
   }
 
   /**
    * Remove a unit from the composite
    */
   removeUnit(unitId: string): void {
-    const index = this.units.findIndex(unit => unit.id === unitId);
-    if (index !== -1) {
-      this.units.splice(index, 1);
+    const unit = this.getChildById(unitId);
+    if (unit) {
+      this.removeChild(unit);
     }
   }
 
@@ -60,35 +47,35 @@ export class UnitGroupComposite extends BaseUnitComposite {
    * Get the number of units in the composite
    */
   getUnitCount(): number {
-    return this.units.length;
+    return this.getChildCount();
   }
 
   /**
    * Check if a unit exists in the composite
    */
   hasUnit(unitId: string): boolean {
-    return this.units.some(unit => unit.id === unitId);
+    return this.getChildById(unitId) !== undefined;
   }
 
   /**
    * Get units by type
    */
   getUnitsByType(unitType: UnitType): IUnit[] {
-    return this.units.filter(unit => unit.unitType === unitType);
+    return this.getChildren().filter(unit => unit.unitType === unitType);
   }
 
   /**
    * Get all units in the composite
    */
   getAllUnits(): IUnit[] {
-    return [...this.units];
+    return this.getChildren();
   }
 
   /**
    * Clear all units from the composite
    */
   clearUnits(): void {
-    this.units = [];
+    this.getChildren().forEach(unit => this.removeChild(unit));
   }
 
   /**
@@ -104,13 +91,13 @@ export class UnitGroupComposite extends BaseUnitComposite {
    */
   public calculate(context: UnitContext): number {
     try {
-      if (this.units.length === 0) {
+      if (this.getChildCount() === 0) {
         return this.baseValue;
       }
 
       const results: number[] = [];
       
-      for (const unit of this.units) {
+      for (const unit of this.getChildren()) {
         if (unit.isActive) {
           const result = unit.calculate(context);
           results.push(result);
@@ -136,7 +123,7 @@ export class UnitGroupComposite extends BaseUnitComposite {
     }
 
     // Validate all units
-    for (const unit of this.units) {
+    for (const unit of this.getChildren()) {
       if (!unit.validate(context)) {
         return false;
       }
@@ -149,7 +136,7 @@ export class UnitGroupComposite extends BaseUnitComposite {
    * Check if any unit is responsive
    */
   public isResponsive(): boolean {
-    return this.units.some(unit => unit.isResponsive());
+    return this.getChildren().some(unit => unit.isResponsive());
   }
 
   /**
@@ -184,11 +171,11 @@ export class UnitGroupComposite extends BaseUnitComposite {
    * Get composite statistics
    */
   public getCompositeStatistics() {
-    const activeUnits = this.units.filter(unit => unit.isActive);
-    const responsiveUnits = this.units.filter(unit => unit.isResponsive());
+    const activeUnits = this.getChildren().filter(unit => unit.isActive);
+    const responsiveUnits = this.getChildren().filter(unit => unit.isResponsive());
     
     return {
-      totalUnits: this.units.length,
+      totalUnits: this.getChildCount(),
       activeUnits: activeUnits.length,
       responsiveUnits: responsiveUnits.length,
       calculationStrategy: this.calculationStrategy,
@@ -224,10 +211,13 @@ export class UnitGroupComposite extends BaseUnitComposite {
         return this.calculateWeightedAverage(results);
       
       case CalculationStrategy.CUSTOM:
-        return this.customCalculator ? this.customCalculator(results) : results[0];
+        if (this.customCalculator && typeof this.customCalculator === 'function') {
+          return this.customCalculator(results);
+        }
+        return results[0] ?? 0;
       
       default:
-        return results[0];
+        return results[0] ?? 0;
     }
   }
 
@@ -235,13 +225,15 @@ export class UnitGroupComposite extends BaseUnitComposite {
    * Calculate median value
    */
   private calculateMedian(results: number[]): number {
+    if (results.length === 0) return 0;
+    
     const sorted = [...results].sort((a, b) => a - b);
     const middle = Math.floor(sorted.length / 2);
     
     if (sorted.length % 2 === 0) {
-      return (sorted[middle - 1] + sorted[middle]) / 2;
+      return (sorted[middle - 1]! + sorted[middle]!) / 2;
     } else {
-      return sorted[middle];
+      return sorted[middle]!;
     }
   }
 
@@ -249,11 +241,13 @@ export class UnitGroupComposite extends BaseUnitComposite {
    * Calculate weighted average
    */
   private calculateWeightedAverage(results: number[]): number {
+    if (results.length === 0) return 0;
+    
     // Simple weighted average - can be enhanced with actual weights
     const weights = results.map((_, index) => 1 / (index + 1));
-    const weightedSum = results.reduce((sum, result, index) => sum + result * weights[index], 0);
+    const weightedSum = results.reduce((sum, result, index) => sum + result * (weights[index] ?? 0), 0);
     const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
     
-    return weightedSum / totalWeight;
+    return totalWeight > 0 ? weightedSum / totalWeight : 0;
   }
 }

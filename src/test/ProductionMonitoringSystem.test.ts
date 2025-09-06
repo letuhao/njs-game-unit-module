@@ -128,15 +128,20 @@ describe('ProductionMonitoringSystem', () => {
 
   function createMonitoringConfig(): void {
     config = {
-      enabled: true,
+      enablePerformanceMonitoring: true,
+      enableHealthChecks: true,
+      enableAlerts: true,
+      alertingEnabled: true,
       metricsCollectionInterval: 1000,
       healthCheckInterval: 2000,
-      alertingEnabled: true,
       performanceThresholds: {
-        maxExecutionTime: 100,
-        maxMemoryUsage: 1024 * 1024, // 1MB
-        minThroughput: 10,
-        maxErrorRate: 5,
+        responseTime: 100,
+        memoryUsage: 50,
+        errorRate: 0.1,
+      },
+      alertThresholds: {
+        critical: 0.9,
+        warning: 0.7,
       },
     };
   }
@@ -169,15 +174,20 @@ describe('ProductionMonitoringSystem', () => {
 
   function createDefaultConfig(): MonitoringConfig {
     return {
-      enabled: true,
+      enablePerformanceMonitoring: true,
+      enableHealthChecks: true,
+      enableAlerts: false,
+      alertingEnabled: false,
       metricsCollectionInterval: 5000,
       healthCheckInterval: 10000,
-      alertingEnabled: false,
       performanceThresholds: {
-        maxExecutionTime: 500,
-        maxMemoryUsage: 5 * 1024 * 1024, // 5MB
-        minThroughput: 1,
-        maxErrorRate: 10,
+        responseTime: 500,
+        memoryUsage: 100,
+        errorRate: 0.2,
+      },
+      alertThresholds: {
+        critical: 0.95,
+        warning: 0.8,
       },
     };
   }
@@ -192,15 +202,20 @@ describe('ProductionMonitoringSystem', () => {
 
   function createInvalidConfig(): MonitoringConfig {
     return {
-      enabled: true,
+      enablePerformanceMonitoring: true,
+      enableHealthChecks: true,
+      enableAlerts: true,
+      alertingEnabled: true,
       metricsCollectionInterval: -1,
       healthCheckInterval: 0,
-      alertingEnabled: true,
       performanceThresholds: {
-        maxExecutionTime: -1,
-        maxMemoryUsage: -1,
-        minThroughput: -1,
-        maxErrorRate: -1,
+        responseTime: -1,
+        memoryUsage: -1,
+        errorRate: -1,
+      },
+      alertThresholds: {
+        critical: -1,
+        warning: -1,
       },
     };
   }
@@ -247,7 +262,8 @@ describe('ProductionMonitoringSystem', () => {
   }
 
   function testHealthCheckExecution(): void {
-    const healthStatus = monitoringSystem.performHealthCheck();
+    monitoringSystem.performHealthCheck('test-component', () => true, 'Test health check');
+    const healthStatus = monitoringSystem.getHealthStatus();
     
     expect(healthStatus).toBeDefined();
     expect(typeof healthStatus.isHealthy).toBe('boolean');
@@ -255,7 +271,8 @@ describe('ProductionMonitoringSystem', () => {
   }
 
   function testSystemHealthIssueDetection(): void {
-    const healthStatus = monitoringSystem.performHealthCheck();
+    monitoringSystem.performHealthCheck('test-component', () => false, 'Test health check');
+    const healthStatus = monitoringSystem.getHealthStatus();
     
     expect(healthStatus).toBeDefined();
     expect(typeof healthStatus.isHealthy).toBe('boolean');

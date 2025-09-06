@@ -44,6 +44,63 @@ export class PerformanceObserver implements IUnitObserver {
   }
 
   /**
+   * Update method for compatibility with test expectations
+   */
+  public update(unit: any, eventType: string, context?: any, performanceData?: any): void {
+    if (eventType === 'calculation' && performanceData) {
+      this.recordCalculationPerformance(unit.id, performanceData.executionTime || 0, unit.unitType || 'unknown');
+    }
+  }
+
+  /**
+   * Record calculation performance metrics
+   * @param unitId - The unit ID
+   * @param executionTime - The execution time in milliseconds
+   * @param unitType - The unit type
+   */
+  public recordCalculationPerformance(unitId: string, executionTime: number, unitType: string): void {
+    this.performanceMetrics.totalCalculations++;
+    this.performanceMetrics.totalCalculationTime += executionTime;
+    this.performanceMetrics.calculationTimes.push(executionTime);
+    
+    // Update min/max times
+    if (executionTime < this.performanceMetrics.minCalculationTime) {
+      this.performanceMetrics.minCalculationTime = executionTime;
+    }
+    if (executionTime > this.performanceMetrics.maxCalculationTime) {
+      this.performanceMetrics.maxCalculationTime = executionTime;
+    }
+    
+    // Update average
+    this.performanceMetrics.averageCalculationTime = 
+      this.performanceMetrics.totalCalculationTime / this.performanceMetrics.totalCalculations;
+    
+    // Update unit type stats
+    if (!this.performanceMetrics.unitTypeStats.has(unitType)) {
+      this.performanceMetrics.unitTypeStats.set(unitType, {
+        count: 0,
+        totalTime: 0,
+        averageTime: 0,
+        minTime: Infinity,
+        maxTime: 0
+      });
+    }
+    
+    const unitTypeStats = this.performanceMetrics.unitTypeStats.get(unitType)!;
+    unitTypeStats.count++;
+    unitTypeStats.totalTime += executionTime;
+    unitTypeStats.averageTime = unitTypeStats.totalTime / unitTypeStats.count;
+    
+    // Update min/max times for unit type
+    if (executionTime < unitTypeStats.minTime) {
+      unitTypeStats.minTime = executionTime;
+    }
+    if (executionTime > unitTypeStats.maxTime) {
+      unitTypeStats.maxTime = executionTime;
+    }
+  }
+
+  /**
    * Called when a unit is created
    */
   public onUnitCreated(unitId: string, unitType: string): void {

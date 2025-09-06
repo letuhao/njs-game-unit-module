@@ -2,7 +2,7 @@ import type { IPositionValueCalculationStrategy } from '../value-calculation/IPo
 import type { IPositionValueCalculationStrategyRegistry } from '../value-calculation/IPositionValueCalculationStrategy';
 import { PositionValue } from '../../enums/PositionValue';
 import { PositionUnit } from '../../enums/PositionUnit';
-// AxisUnit enum not found, using string for now
+import { AxisUnit } from '../../enums/AxisUnit';
 
 /**
  * Registry for position value calculation strategies
@@ -121,7 +121,7 @@ export class PositionValueCalculationStrategyRegistry
 
     try {
       const matchingStrategies = Array.from(this.strategies.values()).filter(strategy =>
-        strategy.canHandle(positionValue, positionUnit, axisUnit)
+        strategy.canHandle(positionValue, positionUnit, axisUnit as AxisUnit)
       );
 
       if (matchingStrategies.length === 0) {
@@ -203,6 +203,47 @@ export class PositionValueCalculationStrategyRegistry
    */
   public getRegistryStatistics() {
     return { ...this.registryStatistics };
+  }
+
+  getStrategiesFor(positionValue: PositionValue, positionUnit: PositionUnit, axisUnit: AxisUnit): IPositionValueCalculationStrategy[] {
+    return Array.from(this.strategies.values()).filter(strategy =>
+      strategy.canHandle(positionValue, positionUnit, axisUnit)
+    );
+  }
+
+  getBestStrategy(positionValue: PositionValue, positionUnit: PositionUnit, axisUnit: AxisUnit): IPositionValueCalculationStrategy | undefined {
+    const matchingStrategies = this.getStrategiesFor(positionValue, positionUnit, axisUnit);
+    if (matchingStrategies.length === 0) return undefined;
+
+    return matchingStrategies.reduce((best, current) => {
+      const currentPriority = typeof current.getPriority === 'function' ? current.getPriority() : 0;
+      const bestPriority = typeof best.getPriority === 'function' ? best.getPriority() : 0;
+      return currentPriority > bestPriority ? current : best;
+    });
+  }
+
+  getStatistics() {
+    const strategies = Array.from(this.strategies.values());
+    const strategiesByPositionValue: Record<string, number> = {};
+    const strategiesByPositionUnit: Record<string, number> = {};
+    const strategiesByAxisUnit: Record<string, number> = {};
+
+    strategies.forEach(strategy => {
+      const positionValue = strategy.positionValue;
+      const positionUnit = strategy.positionUnit;
+      const axisUnit = strategy.axisUnit;
+
+      strategiesByPositionValue[positionValue] = (strategiesByPositionValue[positionValue] || 0) + 1;
+      strategiesByPositionUnit[positionUnit] = (strategiesByPositionUnit[positionUnit] || 0) + 1;
+      strategiesByAxisUnit[axisUnit] = (strategiesByAxisUnit[axisUnit] || 0) + 1;
+    });
+
+    return {
+      totalStrategies: strategies.length,
+      strategiesByPositionValue,
+      strategiesByPositionUnit,
+      strategiesByAxisUnit
+    };
   }
 
   /**

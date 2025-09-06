@@ -64,11 +64,11 @@ export class RefactoredScaleUnitCalculator implements IScaleUnit {
       }
 
       // Get calculation from strategy registry
-      const result = this.strategyRegistry.executeStrategy(
+      const strategy = this.strategyRegistry.findBestStrategy(
         this.baseValue as ScaleValue,
-        this.scaleUnit,
-        context
+        this.scaleUnit
       );
+      const result = strategy ? strategy.calculate(this.baseValue as ScaleValue, this.scaleUnit, context) : this.getFallbackValue();
 
       // Apply constraints
       const constrainedResult = this.applyConstraints(result);
@@ -143,8 +143,8 @@ export class RefactoredScaleUnitCalculator implements IScaleUnit {
    * Set scale constraints
    */
   public setScaleConstraints(minScale?: number, maxScale?: number): void {
-    this.minScale = minScale;
-    this.maxScale = maxScale;
+    if (minScale !== undefined) this.minScale = minScale;
+    if (maxScale !== undefined) this.maxScale = maxScale;
   }
 
   /**
@@ -209,7 +209,89 @@ export class RefactoredScaleUnitCalculator implements IScaleUnit {
       return this.baseValue;
     }
     
-    return DEFAULT_FALLBACK_VALUES.SCALE;
+    return DEFAULT_FALLBACK_VALUES.SCALE.DEFAULT;
+  }
+
+  /**
+   * Calculate scale based on context
+   */
+  public calculateScale(context: UnitContext): number {
+    return this.calculate(context);
+  }
+
+  /**
+   * Calculate X scale specifically
+   */
+  public calculateScaleX(context: UnitContext): number {
+    return this.calculate(context);
+  }
+
+  /**
+   * Calculate Y scale specifically
+   */
+  public calculateScaleY(context: UnitContext): number {
+    return this.calculate(context);
+  }
+
+  /**
+   * Calculate both X and Y scales
+   */
+  public calculateBoth(context: UnitContext): { scaleX: number; scaleY: number } {
+    const scale = this.calculate(context);
+    return { scaleX: scale, scaleY: scale };
+  }
+
+  /**
+   * Get the minimum scale constraint
+   */
+  public getMinScale(): number | undefined {
+    return this.minScale;
+  }
+
+  /**
+   * Get the maximum scale constraint
+   */
+  public getMaxScale(): number | undefined {
+    return this.maxScale;
+  }
+
+
+  /**
+   * Check if scaling should be uniform (same for X and Y)
+   */
+  public isUniformScaling(): boolean {
+    return this.maintainAspectRatio;
+  }
+
+  /**
+   * Set uniform scaling mode
+   */
+  public setUniformScaling(uniform: boolean): void {
+    // This would require changing the maintainAspectRatio property
+    // For now, we'll just log that this is not directly modifiable
+    console.warn('setUniformScaling: maintainAspectRatio is readonly, cannot be changed at runtime');
+  }
+
+  /**
+   * Format method for IUnit interface
+   */
+  public format(format: string): string {
+    switch (format) {
+      case 'json':
+        return JSON.stringify({
+          id: this.id,
+          name: this.name,
+          unitType: this.unitType,
+          scaleUnit: this.scaleUnit,
+          baseValue: this.baseValue
+        });
+      case 'px':
+        return `${this.baseValue}px`;
+      case 'detailed':
+        return `RefactoredScaleUnitCalculator(id: ${this.id}, name: ${this.name}, unit: ${this.scaleUnit}, value: ${this.baseValue})`;
+      default:
+        return this.toString();
+    }
   }
 
   /**

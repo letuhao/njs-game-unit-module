@@ -15,6 +15,26 @@ export enum CalculationStrategy {
   SUM = 'sum',
 
   /**
+   * Average calculation strategy
+   */
+  AVERAGE = 'average',
+
+  /**
+   * Minimum calculation strategy
+   */
+  MIN = 'min',
+
+  /**
+   * Maximum calculation strategy
+   */
+  MAX = 'max',
+
+  /**
+   * Median calculation strategy
+   */
+  MEDIAN = 'median',
+
+  /**
    * Weighted average calculation strategy
    */
   WEIGHTED_AVERAGE = 'weighted-average',

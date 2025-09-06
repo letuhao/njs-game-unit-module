@@ -1,11 +1,11 @@
-import type { IRandomValueNumber } from '../interfaces/IRandomValue';
-import { container, TOKENS } from '../container';
+import type { IRandomValue } from '../interfaces/IRandomValue';
+import { container, TOKENS } from '../container/DiContainer';
 
 /**
  * Concrete implementation of RandomValueNumber
  * Now part of the unit system for generating random values
  */
-export class RandomValueNumber implements IRandomValueNumber {
+export class RandomValueNumber implements IRandomValue {
   constructor(
     public min: number,
     public max: number,
@@ -45,8 +45,45 @@ export class RandomValueNumber implements IRandomValueNumber {
     return this.current;
   }
 
+  /** Generate a random value between min and max */
+  generate(min: number, max: number): number {
+    return Math.random() * (max - min) + min;
+  }
+
+  /** Generate a random integer between min and max */
+  generateInt(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  /** Generate a random boolean */
+  generateBoolean(): boolean {
+    return Math.random() < 0.5;
+  }
+
+  /** Generate a random value from an array */
+  generateFromArray<T>(array: T[]): T {
+    if (array.length === 0) {
+      throw new Error('Cannot generate from empty array');
+    }
+    return array[Math.floor(Math.random() * array.length)]!;
+  }
+
+  /** Set the seed for reproducible random values */
+  setSeed(seed: number): void {
+    // Simple seed implementation
+    Math.random = () => {
+      const x = Math.sin(seed++) * 10000;
+      return x - Math.floor(x);
+    };
+  }
+
+  /** Get the current seed */
+  getSeed(): number {
+    return 0; // Simple implementation
+  }
+
   /** Clone the random value with optional modifications */
-  clone(overrides?: Partial<IRandomValueNumber>): RandomValueNumber {
+  clone(overrides?: Partial<RandomValueNumber>): RandomValueNumber {
     return new RandomValueNumber(
       overrides?.min ?? this.min,
       overrides?.max ?? this.max,
@@ -77,7 +114,7 @@ export function createRandomValueNumber(min: number, max: number, current?: numb
   try {
     // Try to resolve from DI container first
     const RandomValueNumberClass = container.resolve(TOKENS.RANDOM_VALUE_NUMBER);
-    return new RandomValueNumberClass(min, max, current);
+    return new (RandomValueNumberClass as any)(min, max, current);
   } catch (error) {
     // Fallback to direct instantiation
     return new RandomValueNumber(min, max, current);

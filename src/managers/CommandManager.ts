@@ -70,7 +70,7 @@ export class CommandManager implements ICommandManager {
     const startTime = performance.now();
     
     try {
-      const result = command.execute(context);
+      const result = command.execute();
       
       // Add to history
       this.addToHistory(command);
@@ -111,6 +111,9 @@ export class CommandManager implements ICommandManager {
 
     try {
       const command = this.commandHistory[this.currentIndex];
+      if (!command) {
+        return false;
+      }
       command.undo();
       
       this.currentIndex--;
@@ -133,7 +136,10 @@ export class CommandManager implements ICommandManager {
     try {
       this.currentIndex++;
       const command = this.commandHistory[this.currentIndex];
-      command.execute({} as UnitContext); // Context needed for redo
+      if (!command) {
+        return false;
+      }
+      command.execute(); // No context needed for redo
       
       this.executionStatistics.totalRedone++;
       

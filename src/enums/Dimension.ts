@@ -8,5 +8,6 @@ export enum Dimension {
   BOTH = 'both',
   X = 'x',
   Y = 'y',
-  XY = 'xy'
+  XY = 'xy',
+  Z = 'z'
 }

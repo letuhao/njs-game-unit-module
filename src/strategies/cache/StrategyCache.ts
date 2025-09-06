@@ -21,7 +21,7 @@ export class StrategyCache<TValue, TUnit, TResult>
   private missCount = 0;
   private evictionCount = 0;
   private accessTimes: number[] = [];
-  private readonly keyGenerator: CacheKeyGenerator<TValue, TUnit>;
+  private keyGenerator: CacheKeyGenerator<TValue, TUnit>;
   private cacheStatistics = {
     totalRequests: 0,
     hitRate: 0,
@@ -45,9 +45,24 @@ export class StrategyCache<TValue, TUnit, TResult>
   }
 
   /**
+   * Default key generator
+   */
+  private defaultKeyGenerator(value: TValue, unit: TUnit, context: UnitContext): string {
+    return `${JSON.stringify(value)}_${JSON.stringify(unit)}_${JSON.stringify(context)}`;
+  }
+
+  /**
+   * Generate cache key
+   */
+  private generateKey(value: TValue, unit: TUnit, context: UnitContext): string {
+    return this.keyGenerator(value, unit, context);
+  }
+
+  /**
    * Get a value from the cache
    */
-  public get(key: string): TResult | undefined {
+  public get(value: TValue, unit: TUnit, context: UnitContext): TResult | null {
+    const key = this.generateKey(value, unit, context);
     const startTime = performance.now();
     this.cacheStatistics.totalRequests++;
 
@@ -56,7 +71,7 @@ export class StrategyCache<TValue, TUnit, TResult>
     if (!entry) {
       this.missCount++;
       this.updateStatistics(performance.now() - startTime);
-      return undefined;
+      return null;
     }
 
     // Check if entry has expired
@@ -65,7 +80,7 @@ export class StrategyCache<TValue, TUnit, TResult>
       this.removeFromAccessOrder(key);
       this.missCount++;
       this.updateStatistics(performance.now() - startTime);
-      return undefined;
+      return null;
     }
 
     // Update access order for LRU
@@ -79,12 +94,14 @@ export class StrategyCache<TValue, TUnit, TResult>
   /**
    * Set a value in the cache
    */
-  public set(key: string, value: TResult, ttl?: number): void {
+  public set(value: TValue, unit: TUnit, context: UnitContext, result: TResult, ttl?: number): void {
+    const key = this.generateKey(value, unit, context);
     const entry: ICacheEntry<TResult> = {
-      value,
+      value: result,
       timestamp: Date.now(),
       ttl: ttl || this.defaultTtl,
       accessCount: 0,
+      lastAccess: Date.now(),
     };
 
     // Check if we need to evict entries
@@ -99,7 +116,8 @@ export class StrategyCache<TValue, TUnit, TResult>
   /**
    * Check if a key exists in the cache
    */
-  public has(key: string): boolean {
+  public has(value: TValue, unit: TUnit, context: UnitContext): boolean {
+    const key = this.generateKey(value, unit, context);
     const entry = this.cache.get(key);
     return entry !== undefined && !this.isExpired(entry);
   }
@@ -107,7 +125,8 @@ export class StrategyCache<TValue, TUnit, TResult>
   /**
    * Delete a key from the cache
    */
-  public delete(key: string): boolean {
+  public delete(value: TValue, unit: TUnit, context: UnitContext): boolean {
+    const key = this.generateKey(value, unit, context);
     const deleted = this.cache.delete(key);
     if (deleted) {
       this.removeFromAccessOrder(key);
@@ -135,7 +154,15 @@ export class StrategyCache<TValue, TUnit, TResult>
    * Get cache statistics
    */
   public getStatistics() {
-    return { ...this.cacheStatistics };
+    return {
+      size: this.cache.size,
+      maxSize: this.maxSize,
+      hitCount: this.hitCount,
+      missCount: this.missCount,
+      hitRate: this.cacheStatistics.hitRate,
+      averageAccessTime: this.cacheStatistics.averageAccessTime,
+      evictionCount: this.cacheStatistics.evictionRate,
+    };
   }
 
   /**
@@ -143,6 +170,56 @@ export class StrategyCache<TValue, TUnit, TResult>
    */
   public getHitRate(): number {
     return this.cacheStatistics.hitRate;
+  }
+
+  /**
+   * Check if cache is full
+   */
+  public isFull(): boolean {
+    return this.cache.size >= this.maxSize;
+  }
+
+  /**
+   * Get cache size
+   */
+  public getSize(): number {
+    return this.cache.size;
+  }
+
+  /**
+   * Set maximum cache size
+   */
+  public setMaxSize(maxSize: number): void {
+    this.maxSize = maxSize;
+  }
+
+  /**
+   * Set default TTL for new entries
+   */
+  public setDefaultTtl(ttl: number): void {
+    this.defaultTtl = ttl;
+  }
+
+  /**
+   * Clean up expired entries
+   */
+  public cleanup(): number {
+    let cleanedCount = 0;
+    const keysToDelete: string[] = [];
+    
+    for (const [key, entry] of this.cache.entries()) {
+      if (this.isExpired(entry)) {
+        keysToDelete.push(key);
+      }
+    }
+    
+    for (const key of keysToDelete) {
+      this.cache.delete(key);
+      this.removeFromAccessOrder(key);
+      cleanedCount++;
+    }
+    
+    return cleanedCount;
   }
 
   /**
@@ -178,20 +255,15 @@ export class StrategyCache<TValue, TUnit, TResult>
     };
   }
 
-  /**
-   * Generate cache key for value and unit
-   */
-  public generateKey(value: TValue, unit: TUnit): string {
-    return this.keyGenerator(value, unit);
-  }
 
   /**
    * Get cache entry details
    */
-  public getEntryDetails(key: string): ICacheEntry<TResult> | undefined {
+  public getEntryDetails(value: TValue, unit: TUnit, context: UnitContext): ICacheEntry<TResult> | null {
+    const key = this.generateKey(value, unit, context);
     const entry = this.cache.get(key);
     if (!entry || this.isExpired(entry)) {
-      return undefined;
+      return null;
     }
     return { ...entry };
   }
@@ -291,10 +363,4 @@ export class StrategyCache<TValue, TUnit, TResult>
     this.cacheStatistics.memoryUsage = this.cache.size * 1024; // 1KB per entry estimate
   }
 
-  /**
-   * Default key generator
-   */
-  private defaultKeyGenerator: CacheKeyGenerator<TValue, TUnit> = (value, unit) => {
-    return `${JSON.stringify(value)}_${JSON.stringify(unit)}`;
-  };
 }

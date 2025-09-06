@@ -1,7 +1,7 @@
 import { describe, beforeEach, afterEach, it, expect, jest } from '@jest/globals';
 import { LegacySizeUnitAdapter } from '../adapters/LegacySizeUnitAdapter';
 import { SizeUnit } from '../enums/SizeUnit';
-import { createMockContext } from './setup';
+import { createMockContext } from './test-utils';
 import { container, TOKENS } from '../container/DiContainer';
 
 describe('LegacySizeUnitAdapter', () => {
@@ -175,7 +175,7 @@ describe('LegacySizeUnitAdapter', () => {
   function testAdapterInformation(): void {
     expect(adapter.getDescription()).toBeDefined();
     expect(adapter.getVersion()).toBeDefined();
-    expect(adapter.canAdapt()).toBe(true);
+    expect(adapter.canAdapt(mockLegacyUnit)).toBe(true);
   }
 
   function testLegacyUnitStorage(): void {
@@ -218,7 +218,7 @@ describe('LegacySizeUnitAdapter', () => {
 
   function createAdapterWithInvalidUnit(invalidLegacyUnit: any): LegacySizeUnitAdapter {
     try {
-      const invalidAdapter = container.resolve(TOKENS.LEGACY_SIZE_UNIT_ADAPTER);
+      const invalidAdapter = container.resolve(TOKENS.LEGACY_SIZE_ADAPTER);
       (invalidAdapter as any).id = 'invalid-adapter';
       (invalidAdapter as any).name = 'Invalid Adapter';
       (invalidAdapter as any).legacyUnit = invalidLegacyUnit;
@@ -261,7 +261,7 @@ describe('LegacySizeUnitAdapter', () => {
   }
 
   function testAdaptabilityCheck(): void {
-    expect(adapter.canAdapt()).toBe(true);
+    expect(adapter.canAdapt(mockLegacyUnit)).toBe(true);
   }
 
   function testAdapterDescription(): void {

@@ -1,4 +1,4 @@
-import type { SizeUnit } from '../../enums/SizeUnit';
+import { SizeUnit } from '../../enums/SizeUnit';
 import type { ISizeStrategyInput } from '../../interfaces/strategy/ISizeStrategyInput';
 import type { SizeUnitStrategy } from '../registry/SizeUnitStrategyRegistry';
 
@@ -85,15 +85,41 @@ export const calculateStretchSize: SizeUnitStrategy = (input: ISizeStrategyInput
   return parentWidth; // Stretch to fill parent width
 };
 
+
+/**
+ * Calculate fill size
+ */
+export const calculateFillSize: SizeUnitStrategy = (input: ISizeStrategyInput): number => {
+  return typeof input.value === 'number' ? input.value : 100;
+};
+
+/**
+ * Calculate scene width size
+ */
+export const calculateSceneWidthSize: SizeUnitStrategy = (input: ISizeStrategyInput): number => {
+  return typeof input.value === 'number' ? input.value : 100;
+};
+
+/**
+ * Calculate scene height size
+ */
+export const calculateSceneHeightSize: SizeUnitStrategy = (input: ISizeStrategyInput): number => {
+  return typeof input.value === 'number' ? input.value : 100;
+};
+
 /**
  * Map of all size unit strategies
  */
 export const SIZE_UNIT_STRATEGIES: Record<SizeUnit, SizeUnitStrategy> = {
   [SizeUnit.PIXEL]: calculatePixelSize,
   [SizeUnit.PERCENT]: calculatePercentageSize,
-  [SizeUnit.VIEWPORT_WIDTH]: calculateViewportWidthSize,
-  [SizeUnit.VIEWPORT_HEIGHT]: calculateViewportHeightSize,
+  [SizeUnit.PERCENTAGE]: calculatePercentageSize,
+  [SizeUnit.FILL]: calculateFillSize,
   [SizeUnit.PARENT_WIDTH]: calculateParentWidthSize,
   [SizeUnit.PARENT_HEIGHT]: calculateParentHeightSize,
+  [SizeUnit.SCENE_WIDTH]: calculateSceneWidthSize,
+  [SizeUnit.SCENE_HEIGHT]: calculateSceneHeightSize,
+  [SizeUnit.VIEWPORT_WIDTH]: calculateViewportWidthSize,
+  [SizeUnit.VIEWPORT_HEIGHT]: calculateViewportHeightSize,
   [SizeUnit.AUTO]: calculateAutoSize,
 } as const;

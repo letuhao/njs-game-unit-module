@@ -1,5 +1,5 @@
 import type { UnitContext } from '../interfaces/IUnit';
-import type { IUnitValidationResult } from '../validators/IUnitValidator';
+import type { IUnitValidationResult } from '../interfaces/IUnitConfig';
 import type { ITemplateInput } from '../interfaces/ITemplateInput';
 
 /**
@@ -70,7 +70,7 @@ export abstract class BaseUnitCalculationTemplate implements IUnitCalculationTem
       this.endStep('validation');
 
       if (!validationResult.isValid) {
-        throw new Error(`Input validation failed: ${validationResult.errors.join(', ')}`);
+        throw new Error(`Input validation failed: ${validationResult.errors?.join(', ') || 'Unknown validation error'}`);
       }
 
       // Step 2: Pre-process input

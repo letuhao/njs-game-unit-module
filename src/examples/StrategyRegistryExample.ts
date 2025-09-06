@@ -102,13 +102,13 @@ export class StrategyRegistryExample {
   public demonstrateRegistryStatistics(): void {
     console.log('\n=== Strategy Registry Statistics ===');
 
-    const sizeRegistry = this.container.resolve(TOKENS.SIZE_VALUE_STRATEGY_REGISTRY);
-    const positionRegistry = this.container.resolve(TOKENS.POSITION_VALUE_STRATEGY_REGISTRY);
-    const scaleRegistry = this.container.resolve(TOKENS.SCALE_VALUE_STRATEGY_REGISTRY);
+    const sizeRegistry = this.container.resolve(TOKENS.SIZE_VALUE_STRATEGY_REGISTRY) as any;
+    const positionRegistry = this.container.resolve(TOKENS.POSITION_VALUE_STRATEGY_REGISTRY) as any;
+    const scaleRegistry = this.container.resolve(TOKENS.SCALE_VALUE_STRATEGY_REGISTRY) as any;
 
-    console.log('Size Registry:', sizeRegistry.getStatistics());
-    console.log('Position Registry:', positionRegistry.getStatistics());
-    console.log('Scale Registry:', scaleRegistry.getStatistics());
+    console.log('Size Registry:', sizeRegistry.getStatistics?.());
+    console.log('Position Registry:', positionRegistry.getStatistics?.());
+    console.log('Scale Registry:', scaleRegistry.getStatistics?.());
   }
 
   /**

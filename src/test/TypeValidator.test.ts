@@ -1,6 +1,6 @@
 import { describe, beforeEach, afterEach, it, expect, jest } from '@jest/globals';
 import { TypeValidator } from '../validators/TypeValidator';
-import { createMockContext } from './setup';
+import { createMockContext } from './test-utils';
 import { UnitType } from '../enums/UnitType';
 import { Dimension } from '../enums/Dimension';
 import { container, TOKENS } from '../container/DiContainer';

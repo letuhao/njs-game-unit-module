@@ -1,12 +1,19 @@
 import type { IUnit } from '../interfaces/IUnit';
-import type { IUnitConfig } from '../interfaces/IUnitConfig';
+import type { IUnitConfig, ISizeUnitConfig, IPositionUnitConfig, IScaleUnitConfig } from '../interfaces/IUnitConfig';
 import { UnitType } from '../enums/UnitType';
 import { UnitCalculatorFactory } from '../classes/UnitCalculatorFactory';
-import {
-  isSizeUnitConfig,
-  isPositionUnitConfig,
-  isScaleUnitConfig,
-} from '../interfaces/IUnitConfig';
+// Type guard functions
+function isSizeUnitConfig(config: IUnitConfig): config is ISizeUnitConfig {
+  return config.unitType === UnitType.SIZE;
+}
+
+function isPositionUnitConfig(config: IUnitConfig): config is IPositionUnitConfig {
+  return config.unitType === UnitType.POSITION;
+}
+
+function isScaleUnitConfig(config: IUnitConfig): config is IScaleUnitConfig {
+  return config.unitType === UnitType.SCALE;
+}
 
 /**
  * Unit Registry Manager
@@ -91,7 +98,14 @@ export class UnitRegistryManager implements IUnitRegistryManager {
       switch (unitType) {
         case UnitType.SIZE:
           if (isSizeUnitConfig(config)) {
-            unit = UnitCalculatorFactory.createSizeUnit(config);
+            unit = UnitCalculatorFactory.getInstance().createSizeCalculator(
+              config.id,
+              config.name,
+              config.sizeUnit,
+              config.dimension,
+              config.value,
+              config.enabled
+            );
           } else {
             throw new Error('Invalid size unit configuration');
           }
@@ -99,7 +113,13 @@ export class UnitRegistryManager implements IUnitRegistryManager {
 
         case UnitType.POSITION:
           if (isPositionUnitConfig(config)) {
-            unit = UnitCalculatorFactory.createPositionUnit(config);
+            unit = UnitCalculatorFactory.getInstance().createPositionCalculator(
+              config.id,
+              config.name,
+              config.positionUnit,
+              config.axis,
+              config.value
+            );
           } else {
             throw new Error('Invalid position unit configuration');
           }
@@ -107,7 +127,13 @@ export class UnitRegistryManager implements IUnitRegistryManager {
 
         case UnitType.SCALE:
           if (isScaleUnitConfig(config)) {
-            unit = UnitCalculatorFactory.createScaleUnit(config);
+            unit = UnitCalculatorFactory.getInstance().createScaleCalculator(
+              config.id,
+              config.name,
+              config.scaleUnit,
+              config.value,
+              config.maintainAspectRatio
+            );
           } else {
             throw new Error('Invalid scale unit configuration');
           }

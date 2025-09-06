@@ -11,6 +11,7 @@ export interface IUnitMemento {
   readonly unitId: string;
   readonly unitType: string;
   readonly version: string;
+  readonly result?: any;
   readonly metadata: {
     unitType: string;
     stateSize: number;
@@ -19,9 +20,20 @@ export interface IUnitMemento {
   };
 
   /**
+   * Restore the unit state from this memento
+   * @returns The restored unit state
+   */
+  restore(): any;
+
+  /**
    * Get the state
    */
   getState(): any;
+
+  /**
+   * Get the strategy name
+   */
+  strategyName?: string;
 
   /**
    * Get the timestamp
@@ -123,6 +135,14 @@ export class UnitMemento implements IUnitMemento {
    * Get the state
    */
   getState(): any {
+    return this.state;
+  }
+
+  /**
+   * Restore the unit state from this memento
+   * @returns The restored unit state
+   */
+  restore(): any {
     return this.state;
   }
 
@@ -306,4 +326,142 @@ export class UnitMemento implements IUnitMemento {
     
     return memento;
   }
+}
+
+/**
+ * Unit Memento Caretaker Interface
+ * Defines the contract for managing unit mementos
+ */
+export interface IUnitMementoCaretaker {
+  /**
+   * Save a memento
+   * @param memento - The memento to save
+   */
+  saveMemento(memento: IUnitMemento): void;
+
+  /**
+   * Get a memento by unit ID
+   * @param unitId - The unit ID
+   * @returns The memento or undefined if not found
+   */
+  getMemento(unitId: string): IUnitMemento | undefined;
+
+  /**
+   * Get all mementos for a unit
+   * @param unitId - The unit ID
+   * @returns Array of mementos for the unit
+   */
+  getMementos(unitId: string): IUnitMemento[];
+
+  /**
+   * Get a memento by index for a unit
+   * @param unitId - The unit ID
+   * @param index - The index of the memento
+   * @returns The memento or undefined if not found
+   */
+  getMementoByIndex(unitId: string, index: number): IUnitMemento | undefined;
+
+  /**
+   * Get the latest memento for a unit
+   * @param unitId - The unit ID
+   * @returns The latest memento or undefined if not found
+   */
+  getLatestMemento(unitId: string): IUnitMemento | undefined;
+
+  /**
+   * Remove a memento
+   * @param unitId - The unit ID
+   * @returns True if removed, false otherwise
+   */
+  removeMemento(unitId: string): boolean;
+
+  /**
+   * Get all mementos
+   * @returns Array of all mementos
+   */
+  getAllMementos(): IUnitMemento[];
+
+  /**
+   * Clear all mementos
+   */
+  clearMementos(): void;
+
+  /**
+   * Clear all mementos for all units
+   */
+  clearAllMementos(): void;
+
+  /**
+   * Get the count of mementos for a unit
+   * @param unitId - The unit ID
+   * @returns The number of mementos for the unit
+   */
+  getMementoCount(unitId: string): number;
+
+  /**
+   * Add a memento
+   * @param memento - The memento to add
+   */
+  addMemento(memento: IUnitMemento): void;
+
+  /**
+   * Update a memento
+   * @param memento - The memento to update
+   */
+  updateMemento(memento: IUnitMemento): void;
+
+  /**
+   * Find mementos by criteria
+   * @param criteria - The search criteria
+   * @returns Array of matching mementos
+   */
+  findMementosByCriteria(criteria: any): IUnitMemento[];
+
+  /**
+   * Get total memento count across all units
+   * @returns The total number of mementos
+   */
+  getTotalMementoCount(): number;
+
+  /**
+   * Get caretaker statistics
+   * @returns The caretaker statistics
+   */
+  getCaretakerStatistics(): any;
+
+  /**
+   * Restore to a specific memento
+   * @param unitId - The unit ID
+   * @param memento - The memento to restore to
+   * @returns The restored state
+   */
+  restoreToMemento(unitId: string, memento: IUnitMemento): any;
+
+  /**
+   * Undo the last operation for a unit
+   * @param unitId - The unit ID
+   * @returns The undone state or undefined if no undo available
+   */
+  undo(unitId: string): any | undefined;
+
+  /**
+   * Redo the last undone operation for a unit
+   * @param unitId - The unit ID
+   * @returns The redone state or undefined if no redo available
+   */
+  redo(unitId: string): any | undefined;
+
+  /**
+   * Check if undo is available for a unit
+   * @param unitId - The unit ID
+   * @returns True if undo is available, false otherwise
+   */
+  canUndo(unitId: string): boolean;
+
+  /**
+   * Check if redo is available for a unit
+   * @param unitId - The unit ID
+   * @returns True if redo is available, false otherwise
+   */
+  canRedo(unitId: string): boolean;
 }

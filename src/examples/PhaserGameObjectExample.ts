@@ -1,6 +1,16 @@
 import { container } from '../container/DiContainer';
 import { TOKENS } from '../container/Tokens';
 
+// Mock Phaser for demonstration purposes
+declare namespace Phaser {
+  class Scene {
+    constructor(config: { key: string });
+    add: {
+      existing(gameObject: any): any;
+    };
+  }
+}
+
 /**
  * Responsive Sprite
  * Example sprite that uses DI for responsive calculations
@@ -13,7 +23,7 @@ export class ResponsiveSprite {
   public height: number;
   public scale: number;
   public texture: string;
-  public parent?: ResponsiveContainer;
+  public parent: ResponsiveContainer | undefined;
 
   private sizeCalculator: any;
   private positionCalculator: any;
@@ -274,6 +284,23 @@ export class ResponsiveContainer {
       },
     };
   }
+
+  /**
+   * Get container statistics
+   */
+  getStatistics(): {
+    position: { x: number; y: number };
+    size: { width: number; height: number };
+    childrenCount: number;
+    hasCalculators: boolean;
+  } {
+    return {
+      position: { x: this.x, y: this.y },
+      size: { width: this.width, height: this.height },
+      childrenCount: this.children.length,
+      hasCalculators: !!(this.sizeCalculator && this.positionCalculator && this.scaleCalculator),
+    };
+  }
 }
 
 /**
@@ -281,7 +308,7 @@ export class ResponsiveContainer {
  * Demonstrates how to use the DI container with Phaser game objects
  */
 export class PhaserGameObjectExample extends Phaser.Scene {
-  private container: ResponsiveContainer;
+  private container!: ResponsiveContainer;
   private responsiveSprites: ResponsiveSprite[] = [];
 
   constructor() {

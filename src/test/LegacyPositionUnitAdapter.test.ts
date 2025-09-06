@@ -1,7 +1,7 @@
 import { describe, beforeEach, afterEach, it, expect, jest } from '@jest/globals';
 import { LegacyPositionUnitAdapter } from '../adapters/LegacyPositionUnitAdapter';
 import { PositionUnit } from '../enums/PositionUnit';
-import { createMockContext } from './setup';
+import { createMockContext } from './test-utils';
 import { container, TOKENS } from '../container/DiContainer';
 
 describe('LegacyPositionUnitAdapter', () => {
@@ -175,7 +175,7 @@ describe('LegacyPositionUnitAdapter', () => {
   function testAdapterInformation(): void {
     expect(adapter.getDescription()).toBeDefined();
     expect(adapter.getVersion()).toBeDefined();
-    expect(adapter.canAdapt()).toBe(true);
+    expect(adapter.canAdapt(mockLegacyUnit)).toBe(true);
   }
 
   function testLegacyUnitStorage(): void {
@@ -218,7 +218,7 @@ describe('LegacyPositionUnitAdapter', () => {
 
   function createAdapterWithInvalidUnit(invalidLegacyUnit: any): LegacyPositionUnitAdapter {
     try {
-      const invalidAdapter = container.resolve(TOKENS.LEGACY_POSITION_UNIT_ADAPTER);
+      const invalidAdapter = container.resolve(TOKENS.LEGACY_POSITION_ADAPTER);
       (invalidAdapter as any).id = 'invalid-adapter';
       (invalidAdapter as any).name = 'Invalid Adapter';
       (invalidAdapter as any).legacyUnit = invalidLegacyUnit;
@@ -261,7 +261,7 @@ describe('LegacyPositionUnitAdapter', () => {
   }
 
   function testAdaptabilityCheck(): void {
-    expect(adapter.canAdapt()).toBe(true);
+    expect(adapter.canAdapt(mockLegacyUnit)).toBe(true);
   }
 
   function testAdapterDescription(): void {

@@ -53,7 +53,7 @@ export class ScaleUnitCalculator implements IScaleUnit {
     // Use strategy pattern for ScaleValue enum
     try {
       const strategyRegistry = container.resolve(TOKENS.SCALE_VALUE_STRATEGY_REGISTRY);
-      const strategy = strategyRegistry.getScaleValueStrategy(this.baseValue as ScaleValue);
+      const strategy = (strategyRegistry as any).getScaleValueStrategy(this.baseValue as ScaleValue);
       if (strategy) {
         return strategy(context);
       }
@@ -141,6 +141,92 @@ export class ScaleUnitCalculator implements IScaleUnit {
       this.maintainAspectRatio
     );
     return cloned;
+  }
+
+  /**
+   * Format the unit value
+   */
+  format(format: string): string {
+    const value = this.calculate({} as UnitContext);
+    return `${value}${this.scaleUnit}`;
+  }
+
+  /**
+   * Calculate X scale specifically
+   */
+  calculateScaleX(context: UnitContext): number {
+    return this.calculate(context);
+  }
+
+  /**
+   * Calculate Y scale specifically
+   */
+  calculateScaleY(context: UnitContext): number {
+    return this.calculate(context);
+  }
+
+  /**
+   * Calculate both X and Y scale
+   */
+  calculateBoth(context: UnitContext): { scaleX: number; scaleY: number } {
+    const scale = this.calculate(context);
+    return { scaleX: scale, scaleY: scale };
+  }
+
+  /**
+   * Get minimum scale value
+   */
+  getMinScale(): number | undefined {
+    return 0.1;
+  }
+
+  /**
+   * Get maximum scale value
+   */
+  getMaxScale(): number | undefined {
+    return 10.0;
+  }
+
+  /**
+   * Check if scale is valid
+   */
+  isValidScale(scale: number): boolean {
+    const minScale = this.getMinScale();
+    const maxScale = this.getMaxScale();
+    return (minScale === undefined || scale >= minScale) && (maxScale === undefined || scale <= maxScale);
+  }
+
+  /**
+   * Get scale constraints
+   */
+  getScaleConstraints(): { min: number | undefined; max: number | undefined } {
+    return {
+      min: this.getMinScale(),
+      max: this.getMaxScale(),
+    };
+  }
+
+  /**
+   * Set scale constraints
+   */
+  setScaleConstraints(min?: number, max?: number): void {
+    // Implementation for setting scale constraints
+    // This would typically store the constraints in the class
+  }
+
+  /**
+   * Check if scaling is uniform
+   */
+  isUniformScaling(): boolean {
+    return true; // Default to uniform scaling
+  }
+
+  /**
+   * Set uniform scaling
+   */
+  setUniformScaling(uniform: boolean): void {
+    // Implementation for setting uniform scaling
+    // This would typically store the uniform scaling preference
   }
 
   // Scale calculation methods

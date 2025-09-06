@@ -40,6 +40,21 @@ class MockUnit implements IUnit {
   clone(_overrides?: Partial<IUnit>): IUnit {
     return createMockUnit();
   }
+
+  format(format: string): string {
+    switch (format) {
+      case 'json':
+        return JSON.stringify({
+          id: this.id,
+          name: this.name,
+          unitType: this.unitType
+        });
+      case 'detailed':
+        return `MockUnit(id: ${this.id}, name: ${this.name}, type: ${this.unitType})`;
+      default:
+        return this.toString();
+    }
+  }
 }
 
 describe('ValidationDecorator', () => {
@@ -365,6 +380,13 @@ describe('ValidationDecorator', () => {
       isResponsive: () => true,
       toString: () => `TestUnit(${unitType})`,
       clone: () => createUnitWithType(unitType),
+      format: (format: string) => {
+        switch (format) {
+          case 'json': return JSON.stringify({ id: `test-unit-${unitType}`, name: `Test Unit ${unitType}`, unitType });
+          case 'detailed': return `Test Unit (${unitType})`;
+          default: return `TestUnit(${unitType})`;
+        }
+      }
     };
   }
 

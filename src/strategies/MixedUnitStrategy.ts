@@ -98,7 +98,7 @@ export class MixedUnitStrategy {
    */
   private calculateMixedArray(input: IStrategyInput[], context: UnitContext): number {
     if (input.length === 0) {
-      return DEFAULT_FALLBACK_VALUES.SIZE;
+      return DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
     }
 
     const results: number[] = [];
@@ -114,7 +114,7 @@ export class MixedUnitStrategy {
     }
 
     if (results.length === 0) {
-      return DEFAULT_FALLBACK_VALUES.SIZE;
+      return DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
     }
 
     // Calculate average of all results
@@ -145,7 +145,7 @@ export class MixedUnitStrategy {
     }
 
     if (values.length === 0) {
-      return DEFAULT_FALLBACK_VALUES.SIZE;
+      return DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
     }
 
     // Calculate weighted average based on property names
@@ -162,10 +162,10 @@ export class MixedUnitStrategy {
     
     if (typeof input === 'string') {
       const parsed = Number(input);
-      return isNaN(parsed) ? DEFAULT_FALLBACK_VALUES.SIZE : parsed;
+      return isNaN(parsed) ? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT : parsed;
     }
     
-    return DEFAULT_FALLBACK_VALUES.SIZE;
+    return DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
   }
 
   /**
@@ -178,7 +178,7 @@ export class MixedUnitStrategy {
     
     if (typeof item === 'string') {
       const parsed = Number(item);
-      return isNaN(parsed) ? DEFAULT_FALLBACK_VALUES.SIZE : parsed;
+      return isNaN(parsed) ? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT : parsed;
     }
     
     if (typeof item === 'object' && item !== null) {
@@ -194,7 +194,7 @@ export class MixedUnitStrategy {
       }
     }
     
-    return DEFAULT_FALLBACK_VALUES.SIZE;
+    return DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
   }
 
   /**
@@ -208,10 +208,10 @@ export class MixedUnitStrategy {
       return values.reduce((sum, val) => sum + val, 0) / values.length;
     }
     
-    const weightedSum = values.reduce((sum, val, index) => sum + val * weights[index], 0);
+    const weightedSum = values.reduce((sum, val, index) => sum + val * (weights[index] || 1), 0);
     const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
     
-    return totalWeight > 0 ? weightedSum / totalWeight : values[0] ?? DEFAULT_FALLBACK_VALUES.SIZE;
+    return totalWeight > 0 ? weightedSum / totalWeight : values[0] ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
   }
 
   /**

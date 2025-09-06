@@ -8,5 +8,12 @@ export enum SizeValue {
   AUTO = 'auto',
   FIXED = 'fixed',
   RESPONSIVE = 'responsive',
-  RELATIVE = 'relative'
+  RELATIVE = 'relative',
+  PARENT_WIDTH = 'parent-width',
+  VIEWPORT_WIDTH = 'viewport-width',
+  PERCENTAGE = 'percentage',
+  CONTENT = 'content',
+  PARENT = 'parent',
+  VIEWPORT = 'viewport',
+  SCENE = 'scene'
 }

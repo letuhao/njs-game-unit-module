@@ -33,6 +33,8 @@ export interface IUnitCalculationObserver {
 export interface IUnitObserver extends 
   IUnitObserverCore,
   IUnitCalculationObserver {
+  /** Generic update method for observer pattern */
+  update(eventType: string, data: any): void;
 }
 
 /**

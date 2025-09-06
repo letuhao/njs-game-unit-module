@@ -8,7 +8,7 @@ import { IStrategyInput } from './IStrategyInputTypes';
  */
 export function convertToStrategyInput(input: unknown): IStrategyInput {
   if (!input || typeof input !== 'object') {
-    return createSizeStrategyInput({ value: DEFAULT_FALLBACK_VALUES.SIZE });
+    return createSizeStrategyInput({ value: DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT });
   }
 
   // Handle primitive types
@@ -63,5 +63,5 @@ export function convertToStrategyInput(input: unknown): IStrategyInput {
   }
 
   // Default to size strategy input
-  return createSizeStrategyInput({ value: DEFAULT_FALLBACK_VALUES.SIZE });
+  return createSizeStrategyInput({ value: DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT });
 }

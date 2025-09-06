@@ -89,6 +89,27 @@ export abstract class ScaleCalculationTemplate implements IUnitCalculationTempla
     return { ...this.templateStatistics };
   }
 
+  canHandle(input: ITemplateInput): boolean {
+    return input.type === 'SCALE' as any;
+  }
+
+  getCalculationMetadata(): { templateName: string; version: string; supportedInputs: string[]; calculationSteps: string[] } {
+    return {
+      templateName: 'ScaleCalculationTemplate',
+      version: '1.0.0',
+      supportedInputs: ['SCALE'],
+      calculationSteps: ['validation', 'preprocessing', 'calculation', 'postprocessing']
+    };
+  }
+
+  getPerformanceMetrics(): { totalTime: number; stepTimes: Record<string, number>; memoryUsage: number } {
+    return {
+      totalTime: this.templateStatistics.totalCalculationTime,
+      stepTimes: {},
+      memoryUsage: 0 // Not tracked in current implementation
+    };
+  }
+
   /**
    * Reset template statistics
    */
@@ -116,7 +137,7 @@ export abstract class ScaleCalculationTemplate implements IUnitCalculationTempla
    */
   protected validateInput(input: ITemplateInput): void {
     for (const validator of this.validators) {
-      if (!validator.validate(input)) {
+      if (!validator.validate(input as any)) {
         throw new Error(`Input validation failed: ${validator.constructor.name}`);
       }
     }
@@ -183,5 +204,26 @@ export abstract class ScaleCalculationTemplate implements IUnitCalculationTempla
     
     this.templateStatistics.calculationsByType[type] = 
       (this.templateStatistics.calculationsByType[type] || 0) + 1;
+  }
+
+  /**
+   * Get validators used by this template
+   */
+  public getValidators(): any[] {
+    return this.validators;
+  }
+
+  /**
+   * Get calculation steps
+   */
+  public getCalculationSteps(): string[] {
+    return ['validation', 'preprocessing', 'calculation', 'postprocessing'];
+  }
+
+  /**
+   * Get supported input types
+   */
+  public getSupportedInputs(): string[] {
+    return ['scale', 'IScaleTemplateInput'];
   }
 }

@@ -1,4 +1,4 @@
-import { IUnitCommand } from './IUnitCommand';
+import { BaseUnitCommand } from './IUnitCommand';
 import { IStrategyInput } from '../interfaces/IStrategyInput';
 import { UnitContext } from '../interfaces/IUnit';
 import { container } from '../container/DiContainer';
@@ -8,7 +8,7 @@ import { TOKENS } from '../container/Tokens';
  * Calculate Position Command
  * Executes position calculation using strategy pattern and DI
  */
-export class CalculatePositionCommand extends IUnitCommand {
+export class CalculatePositionCommand extends BaseUnitCommand {
   private input: IStrategyInput;
   private context: UnitContext;
   private strategy: any;
@@ -25,6 +25,13 @@ export class CalculatePositionCommand extends IUnitCommand {
       // Fallback to direct instantiation if DI fails
       throw new Error(`Failed to resolve position strategy: ${error}`);
     }
+  }
+
+  /**
+   * Check if the command can be executed
+   */
+  canExecute(): boolean {
+    return this.strategy !== null && this.input !== null && this.context !== null;
   }
 
   /**
@@ -67,7 +74,7 @@ export class CalculatePositionCommand extends IUnitCommand {
    * Get command description
    */
   getDescription(): string {
-    return `Calculate position for input: ${this.input.unitType}`;
+    return `Calculate position for input: ${(this.input as any).unitType || 'unknown'}`;
   }
 
   /**
@@ -81,16 +88,18 @@ export class CalculatePositionCommand extends IUnitCommand {
    * Get command metadata
    */
   getMetadata(): {
-    commandType: string;
-    inputType: string;
-    contextAvailable: boolean;
-    strategyAvailable: boolean;
+    id: string;
+    timestamp: Date;
+    hasResult: boolean;
+    hasError: boolean;
+    canExecute: boolean;
   } {
     return {
-      commandType: 'CalculatePosition',
-      inputType: this.input?.unitType || 'unknown',
-      contextAvailable: !!this.context,
-      strategyAvailable: !!this.strategy,
+      id: this.id,
+      timestamp: this.timestamp,
+      hasResult: this.result !== undefined,
+      hasError: this.error !== null,
+      canExecute: this.canExecute(),
     };
   }
 }

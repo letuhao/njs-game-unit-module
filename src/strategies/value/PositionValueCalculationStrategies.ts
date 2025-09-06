@@ -50,7 +50,7 @@ export class PixelPositionValueCalculationStrategy implements IPositionValueCalc
       }
 
       // Simple pixel calculation - return the value as-is
-      const result = context.value || DEFAULT_FALLBACK_VALUES.POSITION;
+      const result = typeof context.value === 'number' ? context.value : DEFAULT_FALLBACK_VALUES.POSITION.DEFAULT;
       
       this.strategyStatistics.successfulCalculations++;
       this.updateStatistics(true, performance.now() - startTime, 'pixel');
@@ -61,6 +61,18 @@ export class PixelPositionValueCalculationStrategy implements IPositionValueCalc
       this.updateStatistics(false, performance.now() - startTime, 'pixel');
       throw new Error(`Pixel position calculation failed: ${error}`);
     }
+  }
+
+  getPriority(): number {
+    return 1; // High priority for pixel calculations
+  }
+
+  validateContext(context: UnitContext): boolean {
+    return context !== null && typeof context === 'object';
+  }
+
+  getDescription(): string {
+    return 'Pixel position calculation strategy';
   }
 
   /**
@@ -150,7 +162,7 @@ export class PercentagePositionValueCalculationStrategy implements IPositionValu
       }
 
       // Percentage calculation - convert to pixel value
-      const percentage = context.value || DEFAULT_FALLBACK_VALUES.POSITION;
+      const percentage = typeof context.value === 'number' ? context.value : DEFAULT_FALLBACK_VALUES.POSITION.DEFAULT;
       const parentSize = context.parent?.width || 100; // Default parent width
       const result = (percentage / 100) * parentSize;
       
@@ -163,6 +175,18 @@ export class PercentagePositionValueCalculationStrategy implements IPositionValu
       this.updateStatistics(false, performance.now() - startTime, 'percentage');
       throw new Error(`Percentage position calculation failed: ${error}`);
     }
+  }
+
+  getPriority(): number {
+    return 2; // Medium priority for percentage calculations
+  }
+
+  validateContext(context: UnitContext): boolean {
+    return context !== null && typeof context === 'object';
+  }
+
+  getDescription(): string {
+    return 'Percentage position calculation strategy';
   }
 
   /**
@@ -252,7 +276,7 @@ export class ViewportPositionValueCalculationStrategy implements IPositionValueC
       }
 
       // Viewport calculation - convert to pixel value
-      const viewportValue = context.value || DEFAULT_FALLBACK_VALUES.POSITION;
+      const viewportValue = typeof context.value === 'number' ? context.value : DEFAULT_FALLBACK_VALUES.POSITION.DEFAULT;
       const viewportWidth = context.viewport?.width || window.innerWidth || 1920;
       const result = (viewportValue / 100) * viewportWidth;
       
@@ -265,6 +289,18 @@ export class ViewportPositionValueCalculationStrategy implements IPositionValueC
       this.updateStatistics(false, performance.now() - startTime, 'viewport');
       throw new Error(`Viewport position calculation failed: ${error}`);
     }
+  }
+
+  getPriority(): number {
+    return 3; // Medium priority for viewport calculations
+  }
+
+  validateContext(context: UnitContext): boolean {
+    return context !== null && typeof context === 'object';
+  }
+
+  getDescription(): string {
+    return 'Viewport position calculation strategy';
   }
 
   /**

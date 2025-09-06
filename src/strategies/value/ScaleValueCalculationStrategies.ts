@@ -59,12 +59,24 @@ export class PixelScaleValueCalculationStrategy implements IScaleValueCalculatio
       // Default fallback
       this.strategyStatistics.successfulCalculations++;
       this.updateStatistics(true, performance.now() - startTime, 'pixel');
-      return DEFAULT_FALLBACK_VALUES.SCALE;
+      return DEFAULT_FALLBACK_VALUES.SCALE.DEFAULT;
     } catch (error) {
       this.strategyStatistics.failedCalculations++;
       this.updateStatistics(false, performance.now() - startTime, 'pixel');
       throw new Error(`Pixel scale calculation failed: ${error}`);
     }
+  }
+
+  getPriority(): number {
+    return 1; // High priority for pixel calculations
+  }
+
+  validateContext(context: UnitContext): boolean {
+    return context !== null && typeof context === 'object';
+  }
+
+  getDescription(): string {
+    return 'Pixel scale calculation strategy';
   }
 
   /**
@@ -171,6 +183,18 @@ export class PercentageScaleValueCalculationStrategy implements IScaleValueCalcu
     }
   }
 
+  getPriority(): number {
+    return 2; // Medium priority for percentage calculations
+  }
+
+  validateContext(context: UnitContext): boolean {
+    return context !== null && typeof context === 'object';
+  }
+
+  getDescription(): string {
+    return 'Percentage scale calculation strategy';
+  }
+
   /**
    * Get strategy statistics
    */
@@ -268,12 +292,24 @@ export class FactorScaleValueCalculationStrategy implements IScaleValueCalculati
       // Default fallback
       this.strategyStatistics.successfulCalculations++;
       this.updateStatistics(true, performance.now() - startTime, 'factor');
-      return DEFAULT_FALLBACK_VALUES.SCALE;
+      return DEFAULT_FALLBACK_VALUES.SCALE.DEFAULT;
     } catch (error) {
       this.strategyStatistics.failedCalculations++;
       this.updateStatistics(false, performance.now() - startTime, 'factor');
       throw new Error(`Factor scale calculation failed: ${error}`);
     }
+  }
+
+  getPriority(): number {
+    return 3; // Medium priority for factor calculations
+  }
+
+  validateContext(context: UnitContext): boolean {
+    return context !== null && typeof context === 'object';
+  }
+
+  getDescription(): string {
+    return 'Factor scale calculation strategy';
   }
 
   /**

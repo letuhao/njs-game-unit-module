@@ -1,12 +1,12 @@
 import { ScaleUnitCalculator } from '../classes/ScaleUnitCalculator';
 import { ScaleUnit } from '../enums/ScaleUnit';
 import { ScaleValue } from '../enums/ScaleValue';
-import { createMockContext } from './setup';
+import { createMockContext } from './test-utils';
 import { container, TOKENS } from '../container/DiContainer';
 
 describe('ScaleUnitCalculator', () => {
   let calculator: ScaleUnitCalculator;
-  let mockContext: ReturnType<typeof createMockContext>;
+  let mockContext: any;
 
   beforeEach(() => {
     setupTestEnvironment();
@@ -140,7 +140,7 @@ describe('ScaleUnitCalculator', () => {
 
   function createCalculatorWithProperties(): ScaleUnitCalculator {
     try {
-      const calculator = container.resolve(TOKENS.SCALE_UNIT_CALCULATOR);
+      const calculator = container.resolve(TOKENS.SCALE_CALCULATOR);
       setCalculatorProperties(calculator);
       return calculator;
     } catch (error) {
@@ -174,7 +174,7 @@ describe('ScaleUnitCalculator', () => {
 
   function createDefaultCalculator(): ScaleUnitCalculator {
     try {
-      const calculator = container.resolve(TOKENS.SCALE_UNIT_CALCULATOR);
+      const calculator = container.resolve(TOKENS.SCALE_CALCULATOR);
       setDefaultCalculatorProperties(calculator);
       return calculator;
     } catch (error) {
@@ -201,7 +201,7 @@ describe('ScaleUnitCalculator', () => {
     const invalidValues = createInvalidScaleValues();
     
     for (const value of invalidValues) {
-      const result = calculator.calculate(value, ScaleUnit.FACTOR, mockContext);
+      const result = calculator.calculate(mockContext);
       expect(typeof result).toBe('number');
     }
   }
@@ -212,7 +212,7 @@ describe('ScaleUnitCalculator', () => {
 
   function setupCalculatorForCalculation(): void {
     try {
-      calculator = container.resolve(TOKENS.SCALE_UNIT_CALCULATOR);
+      calculator = container.resolve(TOKENS.SCALE_CALCULATOR);
       setCalculatorProperties(calculator);
     } catch (error) {
       calculator = new ScaleUnitCalculator('test-scale', 'Test Scale', ScaleUnit.FACTOR, 1.5, true);
@@ -220,35 +220,35 @@ describe('ScaleUnitCalculator', () => {
   }
 
   function testFactorScaleValueCalculation(): void {
-    const result = calculator.calculate(ScaleValue.FACTOR, ScaleUnit.FACTOR, mockContext);
+    const result = calculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
   }
 
   function testPixelScaleValueCalculation(): void {
-    const result = calculator.calculate(ScaleValue.PIXEL, ScaleUnit.PIXEL, mockContext);
+    const result = calculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
   }
 
   function testPercentageScaleValueCalculation(): void {
-    const result = calculator.calculate(ScaleValue.PERCENTAGE, ScaleUnit.PERCENTAGE, mockContext);
+    const result = calculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
   }
 
   function testViewportScaleValueCalculation(): void {
-    const result = calculator.calculate(ScaleValue.VIEWPORT, ScaleUnit.VIEWPORT, mockContext);
+    const result = calculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
   }
 
   function testParentScaleValueCalculation(): void {
-    const result = calculator.calculate(ScaleValue.PARENT, ScaleUnit.PARENT, mockContext);
+    const result = calculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -256,7 +256,7 @@ describe('ScaleUnitCalculator', () => {
 
   function testAspectRatioMaintenance(): void {
     const calculatorWithAspectRatio = createCalculatorWithAspectRatio(true);
-    const result = calculatorWithAspectRatio.calculate(ScaleValue.FACTOR, ScaleUnit.FACTOR, mockContext);
+    const result = calculatorWithAspectRatio.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -264,7 +264,7 @@ describe('ScaleUnitCalculator', () => {
 
   function createCalculatorWithAspectRatio(maintainAspectRatio: boolean): ScaleUnitCalculator {
     try {
-      const calculator = container.resolve(TOKENS.SCALE_UNIT_CALCULATOR);
+      const calculator = container.resolve(TOKENS.SCALE_CALCULATOR);
       setCalculatorPropertiesWithAspectRatio(calculator, maintainAspectRatio);
       return calculator;
     } catch (error) {
@@ -283,7 +283,7 @@ describe('ScaleUnitCalculator', () => {
 
   function testAspectRatioDisabled(): void {
     const calculatorWithoutAspectRatio = createCalculatorWithAspectRatio(false);
-    const result = calculatorWithoutAspectRatio.calculate(ScaleValue.FACTOR, ScaleUnit.FACTOR, mockContext);
+    const result = calculatorWithoutAspectRatio.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -294,7 +294,7 @@ describe('ScaleUnitCalculator', () => {
     
     for (const aspectRatio of aspectRatios) {
       const calculator = createCalculatorWithAspectRatio(true);
-      const result = calculator.calculate(ScaleValue.FACTOR, ScaleUnit.FACTOR, mockContext);
+      const result = calculator.calculate(mockContext);
       
       expect(typeof result).toBe('number');
       expect(result).toBeGreaterThanOrEqual(0);
@@ -303,7 +303,7 @@ describe('ScaleUnitCalculator', () => {
 
   function testFactorUnitCalculations(): void {
     const factorCalculator = createCalculatorForUnit(ScaleUnit.FACTOR);
-    const result = factorCalculator.calculate(ScaleValue.FACTOR, ScaleUnit.FACTOR, mockContext);
+    const result = factorCalculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -311,7 +311,7 @@ describe('ScaleUnitCalculator', () => {
 
   function testPixelUnitCalculations(): void {
     const pixelCalculator = createCalculatorForUnit(ScaleUnit.PIXEL);
-    const result = pixelCalculator.calculate(ScaleValue.PIXEL, ScaleUnit.PIXEL, mockContext);
+    const result = pixelCalculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -319,7 +319,7 @@ describe('ScaleUnitCalculator', () => {
 
   function testPercentageUnitCalculations(): void {
     const percentageCalculator = createCalculatorForUnit(ScaleUnit.PERCENTAGE);
-    const result = percentageCalculator.calculate(ScaleValue.PERCENTAGE, ScaleUnit.PERCENTAGE, mockContext);
+    const result = percentageCalculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -327,7 +327,7 @@ describe('ScaleUnitCalculator', () => {
 
   function testViewportUnitCalculations(): void {
     const viewportCalculator = createCalculatorForUnit(ScaleUnit.VIEWPORT);
-    const result = viewportCalculator.calculate(ScaleValue.VIEWPORT, ScaleUnit.VIEWPORT, mockContext);
+    const result = viewportCalculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -335,7 +335,7 @@ describe('ScaleUnitCalculator', () => {
 
   function testParentUnitCalculations(): void {
     const parentCalculator = createCalculatorForUnit(ScaleUnit.PARENT);
-    const result = parentCalculator.calculate(ScaleValue.PARENT, ScaleUnit.PARENT, mockContext);
+    const result = parentCalculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -343,7 +343,7 @@ describe('ScaleUnitCalculator', () => {
 
   function createCalculatorForUnit(unit: ScaleUnit): ScaleUnitCalculator {
     try {
-      const calculator = container.resolve(TOKENS.SCALE_UNIT_CALCULATOR);
+      const calculator = container.resolve(TOKENS.SCALE_CALCULATOR);
       setCalculatorPropertiesForUnit(calculator, unit);
       return calculator;
     } catch (error) {
@@ -364,7 +364,7 @@ describe('ScaleUnitCalculator', () => {
     const invalidUnits = createInvalidScaleUnits();
     
     for (const unit of invalidUnits) {
-      const result = calculator.calculate(ScaleValue.FACTOR, unit, mockContext);
+      const result = calculator.calculate(mockContext);
       expect(typeof result).toBe('number');
     }
   }
@@ -375,7 +375,7 @@ describe('ScaleUnitCalculator', () => {
 
   function testMissingContextPropertiesHandling(): void {
     const partialContext = { dimension: 'width' };
-    const result = calculator.calculate(ScaleValue.FACTOR, ScaleUnit.FACTOR, partialContext as any);
+    const result = calculator.calculate(partialContext as any);
     
     expect(typeof result).toBe('number');
   }
@@ -384,7 +384,7 @@ describe('ScaleUnitCalculator', () => {
     const startTime = performance.now();
     
     for (let i = 0; i < 1000; i++) {
-      calculator.calculate(ScaleValue.FACTOR, ScaleUnit.FACTOR, mockContext);
+      calculator.calculate(mockContext);
     }
     
     const endTime = performance.now();
@@ -397,7 +397,7 @@ describe('ScaleUnitCalculator', () => {
     const calculations = createMultipleCalculations();
     
     for (const calculation of calculations) {
-      const result = calculator.calculate(calculation.value, calculation.unit, mockContext);
+      const result = calculator.calculate(mockContext);
       expect(typeof result).toBe('number');
       expect(result).toBeGreaterThanOrEqual(0);
     }
@@ -417,7 +417,7 @@ describe('ScaleUnitCalculator', () => {
     const contexts = createDifferentContexts();
     
     for (const context of contexts) {
-      const result = calculator.calculate(ScaleValue.FACTOR, ScaleUnit.FACTOR, context);
+      const result = calculator.calculate(context);
       expect(typeof result).toBe('number');
       expect(result).toBeGreaterThanOrEqual(0);
     }
@@ -450,7 +450,7 @@ describe('ScaleUnitCalculator', () => {
 
   function createCalculatorWithConfiguration(config: any): ScaleUnitCalculator {
     try {
-      const calculator = container.resolve(TOKENS.SCALE_UNIT_CALCULATOR);
+      const calculator = container.resolve(TOKENS.SCALE_CALCULATOR);
       setCalculatorPropertiesForConfiguration(calculator, config);
       return calculator;
     } catch (error) {

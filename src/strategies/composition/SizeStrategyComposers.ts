@@ -27,7 +27,7 @@ export class AdaptiveSizeComposer implements IStrategyComposer<SizeValue, SizeUn
   /**
    * Check if this composer can handle the given input
    */
-  canCompose(input: SizeValue, unit: SizeUnit, context: UnitContext): boolean {
+  canCompose(input: SizeValue, unit: SizeUnit): boolean {
     return true; // Adaptive composer can handle any input
   }
 
@@ -35,13 +35,13 @@ export class AdaptiveSizeComposer implements IStrategyComposer<SizeValue, SizeUn
    * Compose a single result with the given input
    */
   compose(
-    result: number,
-    input: SizeValue,
+    value: SizeValue,
     unit: SizeUnit,
-    context: UnitContext
+    context: UnitContext,
+    strategies: Array<{ strategy: unknown; weight: number }>
   ): number {
-    // For single result composition, just return the result
-    return result;
+    // For single result composition, just return the value as number
+    return typeof value === 'number' ? value : 0;
   }
 
   /**
@@ -99,8 +99,14 @@ export class AdaptiveSizeComposer implements IStrategyComposer<SizeValue, SizeUn
     const weights: number[] = [];
     
     for (let i = 0; i < strategies.length; i++) {
-      const strategyKey = `${strategies[i].strategy.constructor.name}-${i}`;
-      const baseWeight = strategies[i].weight;
+      const strategyItem = strategies[i];
+      if (!strategyItem) continue;
+      
+      const strategy = strategyItem.strategy;
+      if (!strategy) continue;
+      
+      const strategyKey = `${strategy.constructor.name}-${i}`;
+      const baseWeight = strategyItem.weight;
       
       // Get adaptive weight from history
       let adaptiveWeight = this.adaptiveWeights.get(strategyKey) || baseWeight;
@@ -140,7 +146,8 @@ export class AdaptiveSizeComposer implements IStrategyComposer<SizeValue, SizeUn
   getPerformanceMetrics(): {
     averageExecutionTime: number;
     totalExecutions: number;
-    adaptiveWeights: Map<string, number>;
+    successRate: number;
+    lastExecutionTime: number;
   } {
     const averageExecutionTime = this.executionTimes.length > 0
       ? this.executionTimes.reduce((sum, time) => sum + time, 0) / this.executionTimes.length
@@ -149,7 +156,8 @@ export class AdaptiveSizeComposer implements IStrategyComposer<SizeValue, SizeUn
     return {
       averageExecutionTime,
       totalExecutions: this.totalExecutions,
-      adaptiveWeights: new Map(this.adaptiveWeights)
+      successRate: 1.0, // Assume 100% success rate for now
+      lastExecutionTime: this.executionTimes[this.executionTimes.length - 1] || 0
     };
   }
 
@@ -160,6 +168,30 @@ export class AdaptiveSizeComposer implements IStrategyComposer<SizeValue, SizeUn
     this.executionTimes = [];
     this.totalExecutions = 0;
     this.adaptiveWeights.clear();
+  }
+
+  /**
+   * Validate context for composition
+   */
+  validateContext(context: UnitContext): boolean {
+    return context !== null && context !== undefined;
+  }
+
+  /**
+   * Get composition rules
+   */
+  getCompositionRules(): Array<{
+    rule: string;
+    description: string;
+    weight: number;
+  }> {
+    return [
+      {
+        rule: 'adaptive-weighting',
+        description: 'Use adaptive weighting based on performance history',
+        weight: 1
+      }
+    ];
   }
 }
 
@@ -174,22 +206,10 @@ export class WeightedAverageSizeComposer implements IStrategyComposer<SizeValue,
   /**
    * Check if this composer can handle the given input
    */
-  canCompose(input: SizeValue, unit: SizeUnit, context: UnitContext): boolean {
+  canCompose(input: SizeValue, unit: SizeUnit): boolean {
     return true; // Weighted average composer can handle any input
   }
 
-  /**
-   * Compose a single result with the given input
-   */
-  compose(
-    result: number,
-    input: SizeValue,
-    unit: SizeUnit,
-    context: UnitContext
-  ): number {
-    // For single result composition, just return the result
-    return result;
-  }
   private successfulExecutions = 0;
   private composerStatistics = {
     totalCompositions: 0,
@@ -199,11 +219,6 @@ export class WeightedAverageSizeComposer implements IStrategyComposer<SizeValue,
     totalCompositionTime: 0,
     compositionsByType: {} as Record<string, number>,
   };
-
-  public canCompose(_value: SizeValue, _unit: SizeUnit): boolean {
-    // Can compose when we have multiple strategies that can handle the same value
-    return true; // Always return true for weighted averaging
-  }
 
   public compose(
     value: SizeValue,
@@ -236,7 +251,7 @@ export class WeightedAverageSizeComposer implements IStrategyComposer<SizeValue,
       const totalWeight = validStrategies.reduce((sum, s) => sum + s.weight, 0);
       const weightedSum = validStrategies.reduce((sum, s) => sum + (s.result * s.weight), 0);
       
-      const result = totalWeight > 0 ? weightedSum / totalWeight : validStrategies[0].result;
+      const result = totalWeight > 0 ? weightedSum / totalWeight : (validStrategies[0]?.result || 0);
       
       this.successfulExecutions++;
       this.updateStatistics(true, performance.now() - startTime, 'weighted-average');
@@ -298,6 +313,51 @@ export class WeightedAverageSizeComposer implements IStrategyComposer<SizeValue,
       this.composerStatistics.failedCompositions++;
     }
   }
+
+  /**
+   * Validate context for composition
+   */
+  validateContext(context: UnitContext): boolean {
+    return context !== null && context !== undefined;
+  }
+
+  /**
+   * Get composition rules
+   */
+  getCompositionRules(): Array<{
+    rule: string;
+    description: string;
+    weight: number;
+  }> {
+    return [
+      {
+        rule: 'weighted-average',
+        description: 'Calculate weighted average of strategy results',
+        weight: 1
+      }
+    ];
+  }
+
+  /**
+   * Get performance metrics
+   */
+  getPerformanceMetrics(): {
+    averageExecutionTime: number;
+    totalExecutions: number;
+    successRate: number;
+    lastExecutionTime: number;
+  } {
+    const averageExecutionTime = this.executionTimes.length > 0
+      ? this.executionTimes.reduce((sum, time) => sum + time, 0) / this.executionTimes.length
+      : 0;
+
+    return {
+      averageExecutionTime,
+      totalExecutions: this.totalExecutions,
+      successRate: this.totalExecutions > 0 ? this.successfulExecutions / this.totalExecutions : 0,
+      lastExecutionTime: this.executionTimes[this.executionTimes.length - 1] || 0
+    };
+  }
 }
 
 /**
@@ -316,25 +376,6 @@ export class PriorityBasedSizeComposer implements IStrategyComposer<SizeValue, S
   private totalExecutions = 0;
   private successfulExecutions = 0;
 
-  /**
-   * Check if this composer can handle the given input
-   */
-  canCompose(input: SizeValue, unit: SizeUnit, context: UnitContext): boolean {
-    return true; // Priority-based composer can handle any input
-  }
-
-  /**
-   * Compose a single result with the given input
-   */
-  compose(
-    result: number,
-    input: SizeValue,
-    unit: SizeUnit,
-    context: UnitContext
-  ): number {
-    // For single result composition, just return the result
-    return result;
-  }
   private composerStatistics = {
     totalCompositions: 0,
     successfulCompositions: 0,
@@ -376,7 +417,7 @@ export class PriorityBasedSizeComposer implements IStrategyComposer<SizeValue, S
       }
 
       // Return result from highest priority strategy
-      const result = sortedStrategies[0].result;
+      const result = sortedStrategies[0]?.result || 0;
       
       this.successfulExecutions++;
       this.updateStatistics(true, performance.now() - startTime, 'priority-based');
@@ -437,6 +478,51 @@ export class PriorityBasedSizeComposer implements IStrategyComposer<SizeValue, S
     } else {
       this.composerStatistics.failedCompositions++;
     }
+  }
+
+  /**
+   * Validate context for composition
+   */
+  validateContext(context: UnitContext): boolean {
+    return context !== null && context !== undefined;
+  }
+
+  /**
+   * Get composition rules
+   */
+  getCompositionRules(): Array<{
+    rule: string;
+    description: string;
+    weight: number;
+  }> {
+    return [
+      {
+        rule: 'priority-based',
+        description: 'Select highest priority strategy that can handle the input',
+        weight: 1
+      }
+    ];
+  }
+
+  /**
+   * Get performance metrics
+   */
+  getPerformanceMetrics(): {
+    averageExecutionTime: number;
+    totalExecutions: number;
+    successRate: number;
+    lastExecutionTime: number;
+  } {
+    const averageExecutionTime = this.executionTimes.length > 0
+      ? this.executionTimes.reduce((sum, time) => sum + time, 0) / this.executionTimes.length
+      : 0;
+
+    return {
+      averageExecutionTime,
+      totalExecutions: this.totalExecutions,
+      successRate: this.totalExecutions > 0 ? this.successfulExecutions / this.totalExecutions : 0,
+      lastExecutionTime: this.executionTimes[this.executionTimes.length - 1] || 0
+    };
   }
 }
 
@@ -551,5 +637,50 @@ export class FallbackSizeComposer implements IStrategyComposer<SizeValue, SizeUn
     } else {
       this.composerStatistics.failedCompositions++;
     }
+  }
+
+  /**
+   * Validate context for composition
+   */
+  validateContext(context: UnitContext): boolean {
+    return context !== null && context !== undefined;
+  }
+
+  /**
+   * Get composition rules
+   */
+  getCompositionRules(): Array<{
+    rule: string;
+    description: string;
+    weight: number;
+  }> {
+    return [
+      {
+        rule: 'fallback',
+        description: 'Use fallback strategies when primary strategies fail',
+        weight: 1
+      }
+    ];
+  }
+
+  /**
+   * Get performance metrics
+   */
+  getPerformanceMetrics(): {
+    averageExecutionTime: number;
+    totalExecutions: number;
+    successRate: number;
+    lastExecutionTime: number;
+  } {
+    const averageExecutionTime = this.executionTimes.length > 0
+      ? this.executionTimes.reduce((sum, time) => sum + time, 0) / this.executionTimes.length
+      : 0;
+
+    return {
+      averageExecutionTime,
+      totalExecutions: this.totalExecutions,
+      successRate: this.totalExecutions > 0 ? this.successfulExecutions / this.totalExecutions : 0,
+      lastExecutionTime: this.executionTimes[this.executionTimes.length - 1] || 0
+    };
   }
 }

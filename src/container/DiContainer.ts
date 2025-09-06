@@ -3,7 +3,8 @@
  * Provides a simple DI container for managing dependencies
  */
 
-export type Constructor<T = any> = new (...args: any[]) => T;
+import type { Constructor } from './Tokens';
+
 export type Factory<T = any> = (...args: any[]) => T;
 export type Token<T = any> = string | symbol | Constructor<T>;
 

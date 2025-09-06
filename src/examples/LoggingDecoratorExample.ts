@@ -99,13 +99,17 @@ export class LoggingDecoratorExample {
       decoratedCalculator.calculate(input);
     }
 
-    // Get performance metrics
-    const metrics = decoratedCalculator.getPerformanceMetrics();
-    console.log('Performance Metrics:', metrics);
+    // Get performance metrics (cast to PerformanceLoggingDecorator to access specific methods)
+    const performanceDecorator = decoratedCalculator as any;
+    if (performanceDecorator.getPerformanceMetrics) {
+      const metrics = performanceDecorator.getPerformanceMetrics();
+      console.log('Performance Metrics:', metrics);
+    }
 
-    // Get performance report
-    const report = decoratedCalculator.getPerformanceReport();
-    console.log('Performance Report:', report);
+    if (performanceDecorator.getPerformanceReport) {
+      const report = performanceDecorator.getPerformanceReport();
+      console.log('Performance Report:', report);
+    }
   }
 
   /**
@@ -166,9 +170,12 @@ export class LoggingDecoratorExample {
     const result2 = decoratedCalculator.calculate(input);
     console.log(`Second calculation result: ${result2} (should be cached)`);
 
-    // Get performance metrics
-    const metrics = decoratedCalculator.getPerformanceMetrics();
-    console.log('Performance Metrics:', metrics);
+    // Get performance metrics (cast to PerformanceLoggingDecorator to access specific methods)
+    const performanceDecorator = decoratedCalculator as any;
+    if (performanceDecorator.getPerformanceMetrics) {
+      const metrics = performanceDecorator.getPerformanceMetrics();
+      console.log('Performance Metrics:', metrics);
+    }
   }
 
   /**

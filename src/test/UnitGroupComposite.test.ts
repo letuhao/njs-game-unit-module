@@ -54,6 +54,21 @@ class MockUnit implements IUnit {
     return new MockUnit(this.id, this.name, this.unitType);
   }
 
+  format(format: string): string {
+    switch (format) {
+      case 'json':
+        return JSON.stringify({
+          id: this.id,
+          name: this.name,
+          unitType: this.unitType
+        });
+      case 'detailed':
+        return `MockUnit(id: ${this.id}, name: ${this.name}, type: ${this.unitType})`;
+      default:
+        return this.toString();
+    }
+  }
+
   private calculateValueBasedOnUnitType(context: UnitContext): number {
     switch (this.unitType) {
       case UnitType.SIZE:
@@ -418,6 +433,13 @@ describe('UnitGroupComposite', () => {
       isResponsive: () => true,
       toString: () => 'ProblematicUnit',
       clone: () => createProblematicUnit(),
+      format: (format: string) => {
+        switch (format) {
+          case 'json': return JSON.stringify({ id: 'problematic-unit', name: 'Problematic Unit', unitType: UnitType.SIZE });
+          case 'detailed': return 'Problematic Unit (SIZE)';
+          default: return 'ProblematicUnit';
+        }
+      }
     };
   }
 
@@ -461,6 +483,13 @@ describe('UnitGroupComposite', () => {
       isResponsive: () => true,
       toString: () => 'InvalidUnit',
       clone: () => createInvalidUnit(),
+      format: (format: string) => {
+        switch (format) {
+          case 'json': return JSON.stringify({ id: 'invalid-unit', name: 'Invalid Unit', unitType: UnitType.SIZE });
+          case 'detailed': return 'Invalid Unit (SIZE)';
+          default: return 'InvalidUnit';
+        }
+      }
     };
   }
 

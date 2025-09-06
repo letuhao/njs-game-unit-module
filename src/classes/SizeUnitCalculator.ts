@@ -57,7 +57,7 @@ export class SizeUnitCalculator implements ISizeUnit {
     // Use strategy pattern for SizeValue enum
     try {
       const strategyRegistry = container.resolve(TOKENS.SIZE_VALUE_STRATEGY_REGISTRY);
-      const strategy = strategyRegistry.getSizeValueStrategy(this.baseValue as SizeValue);
+      const strategy = (strategyRegistry as any).getSizeValueStrategy(this.baseValue as SizeValue);
       if (strategy) {
         return strategy(context);
       }
@@ -166,6 +166,36 @@ export class SizeUnitCalculator implements ISizeUnit {
     return cloned;
   }
 
+  /**
+   * Format the unit value
+   */
+  format(format: string): string {
+    const value = this.calculate({} as UnitContext);
+    return `${value}${this.sizeUnit}`;
+  }
+
+  /**
+   * Get minimum size value
+   */
+  getMinSize(): number | undefined {
+    return 1;
+  }
+
+  /**
+   * Get maximum size value
+   */
+  getMaxSize(): number | undefined {
+    return 10000;
+  }
+
+  /**
+   * Set size constraints
+   */
+  setSizeConstraints(min?: number, max?: number): void {
+    // Implementation for setting size constraints
+    // This would typically store the constraints in the class
+  }
+
   // Size calculation methods
   private calculateFillSize(context: UnitContext): number {
     if (this.dimension === Dimension.WIDTH) {
@@ -190,7 +220,7 @@ export class SizeUnitCalculator implements ISizeUnit {
       }
       return Math.max(context.content.width, context.content.height);
     }
-    return DEFAULT_FALLBACK_VALUES.SIZE.CONTENT;
+      return DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
   }
 
   private calculateContentSize(context: UnitContext): number {
@@ -203,7 +233,7 @@ export class SizeUnitCalculator implements ISizeUnit {
       }
       return Math.max(context.content.width, context.content.height);
     }
-    return DEFAULT_FALLBACK_VALUES.SIZE.CONTENT;
+      return DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
   }
 
   private calculateParentSize(context: UnitContext): number {
@@ -216,7 +246,7 @@ export class SizeUnitCalculator implements ISizeUnit {
       }
       return Math.min(context.parent.width, context.parent.height);
     }
-    return DEFAULT_FALLBACK_VALUES.SIZE.PARENT;
+      return DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
   }
 
   private calculateViewportSize(context: UnitContext): number {
@@ -229,7 +259,7 @@ export class SizeUnitCalculator implements ISizeUnit {
       }
       return Math.min(context.viewport.width, context.viewport.height);
     }
-    return DEFAULT_FALLBACK_VALUES.SIZE.VIEWPORT;
+      return DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
   }
 
   private calculateSceneSize(context: UnitContext): number {
@@ -242,7 +272,7 @@ export class SizeUnitCalculator implements ISizeUnit {
       }
       return Math.min(context.scene.width, context.scene.height);
     }
-    return DEFAULT_FALLBACK_VALUES.SIZE.SCENE;
+      return DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
   }
 
   /**

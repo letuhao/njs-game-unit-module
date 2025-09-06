@@ -35,6 +35,18 @@ export class TestConditions {
   } as const;
 
   /**
+   * Extensibility test constants
+   */
+  static readonly EXTENSIBILITY_TESTS = {
+    CUSTOM_STRATEGY_ID: 'custom-strategy',
+    HIGH_PRIORITY_STRATEGY_ID: 'high-priority-strategy',
+    CUSTOM_STRATEGY_RESULT: 42,
+    HIGH_PRIORITY_STRATEGY_RESULT: 84,
+    LOW_PRIORITY_VALUE: 21,
+    HIGH_PRIORITY_VALUE: 42,
+  } as const;
+
+  /**
    * Test data sets from solid-tests
    */
   static readonly TEST_DATA = {
@@ -91,17 +103,6 @@ export class TestConditions {
     EXPECTED_IMPROVEMENT_PERCENTAGE: 20, // 20% improvement expected
   } as const;
 
-  /**
-   * Extensibility test conditions
-   */
-  static readonly EXTENSIBILITY_TESTS = {
-    CUSTOM_STRATEGY_ID: 'custom-strategy',
-    HIGH_PRIORITY_STRATEGY_ID: 'high-priority-strategy',
-    CUSTOM_STRATEGY_RESULT: 999,
-    HIGH_PRIORITY_STRATEGY_RESULT: 888,
-    HIGH_PRIORITY_VALUE: 100,
-    LOW_PRIORITY_VALUE: 1,
-  } as const;
 
   /**
    * Testability test conditions
@@ -159,7 +160,7 @@ export class TestConditions {
    */
   static createCalculators(
     unit: SizeUnit,
-    dimension: Dimension,
+    dimension: Dimension.WIDTH | Dimension.HEIGHT | Dimension.BOTH,
     value: number | SizeValue,
     strategyRegistry: SizeValueCalculationStrategyRegistry
   ) {
@@ -258,8 +259,8 @@ export class TestConditions {
    * Get current memory usage
    */
   static getMemoryUsage(): number {
-    if (typeof performance !== 'undefined' && performance.memory) {
-      return performance.memory.usedJSHeapSize / 1024 / 1024; // Convert to MB
+    if (typeof performance !== 'undefined' && (performance as any).memory) {
+      return (performance as any).memory.usedJSHeapSize / 1024 / 1024; // Convert to MB
     }
     return 0;
   }
@@ -269,10 +270,10 @@ export class TestConditions {
    */
   static createCustomStrategy() {
     return {
-      readonly strategyId = this.EXTENSIBILITY_TESTS.CUSTOM_STRATEGY_ID,
-      readonly sizeValue = SizeValue.PIXEL,
-      readonly sizeUnit = SizeUnit.PIXEL,
-      readonly dimension = Dimension.WIDTH,
+      strategyId: this.EXTENSIBILITY_TESTS.CUSTOM_STRATEGY_ID,
+      sizeValue: SizeValue.PIXEL,
+      sizeUnit: SizeUnit.PIXEL,
+      dimension: Dimension.WIDTH,
 
       canHandle(
         _sizeValue: SizeValue,
@@ -288,11 +289,11 @@ export class TestConditions {
         _dimension: Dimension.WIDTH | Dimension.HEIGHT | Dimension.BOTH,
         _context: any
       ): number {
-        return this.EXTENSIBILITY_TESTS.CUSTOM_STRATEGY_RESULT;
+        return TestConditions.EXTENSIBILITY_TESTS.CUSTOM_STRATEGY_RESULT;
       },
 
       getPriority(): number {
-        return this.EXTENSIBILITY_TESTS.LOW_PRIORITY_VALUE;
+        return TestConditions.EXTENSIBILITY_TESTS.LOW_PRIORITY_VALUE;
       }
     };
   }
@@ -302,10 +303,10 @@ export class TestConditions {
    */
   static createHighPriorityStrategy() {
     return {
-      readonly strategyId = this.EXTENSIBILITY_TESTS.HIGH_PRIORITY_STRATEGY_ID,
-      readonly sizeValue = SizeValue.PIXEL,
-      readonly sizeUnit = SizeUnit.PIXEL,
-      readonly dimension = Dimension.WIDTH,
+      strategyId: TestConditions.EXTENSIBILITY_TESTS.HIGH_PRIORITY_STRATEGY_ID,
+      sizeValue: SizeValue.PIXEL,
+      sizeUnit: SizeUnit.PIXEL,
+      dimension: Dimension.WIDTH,
 
       canHandle(
         _sizeValue: SizeValue,
@@ -321,11 +322,11 @@ export class TestConditions {
         _dimension: Dimension.WIDTH | Dimension.HEIGHT | Dimension.BOTH,
         _context: any
       ): number {
-        return this.EXTENSIBILITY_TESTS.HIGH_PRIORITY_STRATEGY_RESULT;
+        return TestConditions.EXTENSIBILITY_TESTS.HIGH_PRIORITY_STRATEGY_RESULT;
       },
 
       getPriority(): number {
-        return this.EXTENSIBILITY_TESTS.HIGH_PRIORITY_VALUE;
+        return TestConditions.EXTENSIBILITY_TESTS.HIGH_PRIORITY_VALUE;
       }
     };
   }

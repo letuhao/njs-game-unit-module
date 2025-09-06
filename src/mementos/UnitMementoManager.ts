@@ -17,7 +17,7 @@ import { DEFAULT_FALLBACK_VALUES } from '../constants';
 export class UnitMementoManager {
   private readonly caretaker: IUnitMementoCaretaker;
   private autoSaveEnabled: boolean = true;
-  private autoSaveThreshold: number = DEFAULT_FALLBACK_VALUES.SIZE; // ms
+  private autoSaveThreshold: number = DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT; // ms
   private significantChangeThresholds = {
     timeThreshold: 50, // ms
     resultThreshold: 0.01, // 1% change
@@ -79,8 +79,15 @@ export class UnitMementoManager {
       context,
       result,
       unitId,
-      template.name,
-      performanceMetrics
+      'calculation', // unitType
+      template.getCalculationMetadata().templateName,
+      'strategy', // strategyName
+      '', // errorMessage
+      performanceMetrics ? {
+        totalTime: performanceMetrics.totalTime || 0,
+        stepTimes: (performanceMetrics.stepTimes && typeof performanceMetrics.stepTimes === 'object') ? performanceMetrics.stepTimes as Record<string, number> : {},
+        memoryUsage: performanceMetrics.memoryUsage || 0
+      } : undefined
     );
 
     this.mementoStatistics.totalMementosCreated++;
@@ -122,7 +129,7 @@ export class UnitMementoManager {
       }
 
       // Check if result has changed significantly
-      const lastResult = lastMemento.getResult();
+      const lastResult = lastMemento.result;
       if (lastResult !== undefined) {
         const changePercent = Math.abs(result - lastResult) / Math.abs(lastResult);
         if (changePercent < this.significantChangeThresholds.resultThreshold) {
@@ -223,13 +230,6 @@ export class UnitMementoManager {
     return this.caretaker.getMementoByIndex(unitId, index);
   }
 
-  /**
-   * Clear all mementos for a unit
-   */
-  public clearMementos(unitId: string): void {
-    this.caretaker.clearMementos(unitId);
-    this.updateMementoStatistics();
-  }
 
   /**
    * Clear all mementos
@@ -249,8 +249,13 @@ export class UnitMementoManager {
   /**
    * Get memento count for a unit
    */
-  public getMementoCount(unitId: string): number {
-    return this.caretaker.getMementoCount(unitId);
+  public getMementoCount(unitId: string): number;
+  public getMementoCount(): number;
+  public getMementoCount(unitId?: string): number {
+    if (unitId) {
+      return this.caretaker.getMementoCount(unitId);
+    }
+    return this.caretaker.getAllMementos().length;
   }
 
   /**

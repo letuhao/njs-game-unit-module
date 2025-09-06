@@ -18,7 +18,9 @@ export const TOKENS = {
   UNIT_ADAPTER_FACTORY: Symbol('IUnitAdapterFactory'),
   UNIT_ADAPTER_REGISTRY: Symbol('IUnitAdapterRegistry'),
   LEGACY_POSITION_ADAPTER: Symbol('LegacyPositionUnitAdapter'),
+  LEGACY_POSITION_UNIT_ADAPTER: Symbol('LegacyPositionUnitAdapter'),
   LEGACY_SIZE_ADAPTER: Symbol('LegacySizeUnitAdapter'),
+  LEGACY_SIZE_UNIT_ADAPTER: Symbol('LegacySizeUnitAdapter'),
 
   // Strategy Registries
   SIZE_VALUE_STRATEGY_REGISTRY: Symbol('ISizeValueCalculationStrategyRegistry'),
@@ -48,14 +50,26 @@ export const TOKENS = {
   // Strategy Services
   POSITION_STRATEGY: Symbol('PositionStrategy'),
   SIZE_STRATEGY: Symbol('SizeStrategy'),
+  SIZE_UNIT_STRATEGY: Symbol('SizeUnitStrategy'),
   SCALE_STRATEGY: Symbol('ScaleStrategy'),
   MIXED_UNIT_STRATEGY: Symbol('MixedUnitStrategy'),
+  
+  // Value Strategy Services
+  PIXEL_SIZE_VALUE_STRATEGY: Symbol('PixelSizeValueStrategy'),
+  FILL_SIZE_VALUE_STRATEGY: Symbol('FillSizeValueStrategy'),
+  AUTO_SIZE_VALUE_STRATEGY: Symbol('AutoSizeValueStrategy'),
+  PARENT_WIDTH_SIZE_VALUE_STRATEGY: Symbol('ParentWidthSizeValueStrategy'),
+  VIEWPORT_WIDTH_SIZE_VALUE_STRATEGY: Symbol('ViewportWidthSizeValueStrategy'),
 
   // Command Services
   BATCH_CALCULATION_COMMAND: Symbol('BatchCalculationCommand'),
   CALCULATE_POSITION_COMMAND: Symbol('CalculatePositionCommand'),
   CALCULATE_SIZE_COMMAND: Symbol('CalculateSizeCommand'),
   CALCULATE_SCALE_COMMAND: Symbol('CalculateScaleCommand'),
+  
+  // Validator Services
+  TYPE_VALIDATOR: Symbol('TypeValidator'),
+  RANGE_VALIDATOR: Symbol('RangeValidator'),
 
   // Composite Services
   UNIT_GROUP_COMPOSITE: Symbol('UnitGroupComposite'),
@@ -93,6 +107,7 @@ export const TOKENS = {
 
   // Monitoring Services
   PRODUCTION_MONITORING_SYSTEM: Symbol('ProductionMonitoringSystem'),
+  PERFORMANCE_COMPARISON_SYSTEM: Symbol('PerformanceComparisonSystem'),
 
   // Factory Services
   UNIT_CALCULATOR_FACTORY: Symbol('UnitCalculatorFactory'),

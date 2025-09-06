@@ -104,6 +104,10 @@ export abstract class BaseUnitDecorator implements IUnitDecorator {
     return `${this.constructor.name}(${this.id}, ${this.name}) -> ${this.wrappedUnit.toString()}`;
   }
 
+  format(format: string): string {
+    return this.wrappedUnit.format(format);
+  }
+
   clone(overrides?: Partial<IUnit>): IUnit {
     const cloned = Object.create(Object.getPrototypeOf(this));
     Object.assign(cloned, this, overrides);

@@ -1,13 +1,15 @@
-import {
-  PerformanceComparisonSystem,
-  TestScenario,
-} from '../testing/performance/PerformanceComparisonSystem';
+// PerformanceComparisonSystem is not implemented yet
+// import {
+//   PerformanceComparisonSystem,
+//   TestScenario,
+// } from '../testing/performance/PerformanceComparisonSystem';
 import { UnitContext } from '../interfaces/IUnit';
 import { ISizeUnitConfig, IPositionUnitConfig, IScaleUnitConfig } from '../interfaces/IUnitConfig';
 import { SizeValue } from '../enums/SizeValue';
 import { PositionValue } from '../enums/PositionValue';
 import { ScaleValue } from '../enums/ScaleValue';
 import { SizeUnit } from '../enums/SizeUnit';
+import { UnitType } from '../enums/UnitType';
 import { PositionUnit } from '../enums/PositionUnit';
 import { ScaleUnit } from '../enums/ScaleUnit';
 import { Dimension } from '../enums/Dimension';
@@ -148,6 +150,8 @@ describe('PerformanceComparisonSystem', () => {
     return {
       id: 'size-1',
       name: 'Test Size 1',
+      unitType: UnitType.SIZE,
+      value: 100,
       sizeUnit: SizeUnit.PIXEL,
       dimension: Dimension.WIDTH,
       baseValue: SizeValue.PIXEL,
@@ -158,9 +162,11 @@ describe('PerformanceComparisonSystem', () => {
     return {
       id: 'position-1',
       name: 'Test Position 1',
+      unitType: UnitType.POSITION,
+      value: 50,
       positionUnit: PositionUnit.PIXEL,
+      dimension: Dimension.X,
       axis: Dimension.X,
-      baseValue: PositionValue.PIXEL,
     };
   }
 
@@ -168,7 +174,10 @@ describe('PerformanceComparisonSystem', () => {
     return {
       id: 'scale-1',
       name: 'Test Scale 1',
+      unitType: UnitType.SCALE,
+      value: 1.5,
       scaleUnit: ScaleUnit.FACTOR,
+      dimension: Dimension.BOTH,
       baseValue: ScaleValue.FACTOR,
       maintainAspectRatio: true,
     };
@@ -336,6 +345,8 @@ describe('PerformanceComparisonSystem', () => {
     return {
       id: 'error-config',
       name: 'Error Config',
+      unitType: UnitType.SIZE,
+      value: 100,
       sizeUnit: SizeUnit.PIXEL,
       dimension: Dimension.WIDTH,
       baseValue: SizeValue.PIXEL,

@@ -8,4 +8,11 @@ export interface IFormattable {
    * @returns String representation
    */
   toString(): string;
+  
+  /**
+   * Format the object with a specific format
+   * @param format The format string
+   * @returns Formatted string
+   */
+  format(format: string): string;
 }

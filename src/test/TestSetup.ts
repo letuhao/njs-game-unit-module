@@ -29,7 +29,7 @@ export class TestSetup {
    */
   static setupDefaultServices(): void {
     // Register strategy registry
-    container.registerSingleton(TOKENS.SIZE_VALUE_CALCULATION_STRATEGY_REGISTRY, () => {
+    container.registerSingleton(TOKENS.SIZE_VALUE_STRATEGY_REGISTRY, () => {
       const registry = new SizeValueCalculationStrategyRegistry();
       TestConditions.setupStrategyRegistry(registry);
       return registry;
@@ -111,7 +111,7 @@ export class TestSetup {
     const mockRegistry = TestConditions.createMockRegistry();
     const expectedProperties = TestConditions.TESTABILITY_TESTS.MOCK_CONTEXT_PROPERTIES;
     
-    return { mockContext, mockRegistry, expectedProperties };
+    return { mockContext, mockRegistry, expectedProperties: [...expectedProperties] };
   }
 
   /**

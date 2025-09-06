@@ -89,6 +89,27 @@ export abstract class PositionCalculationTemplate implements IUnitCalculationTem
     return { ...this.templateStatistics };
   }
 
+  canHandle(input: ITemplateInput): boolean {
+    return input.type === 'POSITION' as any;
+  }
+
+  getCalculationMetadata(): { templateName: string; version: string; supportedInputs: string[]; calculationSteps: string[] } {
+    return {
+      templateName: 'PositionCalculationTemplate',
+      version: '1.0.0',
+      supportedInputs: ['POSITION'],
+      calculationSteps: ['validation', 'preprocessing', 'calculation', 'postprocessing']
+    };
+  }
+
+  getPerformanceMetrics(): { totalTime: number; stepTimes: Record<string, number>; memoryUsage: number } {
+    return {
+      totalTime: this.templateStatistics.totalCalculationTime,
+      stepTimes: {},
+      memoryUsage: 0 // Not tracked in current implementation
+    };
+  }
+
   /**
    * Reset template statistics
    */
@@ -116,7 +137,7 @@ export abstract class PositionCalculationTemplate implements IUnitCalculationTem
    */
   protected validateInput(input: ITemplateInput): void {
     for (const validator of this.validators) {
-      if (!validator.validate(input)) {
+      if (!validator.validate(input as any)) {
         throw new Error(`Input validation failed: ${validator.constructor.name}`);
       }
     }

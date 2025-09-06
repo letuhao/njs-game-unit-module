@@ -8,9 +8,23 @@
  */
 export const DEFAULT_FALLBACK_VALUES = {
   // Size-related defaults
-  SIZE: 100,
-  POSITION: 0,
-  SCALE: 1.0,
+  SIZE: {
+    DEFAULT: 100,
+    MIN: 1,
+    MAX: 10000
+  },
+  POSITION: {
+    DEFAULT: 0,
+    MIN: -10000,
+    MAX: 10000
+  },
+  SCALE: {
+    DEFAULT: 1.0,
+    MIN: 0.1,
+    MAX: 10.0,
+    RANDOM_MIN: 0.5,
+    RANDOM_MAX: 2.0
+  },
 } as const;
 
 /**
@@ -58,4 +72,21 @@ export const DEFAULT_PERFORMANCE_VALUES = {
   MAX_CALCULATION_HISTORY: 100,
   ERROR_THRESHOLD: 0.1,
   TIMEOUT_MS: 5000,
+} as const;
+
+/**
+ * Strategy priorities for different unit types
+ */
+export const STRATEGY_PRIORITIES = {
+  PIXEL: 1,
+  PERCENTAGE: 2,
+  VIEWPORT: 3,
+  PARENT: 4,
+  AUTO: 5,
+  FILL: 6,
+  CONTENT: 7,
+  SCENE: 8,
+  RANDOM: 9,
+  POSITION: 10,
+  SCALE: 11
 } as const;

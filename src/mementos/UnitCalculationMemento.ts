@@ -19,6 +19,13 @@ export class UnitCalculationMemento implements IUnitMemento {
     checksum: string;
     description: string;
   };
+  
+  // Additional properties for test compatibility
+  public readonly templateName: string;
+  public readonly strategyName: string;
+  public readonly validatorNames: string[];
+  public readonly isSuccess: boolean;
+  public readonly error: Error | undefined;
 
   private logger: any;
 
@@ -54,6 +61,13 @@ export class UnitCalculationMemento implements IUnitMemento {
     this.unitId = unitId;
     this.unitType = unitType;
     this.version = '1.0.0';
+    
+    // Initialize additional properties
+    this.templateName = templateName;
+    this.strategyName = strategyName;
+    this.validatorNames = []; // Default empty array
+    this.isSuccess = !errorMessage;
+    this.error = errorMessage ? new Error(errorMessage) : undefined;
 
     // Resolve logger from DI container
     try {
@@ -84,6 +98,14 @@ export class UnitCalculationMemento implements IUnitMemento {
    * Get the state
    */
   getState(): any {
+    return this.state;
+  }
+
+  /**
+   * Restore the unit state from this memento
+   * @returns The restored unit state
+   */
+  restore(): any {
     return this.state;
   }
 
@@ -432,5 +454,38 @@ export class UnitCalculationMemento implements IUnitMemento {
       errorMessage,
       performanceMetrics
     );
+  }
+
+  // Setter methods for test compatibility
+  public setTemplateName(templateName: string): void {
+    (this as any).templateName = templateName;
+  }
+
+  public setStrategyName(strategyName: string): void {
+    (this as any).strategyName = strategyName;
+  }
+
+  public setValidatorNames(validatorNames: string[]): void {
+    (this as any).validatorNames = validatorNames;
+  }
+
+  public setIsSuccess(isSuccess: boolean): void {
+    (this as any).isSuccess = isSuccess;
+  }
+
+  public setError(error: Error | undefined): void {
+    (this as any).error = error;
+  }
+
+  public setUnitType(unitType: string): void {
+    (this as any).unitType = unitType;
+  }
+
+  public setContext(context: UnitContext): void {
+    (this as any).context = context;
+  }
+
+  public setPerformanceMetrics(metrics: any): void {
+    (this as any).performanceMetrics = metrics;
   }
 }

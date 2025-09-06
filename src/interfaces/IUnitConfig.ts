@@ -8,6 +8,7 @@ import { SizeUnit } from '../enums/SizeUnit';
 import { SizeValue } from '../enums/SizeValue';
 import { PositionUnit } from '../enums/PositionUnit';
 import { PositionValue } from '../enums/PositionValue';
+import { IUnit } from './IUnit';
 import { ScaleUnit } from '../enums/ScaleUnit';
 import { ScaleValue } from '../enums/ScaleValue';
 import { Dimension } from '../enums/Dimension';
@@ -50,6 +51,7 @@ export interface ISizeUnitConfig extends IUnitConfig {
   readonly value: number | SizeValue;
   readonly sizeUnit: SizeUnit;
   readonly dimension: Dimension;
+  readonly baseValue?: SizeValue;
 }
 
 /**
@@ -60,6 +62,7 @@ export interface IPositionUnitConfig extends IUnitConfig {
   readonly value: number | PositionValue;
   readonly positionUnit: PositionUnit;
   readonly dimension: Dimension;
+  readonly axis?: Dimension;
 }
 
 /**
@@ -70,6 +73,8 @@ export interface IScaleUnitConfig extends IUnitConfig {
   readonly value: number | ScaleValue;
   readonly scaleUnit: ScaleUnit;
   readonly dimension: Dimension;
+  readonly baseValue?: ScaleValue;
+  readonly maintainAspectRatio?: boolean;
 }
 
 /**
@@ -357,7 +362,7 @@ export class UnitConfigFactory implements IUnitConfigFactory {
       metadata?: Record<string, unknown>;
     }
   ): ISizeUnitConfig {
-    return {
+    const result: ISizeUnitConfig = {
       id,
       name,
       unitType: UnitType.SIZE,
@@ -365,8 +370,10 @@ export class UnitConfigFactory implements IUnitConfigFactory {
       sizeUnit: options.sizeUnit,
       dimension: options.dimension,
       enabled: options.enabled ?? true,
-      metadata: options.metadata,
+      ...(options.metadata !== undefined && { metadata: options.metadata }),
     };
+
+    return result;
   }
 
   createPositionUnitConfig(
@@ -380,7 +387,7 @@ export class UnitConfigFactory implements IUnitConfigFactory {
       metadata?: Record<string, unknown>;
     }
   ): IPositionUnitConfig {
-    return {
+    const result: IPositionUnitConfig = {
       id,
       name,
       unitType: UnitType.POSITION,
@@ -388,8 +395,10 @@ export class UnitConfigFactory implements IUnitConfigFactory {
       positionUnit: options.positionUnit,
       dimension: options.dimension,
       enabled: options.enabled ?? true,
-      metadata: options.metadata,
+      ...(options.metadata !== undefined && { metadata: options.metadata }),
     };
+
+    return result;
   }
 
   createScaleUnitConfig(
@@ -403,7 +412,7 @@ export class UnitConfigFactory implements IUnitConfigFactory {
       metadata?: Record<string, unknown>;
     }
   ): IScaleUnitConfig {
-    return {
+    const result: IScaleUnitConfig = {
       id,
       name,
       unitType: UnitType.SCALE,
@@ -411,8 +420,10 @@ export class UnitConfigFactory implements IUnitConfigFactory {
       scaleUnit: options.scaleUnit,
       dimension: options.dimension,
       enabled: options.enabled ?? true,
-      metadata: options.metadata,
+      ...(options.metadata !== undefined && { metadata: options.metadata }),
     };
+
+    return result;
   }
 
   validateConfig(config: UnitConfig): IUnitValidationResult {
@@ -468,8 +479,8 @@ export class UnitConfigFactory implements IUnitConfigFactory {
     return {
       success: errors.length === 0,
       isValid: errors.length === 0,
-      errors: errors.length > 0 ? errors : undefined,
-      warnings: warnings.length > 0 ? warnings : undefined,
+      ...(errors.length > 0 && { errors }),
+      ...(warnings.length > 0 && { warnings }),
       metadata: {
         unitId: config.id,
         unitType: config.unitType,

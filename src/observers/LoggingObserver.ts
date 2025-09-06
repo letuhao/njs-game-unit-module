@@ -1,6 +1,11 @@
 import type { IUnitObserver } from './IUnitObserver';
 // LogLevel enum not found, using string for now
 
+const INFO = 'info';
+const DEBUG = 'debug';
+const WARN = 'warn';
+const ERROR = 'error';
+
 /**
  * Logging Observer
  * Integrates directly with the project's existing Logger system
@@ -31,6 +36,26 @@ export class LoggingObserver implements IUnitObserver {
     const data = { unitId, oldValue, newValue, change: newValue - oldValue };
 
     this.recordEvent(INFO, event, data);
+  }
+
+  /**
+   * Observe method for compatibility with test expectations
+   */
+  public observe(unit: any, eventType: string, context?: any): void {
+    const event = `unit_${eventType}`;
+    const data = { unitId: unit.id, eventType, context };
+
+    this.recordEvent(INFO, event, data);
+  }
+
+  /**
+   * Update method required by IUnitObserver interface
+   * @param unit - The unit being updated
+   * @param eventType - The type of event
+   * @param data - Additional event data
+   */
+  public update(unit: any, eventType: string, data?: any): void {
+    this.observe(unit, eventType, data);
   }
 
   /**

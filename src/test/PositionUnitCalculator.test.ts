@@ -2,12 +2,12 @@ import { PositionUnitCalculator } from '../classes/PositionUnitCalculator';
 import { PositionUnit } from '../enums/PositionUnit';
 import { PositionValue } from '../enums/PositionValue';
 import { Dimension } from '../enums/Dimension';
-import { createMockContext } from './setup';
+import { createMockContext } from './test-utils';
 import { container, TOKENS } from '../container/DiContainer';
 
 describe('PositionUnitCalculator', () => {
   let calculator: PositionUnitCalculator;
-  let mockContext: ReturnType<typeof createMockContext>;
+  let mockContext: any;
 
   beforeEach(() => {
     setupTestEnvironment();
@@ -137,7 +137,7 @@ describe('PositionUnitCalculator', () => {
 
   function createCalculatorWithProperties(): PositionUnitCalculator {
     try {
-      const calculator = container.resolve(TOKENS.POSITION_UNIT_CALCULATOR);
+      const calculator = container.resolve(TOKENS.POSITION_CALCULATOR);
       setCalculatorProperties(calculator);
       return calculator;
     } catch (error) {
@@ -176,7 +176,7 @@ describe('PositionUnitCalculator', () => {
 
   function createDefaultCalculator(): PositionUnitCalculator {
     try {
-      const calculator = container.resolve(TOKENS.POSITION_UNIT_CALCULATOR);
+      const calculator = container.resolve(TOKENS.POSITION_CALCULATOR);
       setDefaultCalculatorProperties(calculator);
       return calculator;
     } catch (error) {
@@ -206,7 +206,7 @@ describe('PositionUnitCalculator', () => {
 
   function setupCalculatorForCalculation(): void {
     try {
-      calculator = container.resolve(TOKENS.POSITION_UNIT_CALCULATOR);
+      calculator = container.resolve(TOKENS.POSITION_CALCULATOR);
       setCalculatorProperties(calculator);
     } catch (error) {
       calculator = new PositionUnitCalculator(
@@ -220,35 +220,35 @@ describe('PositionUnitCalculator', () => {
   }
 
   function testPixelPositionCalculation(): void {
-    const result = calculator.calculate(PositionValue.PIXEL, PositionUnit.PIXEL, mockContext);
+    const result = calculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
   }
 
   function testCenterPositionCalculation(): void {
-    const result = calculator.calculate(PositionValue.CENTER, PositionUnit.CENTER, mockContext);
+    const result = calculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
   }
 
   function testContentLeftPositionCalculation(): void {
-    const result = calculator.calculate(PositionValue.CONTENT_LEFT, PositionUnit.CONTENT_LEFT, mockContext);
+    const result = calculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
   }
 
   function testParentCenterXPositionCalculation(): void {
-    const result = calculator.calculate(PositionValue.PARENT_CENTER_X, PositionUnit.PARENT_CENTER_X, mockContext);
+    const result = calculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
   }
 
   function testSceneCenterXPositionCalculation(): void {
-    const result = calculator.calculate(PositionValue.SCENE_CENTER_X, PositionUnit.SCENE_CENTER_X, mockContext);
+    const result = calculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -256,7 +256,7 @@ describe('PositionUnitCalculator', () => {
 
   function testXDimensionCalculations(): void {
     const xCalculator = createCalculatorForDimension(Dimension.X);
-    const result = xCalculator.calculate(PositionValue.PIXEL, PositionUnit.PIXEL, mockContext);
+    const result = xCalculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -264,7 +264,7 @@ describe('PositionUnitCalculator', () => {
 
   function testYDimensionCalculations(): void {
     const yCalculator = createCalculatorForDimension(Dimension.Y);
-    const result = yCalculator.calculate(PositionValue.PIXEL, PositionUnit.PIXEL, mockContext);
+    const result = yCalculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -272,7 +272,7 @@ describe('PositionUnitCalculator', () => {
 
   function testZDimensionCalculations(): void {
     const zCalculator = createCalculatorForDimension(Dimension.Z);
-    const result = zCalculator.calculate(PositionValue.PIXEL, PositionUnit.PIXEL, mockContext);
+    const result = zCalculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -280,7 +280,7 @@ describe('PositionUnitCalculator', () => {
 
   function createCalculatorForDimension(dimension: Dimension): PositionUnitCalculator {
     try {
-      const calculator = container.resolve(TOKENS.POSITION_UNIT_CALCULATOR);
+      const calculator = container.resolve(TOKENS.POSITION_CALCULATOR);
       setCalculatorPropertiesForDimension(calculator, dimension);
       return calculator;
     } catch (error) {
@@ -304,7 +304,7 @@ describe('PositionUnitCalculator', () => {
 
   function testPixelUnitCalculations(): void {
     const pixelCalculator = createCalculatorForUnit(PositionUnit.PIXEL);
-    const result = pixelCalculator.calculate(PositionValue.PIXEL, PositionUnit.PIXEL, mockContext);
+    const result = pixelCalculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -312,7 +312,7 @@ describe('PositionUnitCalculator', () => {
 
   function testCenterUnitCalculations(): void {
     const centerCalculator = createCalculatorForUnit(PositionUnit.CENTER);
-    const result = centerCalculator.calculate(PositionValue.CENTER, PositionUnit.CENTER, mockContext);
+    const result = centerCalculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -320,7 +320,7 @@ describe('PositionUnitCalculator', () => {
 
   function testContentLeftUnitCalculations(): void {
     const contentLeftCalculator = createCalculatorForUnit(PositionUnit.CONTENT_LEFT);
-    const result = contentLeftCalculator.calculate(PositionValue.CONTENT_LEFT, PositionUnit.CONTENT_LEFT, mockContext);
+    const result = contentLeftCalculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -328,7 +328,7 @@ describe('PositionUnitCalculator', () => {
 
   function testParentCenterXUnitCalculations(): void {
     const parentCenterXCalculator = createCalculatorForUnit(PositionUnit.PARENT_CENTER_X);
-    const result = parentCenterXCalculator.calculate(PositionValue.PARENT_CENTER_X, PositionUnit.PARENT_CENTER_X, mockContext);
+    const result = parentCenterXCalculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -336,7 +336,7 @@ describe('PositionUnitCalculator', () => {
 
   function testSceneCenterXUnitCalculations(): void {
     const sceneCenterXCalculator = createCalculatorForUnit(PositionUnit.SCENE_CENTER_X);
-    const result = sceneCenterXCalculator.calculate(PositionValue.SCENE_CENTER_X, PositionUnit.SCENE_CENTER_X, mockContext);
+    const result = sceneCenterXCalculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -344,7 +344,7 @@ describe('PositionUnitCalculator', () => {
 
   function createCalculatorForUnit(unit: PositionUnit): PositionUnitCalculator {
     try {
-      const calculator = container.resolve(TOKENS.POSITION_UNIT_CALCULATOR);
+      const calculator = container.resolve(TOKENS.POSITION_CALCULATOR);
       setCalculatorPropertiesForUnit(calculator, unit);
       return calculator;
     } catch (error) {
@@ -370,7 +370,7 @@ describe('PositionUnitCalculator', () => {
     const invalidValues = createInvalidPositionValues();
     
     for (const value of invalidValues) {
-      const result = calculator.calculate(value, PositionUnit.PIXEL, mockContext);
+      const result = calculator.calculate(mockContext);
       expect(typeof result).toBe('number');
     }
   }
@@ -383,7 +383,7 @@ describe('PositionUnitCalculator', () => {
     const invalidUnits = createInvalidPositionUnits();
     
     for (const unit of invalidUnits) {
-      const result = calculator.calculate(PositionValue.PIXEL, unit, mockContext);
+      const result = calculator.calculate(mockContext);
       expect(typeof result).toBe('number');
     }
   }
@@ -394,7 +394,7 @@ describe('PositionUnitCalculator', () => {
 
   function testMissingContextPropertiesHandling(): void {
     const partialContext = { dimension: 'width' };
-    const result = calculator.calculate(PositionValue.PIXEL, PositionUnit.PIXEL, partialContext as any);
+    const result = calculator.calculate(partialContext as any);
     
     expect(typeof result).toBe('number');
   }
@@ -403,7 +403,7 @@ describe('PositionUnitCalculator', () => {
     const startTime = performance.now();
     
     for (let i = 0; i < 1000; i++) {
-      calculator.calculate(PositionValue.PIXEL, PositionUnit.PIXEL, mockContext);
+      calculator.calculate(mockContext);
     }
     
     const endTime = performance.now();
@@ -416,7 +416,7 @@ describe('PositionUnitCalculator', () => {
     const calculations = createMultipleCalculations();
     
     for (const calculation of calculations) {
-      const result = calculator.calculate(calculation.value, calculation.unit, mockContext);
+      const result = calculator.calculate(mockContext);
       expect(typeof result).toBe('number');
       expect(result).toBeGreaterThanOrEqual(0);
     }
@@ -436,7 +436,7 @@ describe('PositionUnitCalculator', () => {
     const contexts = createDifferentContexts();
     
     for (const context of contexts) {
-      const result = calculator.calculate(PositionValue.PIXEL, PositionUnit.PIXEL, context);
+      const result = calculator.calculate(context);
       expect(typeof result).toBe('number');
       expect(result).toBeGreaterThanOrEqual(0);
     }
@@ -469,7 +469,7 @@ describe('PositionUnitCalculator', () => {
 
   function createCalculatorWithConfiguration(config: any): PositionUnitCalculator {
     try {
-      const calculator = container.resolve(TOKENS.POSITION_UNIT_CALCULATOR);
+      const calculator = container.resolve(TOKENS.POSITION_CALCULATOR);
       setCalculatorPropertiesForConfiguration(calculator, config);
       return calculator;
     } catch (error) {

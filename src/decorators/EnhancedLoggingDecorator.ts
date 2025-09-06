@@ -1,7 +1,9 @@
-import type { IUnitDecorator } from './IUnitDecorator';
+import type { IUnitDecorator } from '../interfaces/IUnitDecorator';
 import type { IUnit } from '../interfaces/IUnit';
 import type { UnitContext } from '../interfaces/IUnit';
 import type { DiContainer } from '../container/DiContainer';
+import { BaseUnitDecorator } from '../interfaces/IUnitDecorator';
+import { UnitType } from '../enums/UnitType';
 import { TOKENS } from '../container/Tokens';
 
 /**
@@ -9,8 +11,7 @@ import { TOKENS } from '../container/Tokens';
  * Adds comprehensive logging functionality to any unit
  * Follows Single Responsibility Principle - only handles logging concerns
  */
-export class EnhancedLoggingDecorator implements IUnitDecorator {
-  private readonly decoratedUnit: IUnit;
+export class EnhancedLoggingDecorator extends BaseUnitDecorator {
   private logger: any;
   private logLevel: 'debug' | 'info' | 'warn' | 'error' = 'info';
   private logPerformance: boolean = true;
@@ -27,7 +28,12 @@ export class EnhancedLoggingDecorator implements IUnitDecorator {
       logCalculation?: boolean;
     } = {}
   ) {
-    this.decoratedUnit = decoratedUnit;
+    super(
+      `enhanced-logging-${decoratedUnit.id}`,
+      `Enhanced Logging Decorator for ${decoratedUnit.name}`,
+      decoratedUnit.unitType,
+      decoratedUnit
+    );
     this.logLevel = options.logLevel || 'info';
     this.logPerformance = options.logPerformance ?? true;
     this.logValidation = options.logValidation ?? true;
@@ -46,33 +52,34 @@ export class EnhancedLoggingDecorator implements IUnitDecorator {
    * Get the decorated unit
    */
   getDecoratedUnit(): IUnit {
-    return this.decoratedUnit;
+    return this.wrappedUnit;
   }
 
   /**
    * Calculate with logging
    */
-  calculate(context: UnitContext): number {
+  // Override performCalculation to add logging
+  protected performCalculation(context: UnitContext): number {
     const startTime = this.logPerformance ? performance.now() : 0;
     
     try {
       // Log calculation start
       if (this.logCalculation) {
         this.log('debug', 'Calculation started', {
-          unitId: this.decoratedUnit.id,
-          unitType: this.decoratedUnit.unitType,
+          unitId: this.wrappedUnit.id,
+          unitType: this.wrappedUnit.unitType,
           context: this.sanitizeContext(context)
         });
       }
 
       // Perform calculation
-      const result = this.decoratedUnit.calculate(context);
+      const result = this.wrappedUnit.calculate(context);
 
       // Log calculation result
       if (this.logCalculation) {
         const duration = this.logPerformance ? performance.now() - startTime : 0;
         this.log('info', 'Calculation completed', {
-          unitId: this.decoratedUnit.id,
+          unitId: this.wrappedUnit.id,
           result,
           duration: this.logPerformance ? `${duration.toFixed(2)}ms` : undefined
         });
@@ -82,7 +89,7 @@ export class EnhancedLoggingDecorator implements IUnitDecorator {
     } catch (error) {
       // Log calculation error
       this.log('error', 'Calculation failed', {
-        unitId: this.decoratedUnit.id,
+        unitId: this.wrappedUnit.id,
         error: error instanceof Error ? error.message : String(error),
         context: this.sanitizeContext(context)
       });
@@ -90,111 +97,23 @@ export class EnhancedLoggingDecorator implements IUnitDecorator {
     }
   }
 
-  /**
-   * Check if responsive with logging
-   */
-  isResponsive(): boolean {
-    const result = this.decoratedUnit.isResponsive();
-    
-    if (this.logCalculation) {
-      this.log('debug', 'Responsiveness checked', {
-        unitId: this.decoratedUnit.id,
-        isResponsive: result
-      });
-    }
-    
-    return result;
+  // Override beforeCalculation to add logging
+  protected beforeCalculation(context: UnitContext): void {
+    this.logCalculation && this.log('debug', 'Before calculation', { context: this.sanitizeContext(context) });
   }
 
-  /**
-   * Get active state with logging
-   */
-  get isActive(): boolean {
-    const result = this.decoratedUnit.isActive;
-    
-    if (this.logCalculation) {
-      this.log('debug', 'Active state checked', {
-        unitId: this.decoratedUnit.id,
-        isActive: result
-      });
-    }
-    
-    return result;
+  // Override afterCalculation to add logging
+  protected afterCalculation(result: number, context: UnitContext): void {
+    this.logCalculation && this.log('debug', 'After calculation', { result, context: this.sanitizeContext(context) });
   }
 
-  /**
-   * Validate with logging
-   */
-  validate(context: UnitContext): boolean {
-    const startTime = this.logPerformance ? performance.now() : 0;
-    
-    try {
-      // Log validation start
-      if (this.logValidation) {
-        this.log('debug', 'Validation started', {
-          unitId: this.decoratedUnit.id,
-          context: this.sanitizeContext(context)
-        });
-      }
-
-      // Perform validation
-      const result = this.decoratedUnit.validate(context);
-
-      // Log validation result
-      if (this.logValidation) {
-        const duration = this.logPerformance ? performance.now() - startTime : 0;
-        this.log(result ? 'info' : 'warn', 'Validation completed', {
-          unitId: this.decoratedUnit.id,
-          isValid: result,
-          duration: this.logPerformance ? `${duration.toFixed(2)}ms` : undefined
-        });
-      }
-
-      return result;
-    } catch (error) {
-      // Log validation error
-      this.log('error', 'Validation failed', {
-        unitId: this.decoratedUnit.id,
-        error: error instanceof Error ? error.message : String(error),
-        context: this.sanitizeContext(context)
-      });
-      throw error;
-    }
+  // Override validateDecorator to add logging
+  protected validateDecorator(context: UnitContext): boolean {
+    return true; // EnhancedLoggingDecorator doesn't add validation constraints
   }
 
-  /**
-   * Get string representation with logging
-   */
-  toString(): string {
-    const result = this.decoratedUnit.toString();
-    
-    if (this.logCalculation) {
-      this.log('debug', 'String representation requested', {
-        unitId: this.decoratedUnit.id,
-        representation: result
-      });
-    }
-    
-    return `EnhancedLoggingDecorator(${result})`;
-  }
 
-  /**
-   * Clone with logging
-   */
-  clone(): EnhancedLoggingDecorator {
-    if (this.logCalculation) {
-      this.log('debug', 'Cloning decorator', {
-        unitId: this.decoratedUnit.id
-      });
-    }
-    
-    return new EnhancedLoggingDecorator(this.decoratedUnit, this.container, {
-      logLevel: this.logLevel,
-      logPerformance: this.logPerformance,
-      logValidation: this.logValidation,
-      logCalculation: this.logCalculation
-    });
-  }
+
 
   /**
    * Set log level
@@ -259,8 +178,8 @@ export class EnhancedLoggingDecorator implements IUnitDecorator {
       timestamp: new Date().toISOString(),
       level,
       message,
-      unitId: this.decoratedUnit.id,
-      unitType: this.decoratedUnit.unitType,
+      unitId: this.wrappedUnit.id,
+      unitType: this.wrappedUnit.unitType,
       ...meta
     };
 
@@ -313,5 +232,33 @@ export class EnhancedLoggingDecorator implements IUnitDecorator {
     }
     
     return sanitized;
+  }
+
+  /**
+   * Get the wrapped unit
+   */
+  getWrappedUnit(): IUnit {
+    return this.wrappedUnit;
+  }
+
+  /**
+   * Get the decorator type
+   */
+  getDecoratorType(): string {
+    return 'EnhancedLoggingDecorator';
+  }
+
+  /**
+   * Check if the decorator is enabled
+   */
+  isEnabled(): boolean {
+    return this.logLevel !== 'error';
+  }
+
+  /**
+   * Enable or disable the decorator
+   */
+  setEnabled(enabled: boolean): void {
+    this.logLevel = enabled ? 'info' : 'error';
   }
 }

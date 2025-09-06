@@ -1,4 +1,4 @@
-import type { PositionUnit } from '../../enums/PositionUnit';
+import { PositionUnit } from '../../enums/PositionUnit';
 import type { IPositionStrategyInput } from '../../interfaces/strategy/IPositionStrategyInput';
 import type { PositionUnitStrategy } from '../registry/PositionUnitStrategyRegistry';
 
@@ -109,19 +109,149 @@ export const calculateBottomPosition: PositionUnitStrategy = (input: IPositionSt
   return parentHeight - contentHeight;
 };
 
+
+/**
+ * Calculate parent left position
+ */
+function calculateParentLeftPosition(input: IPositionStrategyInput): number {
+  return typeof input.value === 'number' ? input.value : 0;
+}
+
+/**
+ * Calculate parent top position
+ */
+function calculateParentTopPosition(input: IPositionStrategyInput): number {
+  return typeof input.value === 'number' ? input.value : 0;
+}
+
+/**
+ * Calculate parent center x position
+ */
+function calculateParentCenterXPosition(input: IPositionStrategyInput): number {
+  return typeof input.value === 'number' ? input.value : 0;
+}
+
+/**
+ * Calculate parent center y position
+ */
+function calculateParentCenterYPosition(input: IPositionStrategyInput): number {
+  return typeof input.value === 'number' ? input.value : 0;
+}
+
+/**
+ * Calculate viewport left position
+ */
+function calculateViewportLeftPosition(input: IPositionStrategyInput): number {
+  return typeof input.value === 'number' ? input.value : 0;
+}
+
+/**
+ * Calculate viewport top position
+ */
+function calculateViewportTopPosition(input: IPositionStrategyInput): number {
+  return typeof input.value === 'number' ? input.value : 0;
+}
+
+/**
+ * Calculate viewport center x position
+ */
+function calculateViewportCenterXPosition(input: IPositionStrategyInput): number {
+  return typeof input.value === 'number' ? input.value : 0;
+}
+
+/**
+ * Calculate viewport center y position
+ */
+function calculateViewportCenterYPosition(input: IPositionStrategyInput): number {
+  return typeof input.value === 'number' ? input.value : 0;
+}
+
+/**
+ * Calculate scene center x position
+ */
+function calculateSceneCenterXPosition(input: IPositionStrategyInput): number {
+  return typeof input.value === 'number' ? input.value : 0;
+}
+
+/**
+ * Calculate scene center y position
+ */
+function calculateSceneCenterYPosition(input: IPositionStrategyInput): number {
+  return typeof input.value === 'number' ? input.value : 0;
+}
+
+/**
+ * Calculate content left position
+ */
+function calculateContentLeftPosition(input: IPositionStrategyInput): number {
+  return typeof input.value === 'number' ? input.value : 0;
+}
+
+/**
+ * Calculate content right position
+ */
+function calculateContentRightPosition(input: IPositionStrategyInput): number {
+  return typeof input.value === 'number' ? input.value : 0;
+}
+
+/**
+ * Calculate content top position
+ */
+function calculateContentTopPosition(input: IPositionStrategyInput): number {
+  return typeof input.value === 'number' ? input.value : 0;
+}
+
+/**
+ * Calculate content bottom position
+ */
+function calculateContentBottomPosition(input: IPositionStrategyInput): number {
+  return typeof input.value === 'number' ? input.value : 0;
+}
+
+/**
+ * Calculate random position
+ */
+function calculateRandomPosition(input: IPositionStrategyInput): number {
+  return typeof input.value === 'number' ? input.value : 0;
+}
+
+/**
+ * Calculate viewport position
+ */
+function calculateViewportPosition(input: IPositionStrategyInput): number {
+  return typeof input.value === 'number' ? input.value : 0;
+}
+
 /**
  * Map of all position unit strategies
  */
 export const POSITION_UNIT_STRATEGIES: Record<PositionUnit, PositionUnitStrategy> = {
   [PositionUnit.PIXEL]: calculatePixelPosition,
   [PositionUnit.PERCENT]: calculatePercentagePosition,
+  [PositionUnit.PERCENTAGE]: calculatePercentagePosition,
   [PositionUnit.VIEWPORT_WIDTH]: calculateViewportWidthPosition,
   [PositionUnit.VIEWPORT_HEIGHT]: calculateViewportHeightPosition,
+  [PositionUnit.VIEWPORT_LEFT]: calculateViewportLeftPosition,
+  [PositionUnit.VIEWPORT_TOP]: calculateViewportTopPosition,
+  [PositionUnit.VIEWPORT_CENTER_X]: calculateViewportCenterXPosition,
+  [PositionUnit.VIEWPORT_CENTER_Y]: calculateViewportCenterYPosition,
   [PositionUnit.PARENT_WIDTH]: calculateParentWidthPosition,
   [PositionUnit.PARENT_HEIGHT]: calculateParentHeightPosition,
+  [PositionUnit.PARENT_LEFT]: calculateParentLeftPosition,
+  [PositionUnit.PARENT_TOP]: calculateParentTopPosition,
+  [PositionUnit.PARENT_CENTER_X]: calculateParentCenterXPosition,
+  [PositionUnit.PARENT_CENTER_Y]: calculateParentCenterYPosition,
+  [PositionUnit.SCENE_CENTER_X]: calculateSceneCenterXPosition,
+  [PositionUnit.SCENE_CENTER_Y]: calculateSceneCenterYPosition,
+  [PositionUnit.CONTENT_LEFT]: calculateContentLeftPosition,
+  [PositionUnit.CONTENT_RIGHT]: calculateContentRightPosition,
+  [PositionUnit.CONTENT_TOP]: calculateContentTopPosition,
+  [PositionUnit.CONTENT_BOTTOM]: calculateContentBottomPosition,
   [PositionUnit.CENTER]: calculateCenterPosition,
   [PositionUnit.LEFT]: calculateLeftPosition,
   [PositionUnit.RIGHT]: calculateRightPosition,
   [PositionUnit.TOP]: calculateTopPosition,
   [PositionUnit.BOTTOM]: calculateBottomPosition,
+  [PositionUnit.RANDOM]: calculateRandomPosition,
+  [PositionUnit.VIEWPORT]: calculateViewportPosition,
 } as const;

@@ -69,10 +69,14 @@ export class RefactoredSizeUnitCalculator implements ISizeUnit {
       }
 
       // Get calculation from strategy registry
-      const result = this.strategyRegistry.executeStrategy(
+      const strategy = this.strategyRegistry.getStrategy('pixel-strategy');
+      if (!strategy) {
+        return this.getFallbackValue();
+      }
+      const result = strategy.calculate(
         this.baseValue as SizeValue,
         this.sizeUnit,
-        context
+        Dimension.WIDTH
       );
 
       // Apply constraints
@@ -146,8 +150,8 @@ export class RefactoredSizeUnitCalculator implements ISizeUnit {
    * Set size constraints
    */
   public setSizeConstraints(minSize?: number, maxSize?: number): void {
-    this.minSize = minSize;
-    this.maxSize = maxSize;
+    if (minSize !== undefined) this.minSize = minSize;
+    if (maxSize !== undefined) this.maxSize = maxSize;
   }
 
   /**
@@ -213,7 +217,7 @@ export class RefactoredSizeUnitCalculator implements ISizeUnit {
       return this.baseValue;
     }
     
-    return DEFAULT_FALLBACK_VALUES.SIZE;
+    return DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
   }
 
   /**
@@ -229,5 +233,47 @@ export class RefactoredSizeUnitCalculator implements ISizeUnit {
     // Update average calculation time
     const totalTime = this.performanceMetrics.averageCalculationTime * (this.performanceMetrics.totalCalculations - 1);
     this.performanceMetrics.averageCalculationTime = (totalTime + calculationTime) / this.performanceMetrics.totalCalculations;
+  }
+
+  /**
+   * Calculate size based on context
+   */
+  public calculateSize(context: UnitContext): number {
+    return this.calculate(context);
+  }
+
+  /**
+   * Calculate width specifically
+   */
+  public calculateWidth(context: UnitContext): number {
+    return this.calculate(context);
+  }
+
+  /**
+   * Calculate height specifically
+   */
+  public calculateHeight(context: UnitContext): number {
+    return this.calculate(context);
+  }
+
+  /**
+   * Format the unit as a string
+   */
+  public format(format: string): string {
+    return `${this.baseValue}${this.sizeUnit}`;
+  }
+
+  /**
+   * Get the minimum size constraint
+   */
+  public getMinSize(): number | undefined {
+    return this.minSize;
+  }
+
+  /**
+   * Get the maximum size constraint
+   */
+  public getMaxSize(): number | undefined {
+    return this.maxSize;
   }
 }

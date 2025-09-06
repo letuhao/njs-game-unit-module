@@ -1,12 +1,14 @@
 import { SizeUnitStrategy } from '../strategies/SizeUnitStrategy';
 import { SizeValue } from '../enums/SizeValue';
 import { SizeUnit } from '../enums/SizeUnit';
-import { createMockContext } from './setup';
+import { Dimension } from '../enums/Dimension';
+import { createMockContext } from './test-utils';
 import { container, TOKENS } from '../container/DiContainer';
+import { createSizeTemplateInput, ITemplateInput } from '../interfaces/ITemplateInput';
 
 describe('SizeUnitStrategy', () => {
   let strategy: SizeUnitStrategy;
-  let mockContext: ReturnType<typeof createMockContext>;
+  let mockContext: any;
 
   beforeEach(() => {
     setupTestEnvironment();
@@ -158,8 +160,14 @@ describe('SizeUnitStrategy', () => {
     }
   }
 
-  function createNumericInputs(): number[] {
-    return [100, 200.5, 0, -50, 1000];
+  function createNumericInputs(): ITemplateInput[] {
+    return [
+      createSizeTemplateInput('test-1', 100, SizeValue.PIXEL, SizeUnit.PIXEL, Dimension.WIDTH),
+      createSizeTemplateInput('test-2', 200.5, SizeValue.PIXEL, SizeUnit.PIXEL, Dimension.WIDTH),
+      createSizeTemplateInput('test-3', 0, SizeValue.PIXEL, SizeUnit.PIXEL, Dimension.WIDTH),
+      createSizeTemplateInput('test-4', -50, SizeValue.PIXEL, SizeUnit.PIXEL, Dimension.WIDTH),
+      createSizeTemplateInput('test-5', 1000, SizeValue.PIXEL, SizeUnit.PIXEL, Dimension.WIDTH)
+    ];
   }
 
   function testStringInputHandling(): void {
@@ -171,8 +179,14 @@ describe('SizeUnitStrategy', () => {
     }
   }
 
-  function createStringInputs(): string[] {
-    return ['100px', '50%', 'auto', 'fill', '100'];
+  function createStringInputs(): ITemplateInput[] {
+    return [
+      createSizeTemplateInput('test-1', 100, SizeValue.PIXEL, SizeUnit.PIXEL, Dimension.WIDTH),
+      createSizeTemplateInput('test-2', 50, SizeValue.PERCENTAGE, SizeUnit.PERCENTAGE, Dimension.WIDTH),
+      createSizeTemplateInput('test-3', 0, SizeValue.AUTO, SizeUnit.AUTO, Dimension.WIDTH),
+      createSizeTemplateInput('test-4', 100, SizeValue.FILL, SizeUnit.FILL, Dimension.WIDTH),
+      createSizeTemplateInput('test-5', 100, SizeValue.PIXEL, SizeUnit.PIXEL, Dimension.WIDTH)
+    ];
   }
 
   function testSizeValueInputHandling(): void {
@@ -184,8 +198,14 @@ describe('SizeUnitStrategy', () => {
     }
   }
 
-  function createSizeValueInputs(): SizeValue[] {
-    return [SizeValue.PIXEL, SizeValue.FILL, SizeValue.AUTO, SizeValue.PARENT_WIDTH, SizeValue.VIEWPORT_WIDTH];
+  function createSizeValueInputs(): ITemplateInput[] {
+    return [
+      createSizeTemplateInput('test-1', 100, SizeValue.PIXEL, SizeUnit.PIXEL, Dimension.WIDTH),
+      createSizeTemplateInput('test-2', 100, SizeValue.FILL, SizeUnit.FILL, Dimension.WIDTH),
+      createSizeTemplateInput('test-3', 0, SizeValue.AUTO, SizeUnit.AUTO, Dimension.WIDTH),
+      createSizeTemplateInput('test-4', 100, SizeValue.PARENT_WIDTH, SizeUnit.PARENT_WIDTH, Dimension.WIDTH),
+      createSizeTemplateInput('test-5', 100, SizeValue.VIEWPORT_WIDTH, SizeUnit.VIEWPORT_WIDTH, Dimension.WIDTH)
+    ];
   }
 
   function testSizeUnitInputHandling(): void {
@@ -197,8 +217,14 @@ describe('SizeUnitStrategy', () => {
     }
   }
 
-  function createSizeUnitInputs(): SizeUnit[] {
-    return [SizeUnit.PIXEL, SizeUnit.FILL, SizeUnit.AUTO, SizeUnit.PARENT_WIDTH, SizeUnit.VIEWPORT_WIDTH];
+  function createSizeUnitInputs(): ITemplateInput[] {
+    return [
+      createSizeTemplateInput('test-1', 100, SizeValue.PIXEL, SizeUnit.PIXEL, Dimension.WIDTH),
+      createSizeTemplateInput('test-2', 100, SizeValue.FILL, SizeUnit.FILL, Dimension.WIDTH),
+      createSizeTemplateInput('test-3', 0, SizeValue.AUTO, SizeUnit.AUTO, Dimension.WIDTH),
+      createSizeTemplateInput('test-4', 100, SizeValue.PARENT_WIDTH, SizeUnit.PARENT_WIDTH, Dimension.WIDTH),
+      createSizeTemplateInput('test-5', 100, SizeValue.VIEWPORT_WIDTH, SizeUnit.VIEWPORT_WIDTH, Dimension.WIDTH)
+    ];
   }
 
   function testArrayInputHandling(): void {

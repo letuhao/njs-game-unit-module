@@ -148,7 +148,7 @@ export class StrategyManager implements IStrategyManager {
       typeof strategy.unitType === 'string' &&
       typeof strategy.getPriority === 'function' &&
       typeof strategy.canHandle === 'function' &&
-      typeof strategy.execute === 'function'
+      typeof strategy.calculate === 'function'
     );
   }
 

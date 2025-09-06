@@ -5,5 +5,6 @@
 export enum UnitType {
   SIZE = 'size',
   POSITION = 'position',
-  SCALE = 'scale'
+  SCALE = 'scale',
+  COMPOSITE = 'composite'
 }

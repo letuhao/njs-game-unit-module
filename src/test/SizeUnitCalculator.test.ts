@@ -2,12 +2,12 @@ import { SizeUnitCalculator } from '../classes/SizeUnitCalculator';
 import { SizeUnit } from '../enums/SizeUnit';
 import { SizeValue } from '../enums/SizeValue';
 import { Dimension } from '../enums/Dimension';
-import { createMockContext } from './setup';
+import { createMockContext } from './test-utils';
 import { container, TOKENS } from '../container/DiContainer';
 
 describe('SizeUnitCalculator', () => {
   let calculator: SizeUnitCalculator;
-  let mockContext: ReturnType<typeof createMockContext>;
+  let mockContext: any;
 
   beforeEach(() => {
     setupTestEnvironment();
@@ -126,10 +126,10 @@ describe('SizeUnitCalculator', () => {
   // Helper functions for test setup and execution
 
   function setupTestEnvironment(): void {
-    createMockContext();
+    setupMockContext();
   }
 
-  function createMockContext(): void {
+  function setupMockContext(): void {
     mockContext = createMockContext();
   }
 
@@ -141,7 +141,7 @@ describe('SizeUnitCalculator', () => {
 
   function createCalculatorWithProperties(): SizeUnitCalculator {
     try {
-      const calculator = container.resolve(TOKENS.SIZE_UNIT_CALCULATOR);
+      const calculator = container.resolve(TOKENS.SIZE_CALCULATOR);
       setCalculatorProperties(calculator);
       return calculator;
     } catch (error) {
@@ -182,7 +182,7 @@ describe('SizeUnitCalculator', () => {
 
   function createDefaultCalculator(): SizeUnitCalculator {
     try {
-      const calculator = container.resolve(TOKENS.SIZE_UNIT_CALCULATOR);
+      const calculator = container.resolve(TOKENS.SIZE_CALCULATOR);
       setDefaultCalculatorProperties(calculator);
       return calculator;
     } catch (error) {
@@ -216,7 +216,7 @@ describe('SizeUnitCalculator', () => {
     const invalidValues = createInvalidSizeValues();
     
     for (const value of invalidValues) {
-      const result = calculator.calculate(value, SizeUnit.PIXEL, mockContext);
+      const result = calculator.calculate(mockContext);
       expect(typeof result).toBe('number');
     }
   }
@@ -227,7 +227,7 @@ describe('SizeUnitCalculator', () => {
 
   function setupCalculatorForCalculation(): void {
     try {
-      calculator = container.resolve(TOKENS.SIZE_UNIT_CALCULATOR);
+      calculator = container.resolve(TOKENS.SIZE_CALCULATOR);
       setCalculatorProperties(calculator);
     } catch (error) {
       calculator = new SizeUnitCalculator(
@@ -242,35 +242,35 @@ describe('SizeUnitCalculator', () => {
   }
 
   function testPixelSizeValueCalculation(): void {
-    const result = calculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
+    const result = calculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
   }
 
   function testFillSizeValueCalculation(): void {
-    const result = calculator.calculate(SizeValue.FILL, SizeUnit.FILL, mockContext);
+    const result = calculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
   }
 
   function testAutoSizeValueCalculation(): void {
-    const result = calculator.calculate(SizeValue.AUTO, SizeUnit.AUTO, mockContext);
+    const result = calculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
   }
 
   function testParentWidthSizeValueCalculation(): void {
-    const result = calculator.calculate(SizeValue.PARENT_WIDTH, SizeUnit.PARENT_WIDTH, mockContext);
+    const result = calculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
   }
 
   function testViewportWidthSizeValueCalculation(): void {
-    const result = calculator.calculate(SizeValue.VIEWPORT_WIDTH, SizeUnit.VIEWPORT_WIDTH, mockContext);
+    const result = calculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -278,7 +278,7 @@ describe('SizeUnitCalculator', () => {
 
   function testWidthDimensionCalculations(): void {
     const widthCalculator = createCalculatorForDimension(Dimension.WIDTH);
-    const result = widthCalculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
+    const result = widthCalculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -286,7 +286,7 @@ describe('SizeUnitCalculator', () => {
 
   function testHeightDimensionCalculations(): void {
     const heightCalculator = createCalculatorForDimension(Dimension.HEIGHT);
-    const result = heightCalculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
+    const result = heightCalculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -297,7 +297,7 @@ describe('SizeUnitCalculator', () => {
     
     for (const dimension of dimensions) {
       const calculator = createCalculatorForDimension(dimension);
-      const result = calculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
+      const result = calculator.calculate(mockContext);
       
       expect(typeof result).toBe('number');
       expect(result).toBeGreaterThanOrEqual(0);
@@ -306,7 +306,7 @@ describe('SizeUnitCalculator', () => {
 
   function createCalculatorForDimension(dimension: Dimension): SizeUnitCalculator {
     try {
-      const calculator = container.resolve(TOKENS.SIZE_UNIT_CALCULATOR);
+      const calculator = container.resolve(TOKENS.SIZE_CALCULATOR);
       setCalculatorPropertiesForDimension(calculator, dimension);
       return calculator;
     } catch (error) {
@@ -332,7 +332,7 @@ describe('SizeUnitCalculator', () => {
 
   function testPixelUnitCalculations(): void {
     const pixelCalculator = createCalculatorForUnit(SizeUnit.PIXEL);
-    const result = pixelCalculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
+    const result = pixelCalculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -340,7 +340,7 @@ describe('SizeUnitCalculator', () => {
 
   function testFillUnitCalculations(): void {
     const fillCalculator = createCalculatorForUnit(SizeUnit.FILL);
-    const result = fillCalculator.calculate(SizeValue.FILL, SizeUnit.FILL, mockContext);
+    const result = fillCalculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -348,7 +348,7 @@ describe('SizeUnitCalculator', () => {
 
   function testAutoUnitCalculations(): void {
     const autoCalculator = createCalculatorForUnit(SizeUnit.AUTO);
-    const result = autoCalculator.calculate(SizeValue.AUTO, SizeUnit.AUTO, mockContext);
+    const result = autoCalculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -356,7 +356,7 @@ describe('SizeUnitCalculator', () => {
 
   function testParentWidthUnitCalculations(): void {
     const parentWidthCalculator = createCalculatorForUnit(SizeUnit.PARENT_WIDTH);
-    const result = parentWidthCalculator.calculate(SizeValue.PARENT_WIDTH, SizeUnit.PARENT_WIDTH, mockContext);
+    const result = parentWidthCalculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -364,7 +364,7 @@ describe('SizeUnitCalculator', () => {
 
   function testViewportWidthUnitCalculations(): void {
     const viewportWidthCalculator = createCalculatorForUnit(SizeUnit.VIEWPORT_WIDTH);
-    const result = viewportWidthCalculator.calculate(SizeValue.VIEWPORT_WIDTH, SizeUnit.VIEWPORT_WIDTH, mockContext);
+    const result = viewportWidthCalculator.calculate(mockContext);
     
     expect(typeof result).toBe('number');
     expect(result).toBeGreaterThanOrEqual(0);
@@ -372,7 +372,7 @@ describe('SizeUnitCalculator', () => {
 
   function createCalculatorForUnit(unit: SizeUnit): SizeUnitCalculator {
     try {
-      const calculator = container.resolve(TOKENS.SIZE_UNIT_CALCULATOR);
+      const calculator = container.resolve(TOKENS.SIZE_CALCULATOR);
       setCalculatorPropertiesForUnit(calculator, unit);
       return calculator;
     } catch (error) {
@@ -400,7 +400,7 @@ describe('SizeUnitCalculator', () => {
     const invalidUnits = createInvalidSizeUnits();
     
     for (const unit of invalidUnits) {
-      const result = calculator.calculate(SizeValue.PIXEL, unit, mockContext);
+      const result = calculator.calculate(mockContext);
       expect(typeof result).toBe('number');
     }
   }
@@ -411,7 +411,7 @@ describe('SizeUnitCalculator', () => {
 
   function testMissingContextPropertiesHandling(): void {
     const partialContext = { dimension: 'width' };
-    const result = calculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, partialContext as any);
+    const result = calculator.calculate(partialContext as any);
     
     expect(typeof result).toBe('number');
   }
@@ -420,7 +420,7 @@ describe('SizeUnitCalculator', () => {
     const startTime = performance.now();
     
     for (let i = 0; i < 1000; i++) {
-      calculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, mockContext);
+      calculator.calculate(mockContext);
     }
     
     const endTime = performance.now();
@@ -433,7 +433,7 @@ describe('SizeUnitCalculator', () => {
     const calculations = createMultipleCalculations();
     
     for (const calculation of calculations) {
-      const result = calculator.calculate(calculation.value, calculation.unit, mockContext);
+      const result = calculator.calculate(mockContext);
       expect(typeof result).toBe('number');
       expect(result).toBeGreaterThanOrEqual(0);
     }
@@ -453,7 +453,7 @@ describe('SizeUnitCalculator', () => {
     const contexts = createDifferentContexts();
     
     for (const context of contexts) {
-      const result = calculator.calculate(SizeValue.PIXEL, SizeUnit.PIXEL, context);
+      const result = calculator.calculate(context);
       expect(typeof result).toBe('number');
       expect(result).toBeGreaterThanOrEqual(0);
     }
@@ -486,7 +486,7 @@ describe('SizeUnitCalculator', () => {
 
   function createCalculatorWithConfiguration(config: any): SizeUnitCalculator {
     try {
-      const calculator = container.resolve(TOKENS.SIZE_UNIT_CALCULATOR);
+      const calculator = container.resolve(TOKENS.SIZE_CALCULATOR);
       setCalculatorPropertiesForConfiguration(calculator, config);
       return calculator;
     } catch (error) {

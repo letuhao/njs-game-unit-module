@@ -1,6 +1,21 @@
 import { UnitContext } from '../interfaces/IUnit';
 // IUnitConfig interface not found, using any for now
 
+export interface MonitoringConfig {
+  enablePerformanceMonitoring: boolean;
+  enableHealthChecks: boolean;
+  enableAlerts: boolean;
+  alertingEnabled: boolean;
+  performanceThresholds: {
+    responseTime: number;
+    memoryUsage: number;
+    errorRate: number;
+  };
+  healthCheckInterval: number;
+  metricsCollectionInterval: number;
+  alertThresholds: Record<string, number>;
+}
+
 export interface PerformanceMetric {
   timestamp: Date;
   metricName: string;
@@ -473,5 +488,34 @@ export class ProductionMonitoringSystem {
     
     const totalTime = responseTimeMetrics.reduce((sum, m) => sum + m.value, 0);
     return totalTime / responseTimeMetrics.length;
+  }
+
+  /**
+   * Get configuration
+   */
+  public getConfig(): any {
+    return this.configuration;
+  }
+
+  /**
+   * Collect metrics
+   */
+  public collectMetrics(unit: any, metricType: string, context: UnitContext, error?: Error): void {
+    if (metricType === 'error' && error) {
+      this.recordMetric('error', 1, 'count', { errorType: error.name });
+    } else {
+      this.recordMetric(metricType, 1, 'count', { unitId: unit.id });
+    }
+  }
+
+  /**
+   * Get health status
+   */
+  public getHealthStatus(): any {
+    return {
+      isHealthy: this.healthChecks.every(h => h.status === 'healthy'),
+      timestamp: Date.now(),
+      issues: this.healthChecks.filter(h => h.status !== 'healthy')
+    };
   }
 }

@@ -386,7 +386,7 @@ export function isStrategyInput(input: unknown): input is IStrategyInput {
 export function createSizeStrategyInput(
   options?: Partial<Omit<ISizeStrategyInput, 'id'>>
 ): ISizeStrategyInput {
-  return {
+  const result: ISizeStrategyInput = {
     id: `size-strategy-${Date.now()}`,
     name: options?.name || 'Size Strategy Input',
     type: options?.type || 'size',
@@ -394,14 +394,31 @@ export function createSizeStrategyInput(
     dimension: options?.dimension || Dimension.WIDTH,
     unit: options?.unit || SizeUnit.PIXEL,
     valueType: options?.valueType || SizeValue.FIXED,
-    parentSize: options?.parentSize,
-    randomValue: options?.randomValue,
-    sizeArray: options?.sizeArray,
-    sizeObject: options?.sizeObject,
-    sizeString: options?.sizeString,
     isValid: options?.isValid ?? true,
     metadata: options?.metadata || {},
   };
+
+  if (options?.parentSize !== undefined) {
+    result.parentSize = options.parentSize;
+  }
+
+  if (options?.randomValue !== undefined) {
+    result.randomValue = options.randomValue;
+  }
+
+  if (options?.sizeArray !== undefined) {
+    result.sizeArray = options.sizeArray;
+  }
+
+  if (options?.sizeObject !== undefined) {
+    result.sizeObject = options.sizeObject;
+  }
+
+  if (options?.sizeString !== undefined) {
+    result.sizeString = options.sizeString;
+  }
+
+  return result;
 }
 
 /**
@@ -410,7 +427,7 @@ export function createSizeStrategyInput(
 export function createPositionStrategyInput(
   options?: Partial<Omit<IPositionStrategyInput, 'id'>>
 ): IPositionStrategyInput {
-  return {
+  const result: IPositionStrategyInput = {
     id: `position-strategy-${Date.now()}`,
     name: options?.name || 'Position Strategy Input',
     type: options?.type || 'position',
@@ -418,14 +435,31 @@ export function createPositionStrategyInput(
     axis: options?.axis || Dimension.X,
     unit: options?.unit || PositionUnit.PIXEL,
     valueType: options?.valueType || PositionValue.FIXED,
-    parentPosition: options?.parentPosition,
-    randomValue: options?.randomValue,
-    positionArray: options?.positionArray,
-    positionObject: options?.positionObject,
-    positionString: options?.positionString,
     isValid: options?.isValid ?? true,
     metadata: options?.metadata || {},
   };
+
+  if (options?.parentPosition !== undefined) {
+    result.parentPosition = options.parentPosition;
+  }
+
+  if (options?.randomValue !== undefined) {
+    result.randomValue = options.randomValue;
+  }
+
+  if (options?.positionArray !== undefined) {
+    result.positionArray = options.positionArray;
+  }
+
+  if (options?.positionObject !== undefined) {
+    result.positionObject = options.positionObject;
+  }
+
+  if (options?.positionString !== undefined) {
+    result.positionString = options.positionString;
+  }
+
+  return result;
 }
 
 /**
@@ -434,21 +468,38 @@ export function createPositionStrategyInput(
 export function createScaleStrategyInput(
   options?: Partial<Omit<IScaleStrategyInput, 'id'>>
 ): IScaleStrategyInput {
-  return {
+  const result: IScaleStrategyInput = {
     id: `scale-strategy-${Date.now()}`,
     name: options?.name || 'Scale Strategy Input',
     type: options?.type || 'scale',
     value: options?.value || 1,
     unit: options?.unit || ScaleUnit.FIXED,
     valueType: options?.valueType || ScaleValue.FIXED,
-    parentScale: options?.parentScale,
-    randomValue: options?.randomValue,
-    scaleArray: options?.scaleArray,
-    scaleObject: options?.scaleObject,
-    scaleString: options?.scaleString,
     isValid: options?.isValid ?? true,
     metadata: options?.metadata || {},
   };
+
+  if (options?.parentScale !== undefined) {
+    result.parentScale = options.parentScale;
+  }
+
+  if (options?.randomValue !== undefined) {
+    result.randomValue = options.randomValue;
+  }
+
+  if (options?.scaleArray !== undefined) {
+    result.scaleArray = options.scaleArray;
+  }
+
+  if (options?.scaleObject !== undefined) {
+    result.scaleObject = options.scaleObject;
+  }
+
+  if (options?.scaleString !== undefined) {
+    result.scaleString = options.scaleString;
+  }
+
+  return result;
 }
 
 /**
@@ -457,20 +508,34 @@ export function createScaleStrategyInput(
 export function createMixedStrategyInput(
   options?: Partial<Omit<IMixedStrategyInput, 'id'>>
 ): IMixedStrategyInput {
-  return {
+  const result: IMixedStrategyInput = {
     id: `mixed-strategy-${Date.now()}`,
     name: options?.name || 'Mixed Strategy Input',
     type: options?.type || 'mixed',
     size: options?.size || {},
     position: options?.position || {},
     scale: options?.scale || {},
-    mixedArray: options?.mixedArray,
-    mixedObject: options?.mixedObject,
-    theme: options?.theme,
-    responsive: options?.responsive,
     isValid: options?.isValid ?? true,
     metadata: options?.metadata || {},
   };
+
+  if (options?.mixedArray !== undefined) {
+    result.mixedArray = options.mixedArray;
+  }
+
+  if (options?.mixedObject !== undefined) {
+    result.mixedObject = options.mixedObject;
+  }
+
+  if (options?.theme !== undefined) {
+    result.theme = options.theme;
+  }
+
+  if (options?.responsive !== undefined) {
+    result.responsive = options.responsive;
+  }
+
+  return result;
 }
 
 /**

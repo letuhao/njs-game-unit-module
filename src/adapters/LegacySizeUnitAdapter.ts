@@ -56,6 +56,41 @@ export class LegacySizeUnitAdapter extends BaseUnitAdapter<ILegacyUnit> {
     return 'LegacySizeUnit';
   }
 
+  /**
+   * Get the legacy unit
+   */
+  getLegacyUnit(): ILegacyUnit {
+    return this.adaptedUnit;
+  }
+
+  /**
+   * Convert to modern unit
+   */
+  convertToModern(): any {
+    return {
+      id: this.id,
+      name: this.name,
+      unitType: this.unitType,
+      value: this.extractLegacyValue(),
+      sizeUnit: this.extractLegacyUnit(),
+      dimension: this.extractLegacyDimension(),
+    };
+  }
+
+  /**
+   * Get description
+   */
+  getDescription(): string {
+    return `Legacy size unit adapter for ${this.name}`;
+  }
+
+  /**
+   * Get version
+   */
+  getVersion(): string {
+    return '1.0.0';
+  }
+
   getConversionFactor(): number {
     return this.conversionFactor;
   }

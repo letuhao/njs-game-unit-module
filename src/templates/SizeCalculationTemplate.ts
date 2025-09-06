@@ -90,6 +90,27 @@ export abstract class SizeCalculationTemplate implements IUnitCalculationTemplat
     return { ...this.templateStatistics };
   }
 
+  canHandle(input: ITemplateInput): boolean {
+    return input.type === 'SIZE' as any;
+  }
+
+  getCalculationMetadata(): { templateName: string; version: string; supportedInputs: string[]; calculationSteps: string[] } {
+    return {
+      templateName: 'SizeCalculationTemplate',
+      version: '1.0.0',
+      supportedInputs: ['SIZE'],
+      calculationSteps: ['validation', 'preprocessing', 'calculation', 'postprocessing']
+    };
+  }
+
+  getPerformanceMetrics(): { totalTime: number; stepTimes: Record<string, number>; memoryUsage: number } {
+    return {
+      totalTime: this.templateStatistics.totalCalculationTime,
+      stepTimes: {},
+      memoryUsage: 0 // Not tracked in current implementation
+    };
+  }
+
   /**
    * Reset template statistics
    */
@@ -117,7 +138,7 @@ export abstract class SizeCalculationTemplate implements IUnitCalculationTemplat
    */
   protected validateInput(input: ITemplateInput): void {
     for (const validator of this.validators) {
-      if (!validator.validate(input)) {
+      if (!validator.validate(input as any)) {
         throw new Error(`Input validation failed: ${validator.constructor.name}`);
       }
     }
@@ -172,6 +193,33 @@ export abstract class SizeCalculationTemplate implements IUnitCalculationTemplat
       new TypeValidator(),
       new RangeValidator(0, 10000), // Reasonable size range
     ];
+  }
+
+  /**
+   * Get validators
+   */
+  public getValidators(): Array<RangeValidator | TypeValidator> {
+    return [...this.validators];
+  }
+
+  /**
+   * Get calculation steps
+   */
+  public getCalculationSteps(): string[] {
+    return [
+      'validateInput',
+      'preProcessInput', 
+      'executeCalculation',
+      'postProcessResult',
+      'validateResult'
+    ];
+  }
+
+  /**
+   * Get supported inputs
+   */
+  public getSupportedInputs(): string[] {
+    return ['size', 'position', 'scale'];
   }
 
   /**

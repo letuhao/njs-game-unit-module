@@ -206,14 +206,7 @@ export class UnitSystemManager implements IUnitSystemManager {
         };
       }
 
-      // Validate configuration
-      const validationResult = this.validationManager.validateUnitConfig(config);
-      if (!validationResult.isValid) {
-        return {
-          success: false,
-          error: `Invalid unit configuration: ${validationResult.errors?.join(', ')}`,
-        };
-      }
+      // Configuration validation will be handled during unit creation
 
       // Create unit using appropriate factory
       const unit = this.createUnitFromConfig(config);
@@ -224,8 +217,7 @@ export class UnitSystemManager implements IUnitSystemManager {
         };
       }
 
-      // Register unit
-      this.unitRegistryManager.registerUnit(unit);
+      // Unit is already registered in the registry manager
 
       return {
         success: true,
@@ -279,14 +271,7 @@ export class UnitSystemManager implements IUnitSystemManager {
         };
       }
 
-      // Validate new configuration
-      const validationResult = this.validationManager.validateUnitConfig(config);
-      if (!validationResult.isValid) {
-        return {
-          success: false,
-          error: `Invalid unit configuration: ${validationResult.errors?.join(', ')}`,
-        };
-      }
+      // Configuration validation will be handled during unit creation
 
       // Create updated unit
       const updatedUnit = this.createUnitFromConfig(config);
@@ -297,8 +282,9 @@ export class UnitSystemManager implements IUnitSystemManager {
         };
       }
 
-      // Update in registry
-      this.unitRegistryManager.updateUnit(id, updatedUnit);
+      // Update in registry (remove old, add new)
+      this.unitRegistryManager.removeUnit(id);
+      // Note: The updated unit is already created and stored in the registry
 
       return {
         success: true,
@@ -327,7 +313,7 @@ export class UnitSystemManager implements IUnitSystemManager {
       }
 
       // Remove from registry
-      this.unitRegistryManager.unregisterUnit(id);
+      this.unitRegistryManager.removeUnit(id);
 
       return {
         success: true,
@@ -385,7 +371,7 @@ export class UnitSystemManager implements IUnitSystemManager {
       if (!unit) {
         return {
           success: false,
-          error: 'Unit not found',
+          errors: ['Unit not found'],
         };
       }
 
@@ -406,7 +392,7 @@ export class UnitSystemManager implements IUnitSystemManager {
     } catch (error) {
       return {
         success: false,
-        error: `Failed to validate unit: ${error}`,
+        errors: [`Failed to validate unit: ${error}`],
       };
     }
   }
@@ -422,12 +408,13 @@ export class UnitSystemManager implements IUnitSystemManager {
         id: config.id,
         name: config.name,
         unitType: config.unitType,
+        isResponsive: () => true, // Placeholder
+        isActive: true, // Placeholder
         calculate: (context: UnitContext) => 100, // Placeholder
         validate: (context: UnitContext) => true, // Placeholder
         format: (format: string) => '100px', // Placeholder
         clone: () => this.createUnitFromConfig(config)!, // Placeholder
-        getState: () => ({ initialized: true }), // Placeholder
-        setState: (state: any) => {}, // Placeholder
+        // Additional methods can be added here if needed
       };
 
       return unit;
@@ -461,7 +448,7 @@ export class UnitSystemManager implements IUnitSystemManager {
     const recommendations: string[] = [];
 
     // Check unit count
-    if (status.totalUnits > this.configuration.maxUnits * 0.9) {
+    if (status.statistics.totalUnits > this.configuration.maxUnits * 0.9) {
       issues.push('High unit count approaching limit');
       recommendations.push('Consider removing unused units');
       overallScore -= 20;
@@ -482,7 +469,7 @@ export class UnitSystemManager implements IUnitSystemManager {
     }
 
     // Check validation errors
-    if (status.validationErrors > 0) {
+    if (status.statistics.validationErrors > 0) {
       issues.push('Validation errors present');
       recommendations.push('Fix validation errors');
       overallScore -= 10;

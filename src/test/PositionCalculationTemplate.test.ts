@@ -1,6 +1,6 @@
 import { describe, beforeEach, afterEach, it, expect, jest } from '@jest/globals';
 import { PositionCalculationTemplate } from '../templates/PositionCalculationTemplate';
-import { createMockContext } from './setup';
+import { createMockContext } from './test-utils';
 import { TemplateInputType } from '../enums/TemplateInputType';
 import { PositionUnit } from '../enums/PositionUnit';
 import { PositionValue } from '../enums/PositionValue';
@@ -11,11 +11,11 @@ import { container, TOKENS } from '../container/DiContainer';
 
 // Concrete implementation for testing
 class TestPositionCalculationTemplate extends PositionCalculationTemplate {
-  protected getSupportedInputs(): string[] {
+  public getSupportedInputs(): string[] {
     return ['position', 'IPositionTemplateInput'];
   }
 
-  protected getCalculationSteps(): string[] {
+  public getCalculationSteps(): string[] {
     return ['validation', 'preprocessing', 'calculation', 'postprocessing'];
   }
 
@@ -150,13 +150,13 @@ describe('PositionCalculationTemplate', () => {
   }
 
   function createValidPositionInput(): ITemplateInput {
-    return createPositionTemplateInput({
-      type: TemplateInputType.POSITION,
-      positionUnit: PositionUnit.PIXEL,
-      positionValue: PositionValue.PIXEL,
-      axis: Dimension.X,
-      baseValue: 100,
-    });
+    return createPositionTemplateInput(
+      'valid-position-input',
+      100,
+      PositionValue.PIXEL,
+      PositionUnit.PIXEL,
+      Dimension.X
+    );
   }
 
   function testInvalidInputRejection(): void {
@@ -169,20 +169,20 @@ describe('PositionCalculationTemplate', () => {
 
   function createInvalidInputs(): ITemplateInput[] {
     return [
-      createPositionTemplateInput({
-        type: TemplateInputType.SIZE,
-        positionUnit: PositionUnit.PIXEL,
-        positionValue: PositionValue.PIXEL,
-        axis: Dimension.X,
-        baseValue: 100,
-      }),
-      createPositionTemplateInput({
-        type: TemplateInputType.SCALE,
-        positionUnit: PositionUnit.PIXEL,
-        positionValue: PositionValue.PIXEL,
-        axis: Dimension.X,
-        baseValue: 100,
-      }),
+      createPositionTemplateInput(
+        'invalid-input-1',
+        100,
+        PositionValue.PIXEL,
+        PositionUnit.PIXEL,
+        Dimension.X
+      ),
+      createPositionTemplateInput(
+        'invalid-input-2',
+        100,
+        PositionValue.PIXEL,
+        PositionUnit.PIXEL,
+        Dimension.X
+      ),
     ];
   }
 
@@ -202,13 +202,13 @@ describe('PositionCalculationTemplate', () => {
   }
 
   function createInputWithType(inputType: TemplateInputType): ITemplateInput {
-    return createPositionTemplateInput({
-      type: inputType,
-      positionUnit: PositionUnit.PIXEL,
-      positionValue: PositionValue.PIXEL,
-      axis: Dimension.X,
-      baseValue: 100,
-    });
+    return createPositionTemplateInput(
+      'test-input',
+      100,
+      PositionValue.PIXEL,
+      PositionUnit.PIXEL,
+      Dimension.X
+    );
   }
 
   function testCalculationStepExecution(): void {
@@ -224,7 +224,7 @@ describe('PositionCalculationTemplate', () => {
   function testCalculationErrorHandling(): void {
     const invalidInput = createInvalidInputs()[0];
     
-    expect(() => template.canHandle(invalidInput)).not.toThrow();
+    expect(() => template.canHandle(invalidInput!)).not.toThrow();
   }
 
   function testInputValidation(): void {
@@ -254,7 +254,7 @@ describe('PositionCalculationTemplate', () => {
     const invalidInput = createInvalidInputs()[0];
     
     expect(template.canHandle(validInput)).toBe(true);
-    expect(template.canHandle(invalidInput)).toBe(false);
+    expect(template.canHandle(invalidInput!)).toBe(false);
   }
 
   function testCalculationEfficiency(): void {

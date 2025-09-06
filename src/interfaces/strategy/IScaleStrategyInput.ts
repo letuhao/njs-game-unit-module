@@ -32,4 +32,20 @@ export interface IScaleStrategyInput extends IBaseStrategyInput {
     min?: number;
     max?: number;
   };
+
+  /** Context for scale calculations */
+  context?: {
+    viewport?: {
+      width?: number;
+      height?: number;
+    };
+    parent?: {
+      width?: number;
+      height?: number;
+    };
+    scene?: {
+      width?: number;
+      height?: number;
+    };
+  };
 }

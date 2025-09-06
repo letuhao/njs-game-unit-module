@@ -1,6 +1,6 @@
 import { describe, beforeEach, afterEach, it, expect, jest } from '@jest/globals';
 import { RangeValidator } from '../validators/RangeValidator';
-import { createMockContext } from './setup';
+import { createMockContext } from './test-utils';
 import { Dimension } from '../enums/Dimension';
 import { SizeUnit } from '../enums/SizeUnit';
 import { SizeValue } from '../enums/SizeValue';
@@ -126,7 +126,7 @@ describe('RangeValidator', () => {
     try {
       return container.resolve(TOKENS.RANGE_VALIDATOR);
     } catch (error) {
-      return new RangeValidator();
+      return new RangeValidator(0, 100);
     }
   }
 
@@ -151,7 +151,7 @@ describe('RangeValidator', () => {
       setCustomValidatorProperties(validator);
       return validator;
     } catch (error) {
-      return new RangeValidator(0, 100, true);
+      return new RangeValidator(0, 100);
     }
   }
 
@@ -184,7 +184,7 @@ describe('RangeValidator', () => {
       setInvalidValidatorProperties(validator);
       return validator;
     } catch (error) {
-      return new RangeValidator(100, 0, true); // Invalid range
+      return new RangeValidator(100, 0); // Invalid range
     }
   }
 
@@ -199,8 +199,8 @@ describe('RangeValidator', () => {
     const values = createValuesWithinRange();
     
     for (const value of values) {
-      const result = validator.validate(value, mockContext);
-      expect(result.isValid).toBe(true);
+      const result = validator.validate(value);
+      expect(result).toBe(true);
     }
   }
 
@@ -210,7 +210,7 @@ describe('RangeValidator', () => {
       setRangeValidatorProperties(validator, min, max);
       return validator;
     } catch (error) {
-      return new RangeValidator(min, max, true);
+      return new RangeValidator(min, max);
     }
   }
 
@@ -229,8 +229,8 @@ describe('RangeValidator', () => {
     const values = createValuesOutsideRange();
     
     for (const value of values) {
-      const result = validator.validate(value, mockContext);
-      expect(result.isValid).toBe(false);
+      const result = validator.validate(value);
+      expect(result).toBe(false);
     }
   }
 
@@ -243,8 +243,8 @@ describe('RangeValidator', () => {
     const edgeCases = createEdgeCases();
     
     for (const edgeCase of edgeCases) {
-      const result = validator.validate(edgeCase.value, mockContext);
-      expect(typeof result.isValid).toBe('boolean');
+      const result = validator.validate(edgeCase.value);
+      expect(typeof result).toBe('boolean');
     }
   }
 
@@ -262,8 +262,8 @@ describe('RangeValidator', () => {
     const dataTypes = createDifferentDataTypes();
     
     for (const dataType of dataTypes) {
-      const result = validator.validate(dataType.value, mockContext);
-      expect(typeof result.isValid).toBe('boolean');
+      const result = validator.validate(dataType.value);
+      expect(typeof result).toBe('boolean');
     }
   }
 
@@ -317,7 +317,7 @@ describe('RangeValidator', () => {
     const validator = createDefaultValidator();
     const problematicValue = createProblematicValue();
     
-    expect(() => validator.validate(problematicValue, mockContext)).not.toThrow();
+    expect(() => validator.validate(problematicValue)).not.toThrow();
   }
 
   function createProblematicValue(): any {
@@ -332,8 +332,8 @@ describe('RangeValidator', () => {
     const invalidInputs = createInvalidInputs();
     
     for (const input of invalidInputs) {
-      const result = validator.validate(input, mockContext);
-      expect(typeof result.isValid).toBe('boolean');
+      const result = validator.validate(input);
+      expect(typeof result).toBe('boolean');
     }
   }
 
@@ -349,7 +349,7 @@ describe('RangeValidator', () => {
       throw new Error('System error');
     });
     
-    expect(() => validator.validate(50, mockContext)).toThrow('System error');
+    expect(() => validator.validate(50)).toThrow('System error');
   }
 
   function testValidationEfficiency(): void {
@@ -359,7 +359,7 @@ describe('RangeValidator', () => {
     
     for (let i = 0; i < 1000; i++) {
       for (const value of values) {
-        validator.validate(value, mockContext);
+        validator.validate(value);
       }
     }
     
@@ -374,8 +374,8 @@ describe('RangeValidator', () => {
     const values = createMultipleValues();
     
     for (const value of values) {
-      const result = validator.validate(value, mockContext);
-      expect(typeof result.isValid).toBe('boolean');
+      const result = validator.validate(value);
+      expect(typeof result).toBe('boolean');
     }
   }
 
@@ -392,9 +392,9 @@ describe('RangeValidator', () => {
     
     for (const unitType of unitTypes) {
       const validator = createRangeValidator(0, 100);
-      const result = validator.validate(50, mockContext);
+      const result = validator.validate(50);
       
-      expect(typeof result.isValid).toBe('boolean');
+      expect(typeof result).toBe('boolean');
     }
   }
 
@@ -403,9 +403,9 @@ describe('RangeValidator', () => {
     
     for (const context of contexts) {
       const validator = createRangeValidator(0, 100);
-      const result = validator.validate(50, context);
+      const result = validator.validate(50);
       
-      expect(typeof result.isValid).toBe('boolean');
+      expect(typeof result).toBe('boolean');
     }
   }
 
@@ -421,16 +421,16 @@ describe('RangeValidator', () => {
     const validators = createDifferentValidators();
     
     for (const validator of validators) {
-      const result = validator.validate(50, mockContext);
-      expect(typeof result.isValid).toBe('boolean');
+      const result = validator.validate(50);
+      expect(typeof result).toBe('boolean');
     }
   }
 
   function createDifferentValidators(): RangeValidator[] {
     return [
-      new RangeValidator(0, 100, true),
-      new RangeValidator(-50, 50, false),
-      new RangeValidator(10, 90, true),
+      new RangeValidator(0, 100),
+      new RangeValidator(-50, 50),
+      new RangeValidator(10, 90),
     ];
   }
 });

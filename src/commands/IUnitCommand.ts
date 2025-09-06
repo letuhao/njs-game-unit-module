@@ -116,7 +116,7 @@ export class UnitCommandFactory {
    */
   static createPositionCommand(input: any, context: UnitContext): IUnitCommand {
     try {
-      const PositionCommandClass = container.resolve(TOKENS.POSITION_COMMAND);
+      const PositionCommandClass = container.resolve(TOKENS.CALCULATE_POSITION_COMMAND) as any;
       return new PositionCommandClass(input, context);
     } catch (error) {
       throw new Error(`Failed to create position command: ${error}`);
@@ -128,7 +128,7 @@ export class UnitCommandFactory {
    */
   static createSizeCommand(input: any, context: UnitContext): IUnitCommand {
     try {
-      const SizeCommandClass = container.resolve(TOKENS.SIZE_COMMAND);
+      const SizeCommandClass = container.resolve(TOKENS.CALCULATE_SIZE_COMMAND) as any;
       return new SizeCommandClass(input, context);
     } catch (error) {
       throw new Error(`Failed to create size command: ${error}`);
@@ -140,8 +140,8 @@ export class UnitCommandFactory {
    */
   static createScaleCommand(input: any, context: UnitContext): IUnitCommand {
     try {
-      const ScaleCommandClass = container.resolve(TOKENS.SCALE_COMMAND);
-      return new ScaleCommandClass(input, context);
+      const ScaleCommandClass = container.resolve(TOKENS.CALCULATE_SCALE_COMMAND);
+      return new ScaleCommandClass(input, context) as any;
     } catch (error) {
       throw new Error(`Failed to create scale command: ${error}`);
     }

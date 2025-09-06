@@ -36,12 +36,21 @@ export function createMockUnit(): IUnit {
     id: 'test-unit',
     name: 'Test Unit',
     unitType: UnitType.SIZE,
+    isActive: true,
     calculate: (context: any) => 100,
     validate: (context: any) => true,
-    format: (format: string) => '100px',
+    isResponsive: () => true,
+    format: (format: string) => {
+      switch (format) {
+        case 'json':
+          return JSON.stringify({ id: 'test-unit-1', value: 100 });
+        case 'px':
+          return '100px';
+        default:
+          return '100px';
+      }
+    },
     clone: () => createMockUnit(),
-    getState: () => ({ initialized: true }),
-    setState: (state: any) => {},
   };
 }
 
@@ -53,12 +62,21 @@ export function createMockSizeUnit(): IUnit {
     id: 'test-size-unit',
     name: 'Test Size Unit',
     unitType: UnitType.SIZE,
+    isActive: true,
     calculate: (context: any) => 200,
     validate: (context: any) => true,
-    format: (format: string) => '200px',
+    isResponsive: () => true,
+    format: (format: string) => {
+      switch (format) {
+        case 'json':
+          return JSON.stringify({ id: 'test-unit-2', value: 200 });
+        case 'px':
+          return '200px';
+        default:
+          return '200px';
+      }
+    },
     clone: () => createMockSizeUnit(),
-    getState: () => ({ initialized: true }),
-    setState: (state: any) => {},
   };
 }
 
@@ -70,12 +88,21 @@ export function createMockPositionUnit(): IUnit {
     id: 'test-position-unit',
     name: 'Test Position Unit',
     unitType: UnitType.POSITION,
+    isActive: true,
     calculate: (context: any) => 150,
     validate: (context: any) => true,
-    format: (format: string) => '150px',
+    isResponsive: () => true,
+    format: (format: string) => {
+      switch (format) {
+        case 'json':
+          return JSON.stringify({ id: 'test-position-unit', value: 150 });
+        case 'px':
+          return '150px';
+        default:
+          return '150px';
+      }
+    },
     clone: () => createMockPositionUnit(),
-    getState: () => ({ initialized: true }),
-    setState: (state: any) => {},
   };
 }
 
@@ -87,12 +114,21 @@ export function createMockScaleUnit(): IUnit {
     id: 'test-scale-unit',
     name: 'Test Scale Unit',
     unitType: UnitType.SCALE,
+    isActive: true,
     calculate: (context: any) => 1.5,
     validate: (context: any) => true,
-    format: (format: string) => '1.5x',
+    isResponsive: () => true,
+    format: (format: string) => {
+      switch (format) {
+        case 'json':
+          return JSON.stringify({ id: 'test-scale-unit', value: 1.5 });
+        case 'x':
+          return '1.5x';
+        default:
+          return '1.5x';
+      }
+    },
     clone: () => createMockScaleUnit(),
-    getState: () => ({ initialized: true }),
-    setState: (state: any) => {},
   };
 }
 
@@ -380,4 +416,135 @@ export function createMockPromiseFunction<T>(returnValue: T): jest.Mock<Promise<
  */
 export function createMockRejectFunction(error: Error): jest.Mock<Promise<never>> {
   return jest.fn(() => Promise.reject(error));
+}
+
+// Calculator helper functions
+export function setCalculatorProperties(calculator: any): void {
+  // Set default properties for calculators
+  if (calculator.setMinSize) calculator.setMinSize(1);
+  if (calculator.setMaxSize) calculator.setMaxSize(1000);
+  if (calculator.setMaintainAspectRatio) calculator.setMaintainAspectRatio(false);
+}
+
+export function setCalculatorPropertiesForDimension(calculator: any, dimension: any): void {
+  setCalculatorProperties(calculator);
+  // Additional dimension-specific properties can be set here
+}
+
+export function setCalculatorPropertiesForUnit(calculator: any, unit: any): void {
+  setCalculatorProperties(calculator);
+  // Additional unit-specific properties can be set here
+}
+
+export function setCalculatorPropertiesForConfiguration(calculator: any, config: any): void {
+  setCalculatorProperties(calculator);
+  // Additional configuration-specific properties can be set here
+}
+
+// Validator helper functions
+export function setCustomValidatorProperties(validator: any, allowedTypes?: any[], allowedDimensions?: any[], strictMode?: boolean): void {
+  if (allowedTypes) validator.allowedTypes = allowedTypes;
+  if (allowedDimensions) validator.allowedDimensions = allowedDimensions;
+  if (strictMode !== undefined) validator.strictMode = strictMode;
+}
+
+export function setInvalidValidatorProperties(validator: any): void {
+  validator.allowedTypes = [];
+  validator.allowedDimensions = [];
+  validator.strictMode = false;
+}
+
+// Memento helper functions
+export function setMementoProperties(memento: any): void {
+  // Set default memento properties
+  if (memento.setTemplateName) memento.setTemplateName('test-template');
+  if (memento.setStrategyName) memento.setStrategyName('test-strategy');
+  if (memento.setValidatorNames) memento.setValidatorNames(['test-validator']);
+  if (memento.setIsSuccess) memento.setIsSuccess(true);
+  if (memento.setError) memento.setError(undefined);
+}
+
+export function setDefaultMementoProperties(memento: any): void {
+  setMementoProperties(memento);
+}
+
+export function setMementoWithMissingProperties(memento: any): void {
+  // Set memento with some missing properties for testing
+  if (memento.setTemplateName) memento.setTemplateName('test-template');
+  if (memento.setStrategyName) memento.setStrategyName('test-strategy');
+}
+
+export function setMementoWithUnitType(memento: any, unitType: any): void {
+  setMementoProperties(memento);
+  if (memento.setUnitType) memento.setUnitType(unitType);
+}
+
+export function setMementoWithContext(memento: any, context: any): void {
+  setMementoProperties(memento);
+  if (memento.setContext) memento.setContext(context);
+}
+
+export function setMementoWithPerformanceMetrics(memento: any, metrics: any): void {
+  setMementoProperties(memento);
+  if (memento.setPerformanceMetrics) memento.setPerformanceMetrics(metrics);
+}
+
+// Composite helper functions
+export function setDefaultCompositeProperties(composite: any): void {
+  // Set default composite properties
+  if (composite.setStrategy) composite.setStrategy('sequential');
+}
+
+export function setCustomCompositeProperties(composite: any): void {
+  setDefaultCompositeProperties(composite);
+  // Additional custom properties can be set here
+}
+
+export function setInvalidCompositeProperties(composite: any): void {
+  // Set invalid composite properties for testing
+  if (composite.setStrategy) composite.setStrategy('invalid-strategy');
+}
+
+export function setCompositeStrategy(composite: any, strategy: any): void {
+  setDefaultCompositeProperties(composite);
+  if (composite.setStrategy) composite.setStrategy(strategy);
+}
+
+// Manager helper functions
+export function setCustomManagerProperties(manager: any): void {
+  // Set custom manager properties
+  if (manager.setMaxUnits) manager.setMaxUnits(100);
+  if (manager.setCacheSize) manager.setCacheSize(50);
+}
+
+export function setInvalidManagerProperties(manager: any): void {
+  // Set invalid manager properties for testing
+  if (manager.setMaxUnits) manager.setMaxUnits(-1);
+  if (manager.setCacheSize) manager.setCacheSize(-1);
+}
+
+// Decorator helper functions
+export function setDefaultDecoratorProperties(decorator: any): void {
+  // Set default decorator properties
+  if (decorator.setStrictMode) decorator.setStrictMode(false);
+}
+
+export function setCustomDecoratorProperties(decorator: any): void {
+  setDefaultDecoratorProperties(decorator);
+  // Additional custom properties can be set here
+}
+
+export function setInvalidDecoratorProperties(decorator: any): void {
+  // Set invalid decorator properties for testing
+  if (decorator.setStrictMode) decorator.setStrictMode(true);
+}
+
+export function setDecoratorWithUnit(decorator: any, unit: any): void {
+  setDefaultDecoratorProperties(decorator);
+  if (decorator.setUnit) decorator.setUnit(unit);
+}
+
+export function setDecoratorWithValidator(decorator: any, validator: any): void {
+  setDefaultDecoratorProperties(decorator);
+  if (decorator.setValidator) decorator.setValidator(validator);
 }

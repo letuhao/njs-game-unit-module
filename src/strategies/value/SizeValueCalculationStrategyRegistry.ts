@@ -1,5 +1,17 @@
 import type { ISizeValueCalculationStrategy } from './ISizeValueCalculationStrategy';
-import type { ISizeValueCalculationStrategyRegistry } from './ISizeValueCalculationStrategy';
+
+export interface ISizeValueCalculationStrategyRegistry {
+  registerStrategy(strategy: ISizeValueCalculationStrategy): void;
+  unregisterStrategy(strategyId: string): boolean;
+  getStrategy(strategyId: string): ISizeValueCalculationStrategy | undefined;
+  getAllStrategies(): ISizeValueCalculationStrategy[];
+  findBestStrategy(sizeValue: SizeValue | number, sizeUnit: SizeUnit, dimension: Dimension.WIDTH | Dimension.HEIGHT | Dimension.BOTH): ISizeValueCalculationStrategy | undefined;
+  hasStrategy(strategyId: string): boolean;
+  getStrategyCount(): number;
+  clearStrategies(): void;
+  getRegistryStatistics(): any;
+  preWarmCache(): void;
+}
 import { SizeValue } from '../../enums/SizeValue';
 import { SizeUnit } from '../../enums/SizeUnit';
 import { Dimension } from '../../enums/Dimension';
@@ -149,7 +161,7 @@ export class SizeValueCalculationStrategyRegistry implements ISizeValueCalculati
 
       // Find matching strategies
       const matchingStrategies = Array.from(this.strategies.values()).filter(strategy =>
-        strategy.canHandle(sizeValue, sizeUnit, dimension)
+        strategy.canHandle(sizeValue as SizeValue, sizeUnit, dimension)
       );
 
       if (matchingStrategies.length === 0) {
@@ -291,6 +303,23 @@ export class SizeValueCalculationStrategyRegistry implements ISizeValueCalculati
     const averageTime = this.registryStatistics.averageRetrievalTime;
     
     return successRate > 0.9 && cacheHitRate > 0.7 && averageTime < 5; // 90% success, 70% cache hit, < 5ms average
+  }
+
+  /**
+   * Pre-warm cache with common strategy combinations
+   */
+  public preWarmCache(): void {
+    const commonCombinations = [
+      { sizeValue: SizeValue.PIXEL, sizeUnit: SizeUnit.PIXEL, dimension: Dimension.WIDTH },
+      { sizeValue: SizeValue.PIXEL, sizeUnit: SizeUnit.PIXEL, dimension: Dimension.HEIGHT },
+      { sizeValue: SizeValue.FILL, sizeUnit: SizeUnit.PERCENT, dimension: Dimension.WIDTH },
+      { sizeValue: SizeValue.FILL, sizeUnit: SizeUnit.PERCENT, dimension: Dimension.HEIGHT },
+      { sizeValue: SizeValue.AUTO, sizeUnit: SizeUnit.AUTO, dimension: Dimension.BOTH }
+    ];
+
+    for (const combo of commonCombinations) {
+      this.findBestStrategy(combo.sizeValue, combo.sizeUnit, combo.dimension as Dimension.WIDTH | Dimension.HEIGHT | Dimension.BOTH);
+    }
   }
 
   /**

@@ -50,6 +50,41 @@ export class LegacyPositionUnitAdapter extends BaseUnitAdapter<ILegacyUnit> {
     return this.hasPositionProperty(unit) || this.hasXProperty(unit) || this.hasYProperty(unit);
   }
 
+  /**
+   * Get the legacy unit
+   */
+  getLegacyUnit(): ILegacyUnit {
+    return this.adaptedUnit;
+  }
+
+  /**
+   * Convert to modern unit
+   */
+  convertToModern(): any {
+    return {
+      id: this.id,
+      name: this.name,
+      unitType: this.unitType,
+      value: this.extractLegacyValue(),
+      positionUnit: this.extractLegacyUnit(),
+      dimension: this.extractLegacyDimension(),
+    };
+  }
+
+  /**
+   * Get description
+   */
+  getDescription(): string {
+    return `Legacy position unit adapter for ${this.name}`;
+  }
+
+  /**
+   * Get version
+   */
+  getVersion(): string {
+    return '1.0.0';
+  }
+
   getLegacyTypeName(): string {
     return 'LegacyPositionUnit';
   }

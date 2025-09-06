@@ -21,27 +21,44 @@ export class BatchCalculationCommand extends BaseUnitCommand {
   }
 
   /**
+   * Check if the command can be executed
+   */
+  public canExecute(): boolean {
+    return this.commands.length > 0;
+  }
+
+  /**
+   * Get command description
+   */
+  public getDescription(): string {
+    return `Batch calculation with ${this.commands.length} commands`;
+  }
+
+  /**
    * Execute the batch calculation command
    */
-  public execute(context: UnitContext): number {
+  public execute(): boolean {
     try {
       this.executionResults = [];
       
       for (const command of this.commands) {
-        const result = command.execute(context);
-        this.executionResults.push(result);
+        const result = command.execute();
+        if (typeof result === 'number') {
+          this.executionResults.push(result);
+        }
       }
 
       // Calculate average result
       const averageResult = this.calculateAverageResult();
+      this.setResult(averageResult);
       
       // Store results for undo operation
       this.previousResults = [...this.executionResults];
       
-      return averageResult;
+      return true;
     } catch (error) {
-      // Return fallback value on error
-      return DEFAULT_FALLBACK_VALUES.SIZE;
+      this.setError(error as Error);
+      return false;
     }
   }
 
@@ -139,6 +156,34 @@ export class BatchCalculationCommand extends BaseUnitCommand {
       minResult: this.getMinResult(),
       maxResult: this.getMaxResult(),
     };
+  }
+
+  /**
+   * Get result
+   */
+  public getResult(): any {
+    return this.result;
+  }
+
+  /**
+   * Get error
+   */
+  public getError(): Error | null {
+    return this.error;
+  }
+
+  /**
+   * Set result
+   */
+  public setResult(result: any): void {
+    this.result = result;
+  }
+
+  /**
+   * Set error
+   */
+  public setError(error: Error | null): void {
+    this.error = error;
   }
 
   /**

@@ -122,11 +122,11 @@ export class PositionValueStrategyRegistry {
     const dimension = this.getDimensionFromContext(context);
     if (dimension === Dimension.X) {
       return (
-        (context.scene?.width ?? context.viewport?.width ?? DEFAULT_FALLBACK_VALUES.SIZE.SCENE) / 2
+        (context.scene?.width ?? context.viewport?.width ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT) / 2
       );
     } else if (dimension === Dimension.Y) {
       return (
-        (context.scene?.height ?? context.viewport?.height ?? DEFAULT_FALLBACK_VALUES.SIZE.SCENE) / 2
+        (context.scene?.height ?? context.viewport?.height ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT) / 2
       );
     }
     return DEFAULT_FALLBACK_VALUES.POSITION.DEFAULT;
@@ -143,7 +143,7 @@ export class PositionValueStrategyRegistry {
    * Calculate right position
    */
   private calculateRightPosition(context: UnitContext): number {
-    return context.scene?.width ?? context.viewport?.width ?? DEFAULT_FALLBACK_VALUES.SIZE.SCENE;
+    return context.scene?.width ?? context.viewport?.width ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
   }
 
   /**
@@ -158,7 +158,7 @@ export class PositionValueStrategyRegistry {
    */
   private calculateBottomPosition(context: UnitContext): number {
     return (
-      context.scene?.height ?? context.viewport?.height ?? DEFAULT_FALLBACK_VALUES.SIZE.SCENE
+      context.scene?.height ?? context.viewport?.height ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT
     );
   }
 
@@ -166,7 +166,7 @@ export class PositionValueStrategyRegistry {
    * Calculate random position
    */
   private calculateRandomPosition(context: UnitContext): number {
-    const max = context.scene?.width ?? context.viewport?.width ?? DEFAULT_FALLBACK_VALUES.SIZE.SCENE;
+    const max = context.scene?.width ?? context.viewport?.width ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
     return Math.random() * max;
   }
 
@@ -181,7 +181,7 @@ export class PositionValueStrategyRegistry {
    * Calculate content right position
    */
   private calculateContentRightPosition(context: UnitContext): number {
-    return context.content?.width ?? DEFAULT_FALLBACK_VALUES.SIZE.CONTENT;
+    return context.content?.width ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
   }
 
   /**
@@ -195,7 +195,7 @@ export class PositionValueStrategyRegistry {
    * Calculate content bottom position
    */
   private calculateContentBottomPosition(context: UnitContext): number {
-    return context.content?.height ?? DEFAULT_FALLBACK_VALUES.SIZE.CONTENT;
+    return context.content?.height ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
   }
 
   /**

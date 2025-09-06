@@ -90,10 +90,9 @@ export class EnhancedSizeUnitCalculator implements ISizeUnit {
     
     try {
       // Check cache first
-      const cacheKey = this.createCacheKey(context);
-      const cachedResult = this.cache.get(cacheKey);
+      const cachedResult = this.cache.get(this.baseValue as SizeValue, this.sizeUnit, context);
       
-      if (cachedResult !== undefined) {
+      if (cachedResult !== null) {
         this.performanceMetrics.cacheHits++;
         return cachedResult;
       }
@@ -102,13 +101,13 @@ export class EnhancedSizeUnitCalculator implements ISizeUnit {
 
       // Get base calculation from strategy registry
       const strategy = this.strategyRegistry.getStrategy(`${this.baseValue}-${this.sizeUnit}`);
-      const baseResult = strategy ? strategy.calculate(this.baseValue as SizeValue, this.sizeUnit, context) : this.getFallbackValue();
+      const baseResult = strategy ? strategy.calculate(this.baseValue as SizeValue, this.sizeUnit, this.dimension) : this.getFallbackValue();
 
       // Apply composition strategies
       let finalResult = baseResult;
       for (const composer of this.composers) {
-        if (composer.canCompose(this.baseValue as SizeValue, this.sizeUnit, context)) {
-          finalResult = composer.compose(finalResult, this.baseValue as SizeValue, this.sizeUnit, context);
+        if (composer.canCompose(this.baseValue as SizeValue, this.sizeUnit)) {
+          finalResult = composer.compose(this.baseValue as SizeValue, this.sizeUnit, context, []);
           this.performanceMetrics.strategyCompositions++;
         }
       }
@@ -117,7 +116,7 @@ export class EnhancedSizeUnitCalculator implements ISizeUnit {
       finalResult = this.applyConstraints(finalResult);
 
       // Cache the result
-      this.cache.set(cacheKey, finalResult);
+      this.cache.set(this.baseValue as SizeValue, this.sizeUnit, context, finalResult);
 
       // Update performance metrics
       this.updatePerformanceMetrics(startTime);
@@ -288,6 +287,27 @@ export class EnhancedSizeUnitCalculator implements ISizeUnit {
   }
 
   /**
+   * Format the calculator with a specific format
+   */
+  public format(format: string): string {
+    switch (format) {
+      case 'json':
+        return JSON.stringify({
+          id: this.id,
+          unitType: this.unitType,
+          baseValue: this.baseValue,
+          dimension: this.dimension
+        });
+      case 'px':
+        return `${this.baseValue}px`;
+      case 'detailed':
+        return `EnhancedSizeUnitCalculator(id: ${this.id}, type: ${this.unitType}, value: ${this.baseValue}, dimension: ${this.dimension})`;
+      default:
+        return this.toString();
+    }
+  }
+
+  /**
    * Initialize strategies in the registry
    */
   private initializeStrategies(): void {
@@ -332,7 +352,7 @@ export class EnhancedSizeUnitCalculator implements ISizeUnit {
       return this.baseValue;
     }
     
-    return DEFAULT_FALLBACK_VALUES.SIZE;
+    return DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
   }
 
   /**

@@ -59,6 +59,22 @@ export abstract class BaseUnitAdapter<T = ILegacyUnit> implements IUnitAdapter<T
     return `${this.constructor.name}(${this.id}, ${this.name})`;
   }
 
+  format(format: string): string {
+    switch (format) {
+      case 'json':
+        return JSON.stringify({
+          id: this.id,
+          name: this.name,
+          unitType: this.unitType,
+          adaptedUnit: this.adaptedUnit
+        });
+      case 'detailed':
+        return `${this.constructor.name}(id: ${this.id}, name: ${this.name}, type: ${this.unitType})`;
+      default:
+        return this.toString();
+    }
+  }
+
   clone(overrides?: Partial<IUnit>): IUnit {
     const cloned = Object.create(Object.getPrototypeOf(this));
     Object.assign(cloned, this, overrides);

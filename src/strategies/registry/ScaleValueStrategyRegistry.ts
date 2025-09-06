@@ -112,8 +112,8 @@ export class ScaleValueStrategyRegistry {
 
     const parentWidth = context.parent.width || DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
     const parentHeight = context.parent.height || DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
-    const contentWidth = context.content?.width || DEFAULT_FALLBACK_VALUES.SIZE.CONTENT;
-    const contentHeight = context.content?.height || DEFAULT_FALLBACK_VALUES.SIZE.CONTENT;
+    const contentWidth = context.content?.width || DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
+    const contentHeight = context.content?.height || DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
 
     const scaleX = parentWidth / contentWidth;
     const scaleY = parentHeight / contentHeight;
@@ -129,8 +129,8 @@ export class ScaleValueStrategyRegistry {
 
     const parentWidth = context.parent.width || DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
     const parentHeight = context.parent.height || DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
-    const contentWidth = context.content?.width || DEFAULT_FALLBACK_VALUES.SIZE.CONTENT;
-    const contentHeight = context.content?.height || DEFAULT_FALLBACK_VALUES.SIZE.CONTENT;
+    const contentWidth = context.content?.width || DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
+    const contentHeight = context.content?.height || DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
 
     const scaleX = parentWidth / contentWidth;
     const scaleY = parentHeight / contentHeight;

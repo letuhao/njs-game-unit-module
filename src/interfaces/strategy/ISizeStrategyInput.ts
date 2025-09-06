@@ -36,4 +36,24 @@ export interface ISizeStrategyInput extends IBaseStrategyInput {
     min?: number;
     max?: number;
   };
+
+  /** Context for size calculations */
+  context?: {
+    viewport?: {
+      width?: number;
+      height?: number;
+    };
+    parent?: {
+      width?: number;
+      height?: number;
+    };
+    scene?: {
+      width?: number;
+      height?: number;
+    };
+    content?: {
+      width?: number;
+      height?: number;
+    };
+  };
 }

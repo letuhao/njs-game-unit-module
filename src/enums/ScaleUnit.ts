@@ -10,5 +10,11 @@ export enum ScaleUnit {
   PARENT_HEIGHT = 'parent-height',
   VIEWPORT_WIDTH = 'viewport-width',
   VIEWPORT_HEIGHT = 'viewport-height',
-  AUTO = 'auto'
+  AUTO = 'auto',
+  PARENT = 'parent',
+  PIXEL = 'pixel',
+  PERCENTAGE = 'percentage',
+  VIEWPORT = 'viewport',
+  RANDOM = 'random',
+  CONTENT = 'content'
 }

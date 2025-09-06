@@ -1,4 +1,4 @@
-import type { ScaleUnit } from '../../enums/ScaleUnit';
+import { ScaleUnit } from '../../enums/ScaleUnit';
 import type { IScaleStrategyInput } from '../../interfaces/strategy/IScaleStrategyInput';
 import type { ScaleUnitStrategy } from '../registry/ScaleUnitStrategyRegistry';
 
@@ -147,14 +147,56 @@ export const calculateMaxScale: ScaleUnitStrategy = (input: IScaleStrategyInput)
 };
 
 /**
+ * Calculate factor scale
+ */
+export const calculateFactorScale: ScaleUnitStrategy = (input: IScaleStrategyInput): number => {
+  return typeof input.value === 'number' ? input.value : 1;
+};
+
+/**
+ * Calculate parent scale
+ */
+export const calculateParentScale: ScaleUnitStrategy = (input: IScaleStrategyInput): number => {
+  return typeof input.value === 'number' ? input.value : 1;
+};
+
+/**
+ * Calculate viewport scale
+ */
+export const calculateViewportScale: ScaleUnitStrategy = (input: IScaleStrategyInput): number => {
+  return typeof input.value === 'number' ? input.value : 1;
+};
+
+/**
+ * Calculate random scale
+ */
+export const calculateRandomScale: ScaleUnitStrategy = (input: IScaleStrategyInput): number => {
+  return typeof input.value === 'number' ? input.value : 1;
+};
+
+/**
+ * Calculate content scale
+ */
+export const calculateContentScale: ScaleUnitStrategy = (input: IScaleStrategyInput): number => {
+  return typeof input.value === 'number' ? input.value : 1;
+};
+
+/**
  * Map of all scale unit strategies
  */
 export const SCALE_UNIT_STRATEGIES: Record<ScaleUnit, ScaleUnitStrategy> = {
+  [ScaleUnit.FACTOR]: calculateFactorScale,
   [ScaleUnit.FIXED]: calculatePixelScale,
   [ScaleUnit.RESPONSIVE]: calculatePercentageScale,
-  [ScaleUnit.VIEWPORT_WIDTH]: calculateViewportWidthScale,
-  [ScaleUnit.VIEWPORT_HEIGHT]: calculateViewportHeightScale,
   [ScaleUnit.PARENT_WIDTH]: calculateParentWidthScale,
   [ScaleUnit.PARENT_HEIGHT]: calculateParentHeightScale,
+  [ScaleUnit.VIEWPORT_WIDTH]: calculateViewportWidthScale,
+  [ScaleUnit.VIEWPORT_HEIGHT]: calculateViewportHeightScale,
   [ScaleUnit.AUTO]: calculateAutoScale,
+  [ScaleUnit.PARENT]: calculateParentScale,
+  [ScaleUnit.PIXEL]: calculatePixelScale,
+  [ScaleUnit.PERCENTAGE]: calculatePercentageScale,
+  [ScaleUnit.VIEWPORT]: calculateViewportScale,
+  [ScaleUnit.RANDOM]: calculateRandomScale,
+  [ScaleUnit.CONTENT]: calculateContentScale,
 } as const;

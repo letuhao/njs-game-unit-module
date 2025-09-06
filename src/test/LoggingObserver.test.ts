@@ -221,7 +221,7 @@ describe('LoggingObserver', () => {
     const mockContext = createMockContext();
     const mockError = new Error('Test error');
     
-    observer.observe(mockUnit, 'error', mockContext, mockError);
+    observer.observe(mockUnit, 'error', mockContext);
     
     // Verify that the observer handled the observation
     expect(observer).toBeDefined();

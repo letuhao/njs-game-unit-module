@@ -187,6 +187,43 @@ export class ScaleValueCalculationStrategyRegistry
     return { ...this.registryStatistics };
   }
 
+  getStrategiesFor(scaleValue: ScaleValue, scaleUnit: ScaleUnit): IScaleValueCalculationStrategy[] {
+    return Array.from(this.strategies.values()).filter(strategy =>
+      strategy.scaleValue === scaleValue && strategy.scaleUnit === scaleUnit
+    );
+  }
+
+  getBestStrategy(scaleValue: ScaleValue, scaleUnit: ScaleUnit): IScaleValueCalculationStrategy | undefined {
+    const matchingStrategies = this.getStrategiesFor(scaleValue, scaleUnit);
+    if (matchingStrategies.length === 0) return undefined;
+
+    return matchingStrategies.reduce((best, current) => {
+      const currentPriority = typeof current.getPriority === 'function' ? current.getPriority() : 0;
+      const bestPriority = typeof best.getPriority === 'function' ? best.getPriority() : 0;
+      return currentPriority > bestPriority ? current : best;
+    });
+  }
+
+  getStatistics() {
+    const strategies = Array.from(this.strategies.values());
+    const strategiesByScaleValue: Record<string, number> = {};
+    const strategiesByScaleUnit: Record<string, number> = {};
+
+    strategies.forEach(strategy => {
+      const scaleValue = strategy.scaleValue;
+      const scaleUnit = strategy.scaleUnit;
+
+      strategiesByScaleValue[scaleValue] = (strategiesByScaleValue[scaleValue] || 0) + 1;
+      strategiesByScaleUnit[scaleUnit] = (strategiesByScaleUnit[scaleUnit] || 0) + 1;
+    });
+
+    return {
+      totalStrategies: strategies.length,
+      strategiesByScaleValue,
+      strategiesByScaleUnit
+    };
+  }
+
   /**
    * Get success rate
    */

@@ -36,4 +36,11 @@ export interface IPositionStrategyInput extends IBaseStrategyInput {
     min?: number;
     max?: number;
   };
+
+  /** Context for position calculations */
+  context?: {
+    viewport?: { width: number; height: number };
+    parent?: { width: number; height: number };
+    [key: string]: any;
+  };
 }

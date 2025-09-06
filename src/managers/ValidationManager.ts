@@ -139,7 +139,7 @@ export class ValidationManager implements IValidationManager {
       
       if ('unit' in input) {
         // Unit validation input
-        isValid = this.validateUnit(input.unit, input.context || {} as UnitContext);
+        isValid = this.validateUnit(input.unit, {} as UnitContext);
       } else if ('value' in input) {
         // Value validation input
         isValid = typeof input.value === 'number' && !isNaN(input.value);

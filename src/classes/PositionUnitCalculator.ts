@@ -229,6 +229,28 @@ export class PositionUnitCalculator implements IPositionUnit {
   }
 
   /**
+   * Format the calculator with a specific format
+   */
+  format(format: string): string {
+    switch (format) {
+      case 'json':
+        return JSON.stringify({
+          id: this.id,
+          name: this.name,
+          unitType: this.unitType,
+          positionUnit: this.positionUnit,
+          axis: this.axis
+        });
+      case 'px':
+        return `${this.positionUnit}px`;
+      case 'detailed':
+        return `PositionUnitCalculator(id: ${this.id}, name: ${this.name}, unit: ${this.positionUnit}, axis: ${this.axis})`;
+      default:
+        return this.toString();
+    }
+  }
+
+  /**
    * Clone the unit with optional modifications
    */
   clone(overrides?: Partial<IPositionUnit>): PositionUnitCalculator {
@@ -248,8 +270,8 @@ export class PositionUnitCalculator implements IPositionUnit {
   private calculateRandomPosition(context: UnitContext): number {
     const max =
       this.axis === Dimension.X
-        ? (context.scene?.width ?? context.viewport?.width ?? DEFAULT_FALLBACK_VALUES.SIZE)
-        : (context.scene?.height ?? context.viewport?.height ?? DEFAULT_FALLBACK_VALUES.SIZE);
+        ? (context.scene?.width ?? context.viewport?.width ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT)
+        : (context.scene?.height ?? context.viewport?.height ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT);
     return Math.random() * max + this.offset;
   }
 
@@ -258,13 +280,13 @@ export class PositionUnitCalculator implements IPositionUnit {
    */
   getPositionInfo(): {
     axis: Dimension.X | Dimension.Y | Dimension.XY;
-    alignment?: string;
+    alignment?: string | undefined;
     offset: number;
     isResponsive: boolean;
   } {
     return {
       axis: this.axis,
-      alignment: this.alignment || undefined,
+      alignment: this.alignment,
       offset: this.offset,
       isResponsive: this.isResponsive(),
     };
@@ -276,12 +298,12 @@ export class PositionUnitCalculator implements IPositionUnit {
   isWithinBounds(position: number, context: UnitContext): boolean {
     if (this.axis === Dimension.X) {
       const maxX =
-        context.scene?.width ?? context.viewport?.width ?? DEFAULT_FALLBACK_VALUES.SIZE;
+        context.scene?.width ?? context.viewport?.width ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
       return position >= 0 && position <= maxX;
     }
     if (this.axis === Dimension.Y) {
       const maxY =
-        context.scene?.height ?? context.viewport?.height ?? DEFAULT_FALLBACK_VALUES.SIZE;
+        context.scene?.height ?? context.viewport?.height ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT;
       return position >= 0 && position <= maxY;
     }
     return true;
@@ -294,14 +316,14 @@ export class PositionUnitCalculator implements IPositionUnit {
     if (this.axis === Dimension.X) {
       return {
         min: 0,
-        max: context.scene?.width ?? context.viewport?.width ?? DEFAULT_FALLBACK_VALUES.SIZE,
+        max: context.scene?.width ?? context.viewport?.width ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT,
       };
     }
     if (this.axis === Dimension.Y) {
       return {
         min: 0,
         max:
-          context.scene?.height ?? context.viewport?.height ?? DEFAULT_FALLBACK_VALUES.SIZE,
+          context.scene?.height ?? context.viewport?.height ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT,
       };
     }
     return { min: 0, max: 0 };

@@ -1,12 +1,12 @@
 import { describe, beforeEach, afterEach, it, expect } from '@jest/globals';
 import { MixedUnitStrategy } from '../strategies/MixedUnitStrategy';
-import { createMockContext } from './setup';
+import { createMockContext } from './test-utils';
 import { DEFAULT_FALLBACK_VALUES } from '../constants';
 import { container, TOKENS } from '../container/DiContainer';
 
 describe('MixedUnitStrategy', () => {
   let strategy: MixedUnitStrategy;
-  let mockContext: ReturnType<typeof createMockContext>;
+  let mockContext: any;
 
   beforeEach(() => {
     setupTestEnvironment();

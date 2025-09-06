@@ -19,15 +19,14 @@ export function createSizeTemplateInput(options?: Partial<Omit<ISizeTemplateInpu
     id: options?.id || `size-template-${Date.now()}`,
     type: 'SIZE' as any,
     unit: options?.unit || SizeUnit.PIXEL,
-    value: options?.value ?? DEFAULT_FALLBACK_VALUES.SIZE,
+    value: options?.value ?? DEFAULT_FALLBACK_VALUES.SIZE.DEFAULT,
     dimension: options?.dimension || Dimension.WIDTH,
     maintainAspectRatio: options?.maintainAspectRatio || false,
-    minSize: options?.minSize,
-    maxSize: options?.maxSize,
-    constraints: options?.constraints,
     isValid: options?.isValid ?? true,
     metadata: options?.metadata || {},
-    ...options,
+    ...(options?.minSize !== undefined && { minSize: options.minSize }),
+    ...(options?.maxSize !== undefined && { maxSize: options.maxSize }),
+    ...(options?.constraints !== undefined && { constraints: options.constraints }),
   };
 }
 
@@ -39,15 +38,14 @@ export function createPositionTemplateInput(options?: Partial<Omit<IPositionTemp
     id: options?.id || `position-template-${Date.now()}`,
     type: 'POSITION' as any,
     unit: options?.unit || PositionUnit.PIXEL,
-    value: options?.value ?? DEFAULT_FALLBACK_VALUES.POSITION,
+    value: options?.value ?? DEFAULT_FALLBACK_VALUES.POSITION.DEFAULT,
     axis: options?.axis || Dimension.X,
     maintainAspectRatio: options?.maintainAspectRatio || false,
-    minPosition: options?.minPosition,
-    maxPosition: options?.maxPosition,
-    constraints: options?.constraints,
     isValid: options?.isValid ?? true,
     metadata: options?.metadata || {},
-    ...options,
+    ...(options?.minPosition !== undefined && { minPosition: options.minPosition }),
+    ...(options?.maxPosition !== undefined && { maxPosition: options.maxPosition }),
+    ...(options?.constraints !== undefined && { constraints: options.constraints }),
   };
 }
 
@@ -59,13 +57,12 @@ export function createScaleTemplateInput(options?: Partial<Omit<IScaleTemplateIn
     id: options?.id || `scale-template-${Date.now()}`,
     type: 'SCALE' as any,
     unit: options?.unit || ScaleUnit.PIXEL,
-    value: options?.value ?? DEFAULT_FALLBACK_VALUES.SCALE,
+    value: options?.value ?? DEFAULT_FALLBACK_VALUES.SCALE.DEFAULT,
     maintainAspectRatio: options?.maintainAspectRatio || false,
-    minScale: options?.minScale,
-    maxScale: options?.maxScale,
-    constraints: options?.constraints,
     isValid: options?.isValid ?? true,
     metadata: options?.metadata || {},
-    ...options,
+    ...(options?.minScale !== undefined && { minScale: options.minScale }),
+    ...(options?.maxScale !== undefined && { maxScale: options.maxScale }),
+    ...(options?.constraints !== undefined && { constraints: options.constraints }),
   };
 }

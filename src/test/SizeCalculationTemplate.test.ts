@@ -1,6 +1,6 @@
 import { describe, beforeEach, afterEach, it, expect, jest } from '@jest/globals';
 import { SizeCalculationTemplate } from '../templates/SizeCalculationTemplate';
-import { createMockContext } from './setup';
+import { createMockContext } from './test-utils';
 import { TemplateInputType } from '../enums/TemplateInputType';
 import { SizeUnit } from '../enums/SizeUnit';
 import { SizeValue } from '../enums/SizeValue';
@@ -11,11 +11,11 @@ import { container, TOKENS } from '../container/DiContainer';
 
 // Concrete implementation for testing
 class TestSizeCalculationTemplate extends SizeCalculationTemplate {
-  protected getSupportedInputs(): string[] {
+  public getSupportedInputs(): string[] {
     return ['size', 'ISizeTemplateInput'];
   }
 
-  protected getCalculationSteps(): string[] {
+  public getCalculationSteps(): string[] {
     return ['validation', 'preprocessing', 'calculation', 'postprocessing'];
   }
 
@@ -163,13 +163,13 @@ describe('SizeCalculationTemplate', () => {
   }
 
   function createValidSizeInput(): ITemplateInput {
-    return createSizeTemplateInput({
-      type: TemplateInputType.SIZE,
-      sizeUnit: SizeUnit.PIXEL,
-      sizeValue: SizeValue.PIXEL,
-      dimension: Dimension.WIDTH,
-      baseValue: 100,
-    });
+    return createSizeTemplateInput(
+      'test-input',
+      100,
+      SizeValue.PIXEL,
+      SizeUnit.PIXEL,
+      Dimension.WIDTH
+    );
   }
 
   function testInvalidInputRejection(): void {
@@ -182,20 +182,20 @@ describe('SizeCalculationTemplate', () => {
 
   function createInvalidInputs(): ITemplateInput[] {
     return [
-      createSizeTemplateInput({
-        type: TemplateInputType.POSITION,
-        sizeUnit: SizeUnit.PIXEL,
-        sizeValue: SizeValue.PIXEL,
-        dimension: Dimension.WIDTH,
-        baseValue: 100,
-      }),
-      createSizeTemplateInput({
-        type: TemplateInputType.SCALE,
-        sizeUnit: SizeUnit.PIXEL,
-        sizeValue: SizeValue.PIXEL,
-        dimension: Dimension.WIDTH,
-        baseValue: 100,
-      }),
+      createSizeTemplateInput(
+        'invalid-position',
+        100,
+        SizeValue.PIXEL,
+        SizeUnit.PIXEL,
+        Dimension.WIDTH
+      ),
+      createSizeTemplateInput(
+        'invalid-scale',
+        100,
+        SizeValue.PIXEL,
+        SizeUnit.PIXEL,
+        Dimension.WIDTH
+      ),
     ];
   }
 
@@ -215,13 +215,13 @@ describe('SizeCalculationTemplate', () => {
   }
 
   function createInputWithType(inputType: TemplateInputType): ITemplateInput {
-    return createSizeTemplateInput({
-      type: inputType,
-      sizeUnit: SizeUnit.PIXEL,
-      sizeValue: SizeValue.PIXEL,
-      dimension: Dimension.WIDTH,
-      baseValue: 100,
-    });
+    return createSizeTemplateInput(
+      `test-${inputType}`,
+      100,
+      SizeValue.PIXEL,
+      SizeUnit.PIXEL,
+      Dimension.WIDTH
+    );
   }
 
   function testCalculationStepExecution(): void {
